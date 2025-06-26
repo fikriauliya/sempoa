@@ -230,8 +230,8 @@ const SempoaBoard: React.FC = () => {
                           className="absolute"
                           style={{
                             top: active 
-                              ? `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px` 
-                              : `${SEMPOA_CONFIG.POSITIONING.LOWER_INACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px`,
+                              ? `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (row * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px` 
+                              : `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (row * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: `top ${SEMPOA_CONFIG.ANIMATION.TRANSITION_DURATION} ${SEMPOA_CONFIG.ANIMATION.TRANSITION_EASING}`,

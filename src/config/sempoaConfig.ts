@@ -46,10 +46,6 @@ export const SEMPOA_CONFIG = {
   POSITIONING: {
     // Upper beads
     UPPER_INACTIVE_TOP: 0, // px from top of upper section
-    
-    // Lower beads
-    LOWER_INACTIVE_TOP: 20, // px from top of lower section
-    LOWER_BEAD_SPACING: 18, // px between consecutive lower beads
   },
 
   // Animation
@@ -87,11 +83,16 @@ export const DERIVED_CONFIG = {
     SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION -
     SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
     SEMPOA_CONFIG.BEAD.HEIGHT, // Position so bead bottom touches separator top
-    
+
   LOWER_ACTIVE_TOP:
     SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION +
     SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
     SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT, // Position so bead top touches separator bottom
+
+  // Lower bead positioning (calculated for proper spacing)
+  LOWER_INACTIVE_TOP: SEMPOA_CONFIG.BEAD.HEIGHT, // Provide spacing equal to one bead height from separator
+  
+  LOWER_BEAD_SPACING: SEMPOA_CONFIG.BEAD.HEIGHT - 2, // Space beads almost their full height apart (with 2px gap)
 
   // Total board height (for container sizing)
   TOTAL_BOARD_HEIGHT:

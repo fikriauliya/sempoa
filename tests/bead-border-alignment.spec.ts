@@ -50,7 +50,7 @@ test.describe('Bead Border Alignment', () => {
         window.getComputedStyle(el).getPropertyValue('top')
       )
       // In initial position, the bottom bead (row 3) should be at calculated position
-      const expectedPosition = SEMPOA_CONFIG.POSITIONING.LOWER_INACTIVE_TOP + (3 * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)
+      const expectedPosition = DERIVED_CONFIG.LOWER_INACTIVE_TOP + (3 * DERIVED_CONFIG.LOWER_BEAD_SPACING)
       expect(topPosition).toBe(`${expectedPosition}px`)
     }
 
