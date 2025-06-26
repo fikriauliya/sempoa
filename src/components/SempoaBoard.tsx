@@ -51,10 +51,28 @@ const SempoaBoard: React.FC = () => {
     const key = getBeadKey(bead)
     const newActiveBeads = new Set(activeBeads)
     
-    if (newActiveBeads.has(key)) {
-      newActiveBeads.delete(key)
+    if (bead.isUpper) {
+      // Upper beads toggle independently
+      if (newActiveBeads.has(key)) {
+        newActiveBeads.delete(key)
+      } else {
+        newActiveBeads.add(key)
+      }
     } else {
-      newActiveBeads.add(key)
+      // Lower beads: implement proper abacus behavior
+      if (newActiveBeads.has(key)) {
+        // Deactivating: remove this bead and all beads below it in the same column
+        for (let row = bead.row; row < LOWER_BEADS_PER_COLUMN; row++) {
+          const beadKey = `${bead.column}-lower-${row}`
+          newActiveBeads.delete(beadKey)
+        }
+      } else {
+        // Activating: add this bead and all beads above it in the same column
+        for (let row = 0; row <= bead.row; row++) {
+          const beadKey = `${bead.column}-lower-${row}`
+          newActiveBeads.add(beadKey)
+        }
+      }
     }
     
     setActiveBeads(newActiveBeads)
@@ -134,17 +152,17 @@ const SempoaBoard: React.FC = () => {
           {/* Sempoa board with vertical rods */}
           <div className="relative bg-amber-100 p-4 rounded border-2 border-amber-800">
             {/* Column structure - using flex for even distribution */}
-            <div className="flex justify-between" style={{ height: '180px' }}>
+            <div className="flex justify-between" style={{ height: '150px' }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
                 <div key={col} className="relative flex flex-col items-center" style={{ width: '48px' }}>
                   {/* Vertical rod for this column */}
                   <div
                     className="absolute bg-amber-900 rounded-full shadow-sm"
                     style={{ 
-                      height: '200px', 
+                      height: '170px', 
                       width: '4px',
                       left: '50%',
-                      top: '-10px',
+                      top: '0px',
                       transform: 'translateX(-50%)',
                       zIndex: 1
                     }}
@@ -178,7 +196,7 @@ const SempoaBoard: React.FC = () => {
                           key={`upper-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? '50px' : '20px',
+                            top: active ? '40px' : '0px',
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: 'top 0.3s ease',
@@ -196,7 +214,7 @@ const SempoaBoard: React.FC = () => {
                   </div>
                   
                   {/* Lower section beads */}
-                  <div className="lower-section relative flex flex-col items-center" style={{ height: '90px' }}>
+                  <div className="lower-section relative flex flex-col items-center" style={{ height: '80px' }}>
                     {Array.from({ length: LOWER_BEADS_PER_COLUMN }, (_, row) => {
                       const bead: BeadPosition = {
                         column: col,
@@ -211,7 +229,7 @@ const SempoaBoard: React.FC = () => {
                           key={`lower-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? `${10 + (row * 18)}px` : `${25 + (row * 18)}px`,
+                            top: active ? `${5 + (row * 18)}px` : `${20 + (row * 18)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: 'top 0.3s ease',

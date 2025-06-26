@@ -79,3 +79,20 @@ Key types in `src/types/index.ts`:
 - **ESLint**: TypeScript-specific rules with React hooks validation
 
 When making changes to the sempoa board layout or bead positioning, always run the Playwright tests to ensure proper alignment is maintained.
+
+## Abacus Behavior
+
+The sempoa implements authentic abacus behavior:
+
+### Lower Beads (Unit Values)
+- **Activating**: When you click a lower bead, it activates that bead AND all beads above it in the same column
+- **Deactivating**: When you click an active lower bead, it deactivates that bead AND all beads below it in the same column
+- This mimics the physical behavior where beads are pushed up against the crossbar together
+
+### Upper Beads (5x Values)  
+- Toggle independently - clicking activates/deactivates only that specific bead
+- Represents the "heaven" section of traditional abacus
+
+### Tests
+- `tests/abacus-behavior.spec.ts` - Comprehensive tests for the abacus behavior
+- Verifies proper bead grouping, value calculations, and visual positioning
