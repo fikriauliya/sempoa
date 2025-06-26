@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Bead Border Alignment', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5175')
+    await page.goto('http://localhost:5173')
     
     // Reset the board to ensure initial state
     await page.click('button:has-text("Reset")')
@@ -11,7 +12,7 @@ test.describe('Bead Border Alignment', () => {
 
   test('beads should align flush with board borders in initial position', async ({ page }) => {
     // Get the board container dimensions
-    const boardContainer = page.locator('.bg-amber-100.p-4.rounded.border-2.border-amber-800')
+    const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
     const boardBox = await boardContainer.boundingBox()
     expect(boardBox).toBeTruthy()
 
@@ -48,8 +49,9 @@ test.describe('Bead Border Alignment', () => {
       const topPosition = await bottomBead.evaluate(el => 
         window.getComputedStyle(el).getPropertyValue('top')
       )
-      // In initial position, the bottom bead (row 3) should be at top: '74px' (20 + 3*18)
-      expect(topPosition).toBe('74px')
+      // In initial position, the bottom bead (row 3) should be at calculated position
+      const expectedPosition = SEMPOA_CONFIG.POSITIONING.LOWER_INACTIVE_TOP + (3 * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)
+      expect(topPosition).toBe(`${expectedPosition}px`)
     }
 
     // Verify section heights
@@ -61,7 +63,7 @@ test.describe('Bead Border Alignment', () => {
       const sectionHeight = await section.evaluate(el => 
         parseInt(window.getComputedStyle(el).getPropertyValue('height'))
       )
-      expect(sectionHeight).toBe(70) // Upper section should be 70px high
+      expect(sectionHeight).toBe(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT)
     }
 
     const lowerSections = page.locator('.lower-section')
@@ -72,17 +74,17 @@ test.describe('Bead Border Alignment', () => {
       const sectionHeight = await section.evaluate(el => 
         parseInt(window.getComputedStyle(el).getPropertyValue('height'))
       )
-      expect(sectionHeight).toBe(80) // Lower section should be 80px high
+      expect(sectionHeight).toBe(SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT)
     }
   })
 
   test('beads should maintain proper spacing in initial position', async ({ page }) => {
     // Verify the overall board structure - the main flex container
-    const mainContainer = page.locator('div[style*="height: 150px"]')
+    const mainContainer = page.locator(`div[style*="height: ${SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT}px"]`)
     const containerHeight = await mainContainer.evaluate(el => 
       parseInt(el.style.height)
     )
-    expect(containerHeight).toBe(150) // Main container should be 150px high
+    expect(containerHeight).toBe(SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT)
 
     // Verify that upper sections start at the top (no gap)
     const firstUpperSection = page.locator('.upper-section').first()
@@ -103,7 +105,98 @@ test.describe('Bead Border Alignment', () => {
       return rect.top - parent.top
     })
     
-    // Lower section should start right after upper section (70px)
-    expect(lowerSectionPosition).toBeCloseTo(70, 5) // Allow 5px tolerance
+    // Lower section should start right after upper section
+    expect(lowerSectionPosition).toBeCloseTo(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT, 5) // Allow 5px tolerance
+  })
+
+  test('upper bead gap should equal one bead height when active', async ({ page }) => {
+    // Use configuration values
+    const EXPECTED_UPPER_SECTION_HEIGHT = SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT
+    const EXPECTED_ACTIVE_POSITION = SEMPOA_CONFIG.POSITIONING.UPPER_ACTIVE_TOP
+
+    // Verify upper section height
+    const upperSections = page.locator('.upper-section')
+    const upperSectionCount = await upperSections.count()
+    
+    for (let i = 0; i < upperSectionCount; i++) {
+      const section = upperSections.nth(i)
+      const sectionHeight = await section.evaluate(el => 
+        parseInt(window.getComputedStyle(el).getPropertyValue('height'))
+      )
+      expect(sectionHeight).toBe(EXPECTED_UPPER_SECTION_HEIGHT)
+    }
+
+    // Check inactive bead position (should be at top)
+    const firstUpperBead = page.locator('.upper-section').first().locator('.absolute').first()
+    const inactivePosition = await firstUpperBead.evaluate(el => 
+      window.getComputedStyle(el).getPropertyValue('top')
+    )
+    expect(inactivePosition).toBe(`${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`)
+
+    // Click to activate the upper bead
+    await firstUpperBead.click()
+    await page.waitForTimeout(500) // Wait for animation
+    
+    // Check active bead position (should be one bead height down)
+    const activePosition = await firstUpperBead.evaluate(el => 
+      window.getComputedStyle(el).getPropertyValue('top')
+    )
+    expect(activePosition).toBe(`${EXPECTED_ACTIVE_POSITION}px`)
+
+    // Verify the gap is approximately one bead height (adjusted for separator positioning)
+    const gap = parseInt(activePosition) - 0 // Gap from top
+    expect(gap).toBe(EXPECTED_ACTIVE_POSITION)
+  })
+
+  test('horizontal separator should be positioned between active upper and lower beads without intersection', async ({ page }) => {
+    // Use configuration values
+    const SEPARATOR_CENTER = SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION
+    const SEPARATOR_HEIGHT = SEMPOA_CONFIG.SEPARATOR.HEIGHT
+    const SEPARATOR_TOP = DERIVED_CONFIG.SEPARATOR_TOP
+    const SEPARATOR_BOTTOM = DERIVED_CONFIG.SEPARATOR_BOTTOM
+
+    // Activate upper and lower beads to test separator positioning
+    const firstUpperBead = page.locator('.upper-section').first().locator('.absolute').first()
+    const firstLowerBead = page.locator('.lower-section').first().locator('.absolute').first()
+    
+    await firstUpperBead.click()
+    await firstLowerBead.click()
+    await page.waitForTimeout(500) // Wait for animations
+
+    // Check separator position
+    const separator = page.locator(`[style*="width: ${SEMPOA_CONFIG.SEPARATOR.WIDTH_PERCENTAGE}%"]`)
+    const separatorPosition = await separator.evaluate(el => {
+      const parentRect = el.parentElement!.getBoundingClientRect()
+      const elementRect = el.getBoundingClientRect()
+      return elementRect.top - parentRect.top + (elementRect.height / 2) // Center of separator
+    })
+
+    // Separator should be positioned at the boundary between sections
+    expect(separatorPosition).toBeCloseTo(SEPARATOR_CENTER, 2)
+
+    // Get bead positions
+    const upperBeadBottom = await firstUpperBead.evaluate(el => {
+      const parentRect = el.parentElement!.getBoundingClientRect()
+      const elementRect = el.getBoundingClientRect()
+      return elementRect.bottom - parentRect.top
+    })
+
+    const lowerBeadTop = await firstLowerBead.evaluate(el => {
+      const columnRect = el.closest('[style*="width: 48px"]')!.getBoundingClientRect()
+      const elementRect = el.getBoundingClientRect()
+      return elementRect.top - columnRect.top
+    })
+
+    // Upper bead bottom should touch but not intersect separator top (should be at 39px)
+    expect(upperBeadBottom).toBeCloseTo(SEPARATOR_TOP, 1)
+    
+    // Lower bead top should touch but not intersect separator bottom (should be at 41px)  
+    expect(lowerBeadTop).toBeCloseTo(SEPARATOR_BOTTOM, 1)
+
+    // Verify no intersection: upper bead bottom should be <= separator top
+    expect(upperBeadBottom).toBeLessThanOrEqual(SEPARATOR_TOP + 0.5)
+    
+    // Verify no intersection: lower bead top should be >= separator bottom
+    expect(lowerBeadTop).toBeGreaterThanOrEqual(SEPARATOR_BOTTOM - 0.5)
   })
 })

@@ -2,10 +2,9 @@ import React, { useState, useCallback } from 'react'
 import { BeadPosition, SempoaState } from '../types'
 import { useGame } from '../context/GameContext'
 import DraggableBead from './DraggableBead'
+import { SEMPOA_CONFIG } from '../config/sempoaConfig'
 
-const COLUMNS = 7
-const UPPER_BEADS_PER_COLUMN = 1
-const LOWER_BEADS_PER_COLUMN = 4
+const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } = SEMPOA_CONFIG
 
 const SempoaBoard: React.FC = () => {
   const { currentValue, setCurrentValue, feedback, checkAnswer, gameState } = useGame()
@@ -150,38 +149,39 @@ const SempoaBoard: React.FC = () => {
           </div>
           
           {/* Sempoa board with vertical rods */}
-          <div className="relative bg-amber-100 p-4 rounded border-2 border-amber-800">
+          <div className="relative bg-amber-100 rounded border-2 border-amber-800" style={{ padding: `${SEMPOA_CONFIG.BOARD.PADDING}px` }}>
             {/* Column structure - using flex for even distribution */}
-            <div className="flex justify-between" style={{ height: '150px' }}>
+            <div className="flex justify-between" style={{ height: `${SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT}px` }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
-                <div key={col} className="relative flex flex-col items-center" style={{ width: '48px' }}>
+                <div key={col} className="relative flex flex-col items-center" style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}>
                   {/* Vertical rod for this column */}
                   <div
                     className="absolute bg-amber-900 rounded-full shadow-sm"
                     style={{ 
-                      height: '170px', 
-                      width: '4px',
+                      height: `${SEMPOA_CONFIG.ROD.HEIGHT}px`, 
+                      width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
                       left: '50%',
                       top: '0px',
                       transform: 'translateX(-50%)',
-                      zIndex: 1
+                      zIndex: SEMPOA_CONFIG.Z_INDEX.ROD
                     }}
                   />
                   
                   {/* Horizontal crossbar segment */}
                   {col === Math.floor(COLUMNS / 2) && (
-                    <div className="absolute h-2 bg-amber-900 rounded-full shadow-md" 
+                    <div className="absolute bg-amber-900 rounded-full shadow-md" 
                          style={{ 
-                           width: '900%', 
-                           left: '-400%',
-                           top: '50%',
+                           height: `${SEMPOA_CONFIG.SEPARATOR.HEIGHT}px`,
+                           width: `${SEMPOA_CONFIG.SEPARATOR.WIDTH_PERCENTAGE}%`, 
+                           left: `${SEMPOA_CONFIG.SEPARATOR.LEFT_OFFSET_PERCENTAGE}%`,
+                           top: `${SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION}px`,
                            transform: 'translateY(-50%)',
-                           zIndex: 0
+                           zIndex: SEMPOA_CONFIG.Z_INDEX.SEPARATOR
                          }}
                     />
                   )}
                   {/* Upper section beads */}
-                  <div className="upper-section relative flex flex-col items-center" style={{ height: '70px' }}>
+                  <div className="upper-section relative flex flex-col items-center" style={{ height: `${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT}px` }}>
                     {Array.from({ length: UPPER_BEADS_PER_COLUMN }, (_, row) => {
                       const bead: BeadPosition = {
                         column: col,
@@ -196,11 +196,11 @@ const SempoaBoard: React.FC = () => {
                           key={`upper-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? '40px' : '0px',
+                            top: active ? `${SEMPOA_CONFIG.POSITIONING.UPPER_ACTIVE_TOP}px` : `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
-                            transition: 'top 0.3s ease',
-                            zIndex: 20
+                            transition: `top ${SEMPOA_CONFIG.ANIMATION.TRANSITION_DURATION} ${SEMPOA_CONFIG.ANIMATION.TRANSITION_EASING}`,
+                            zIndex: SEMPOA_CONFIG.Z_INDEX.BEAD
                           }}
                         >
                           <DraggableBead
@@ -214,7 +214,7 @@ const SempoaBoard: React.FC = () => {
                   </div>
                   
                   {/* Lower section beads */}
-                  <div className="lower-section relative flex flex-col items-center" style={{ height: '80px' }}>
+                  <div className="lower-section relative flex flex-col items-center" style={{ height: `${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}px` }}>
                     {Array.from({ length: LOWER_BEADS_PER_COLUMN }, (_, row) => {
                       const bead: BeadPosition = {
                         column: col,
@@ -229,11 +229,13 @@ const SempoaBoard: React.FC = () => {
                           key={`lower-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? `${5 + (row * 18)}px` : `${20 + (row * 18)}px`,
+                            top: active 
+                              ? `${SEMPOA_CONFIG.POSITIONING.LOWER_ACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px` 
+                              : `${SEMPOA_CONFIG.POSITIONING.LOWER_INACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
-                            transition: 'top 0.3s ease',
-                            zIndex: 20
+                            transition: `top ${SEMPOA_CONFIG.ANIMATION.TRANSITION_DURATION} ${SEMPOA_CONFIG.ANIMATION.TRANSITION_EASING}`,
+                            zIndex: SEMPOA_CONFIG.Z_INDEX.BEAD
                           }}
                         >
                           <DraggableBead

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Sempoa Board - Beads on Rod Positioning', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the sempoa application
-    await page.goto('http://localhost:5175');
+    await page.goto('http://localhost:5173');
   });
 
   test('should verify beads are properly positioned on vertical rods', async ({ page }) => {
@@ -26,7 +26,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     await expect(firstRod).toHaveClass(/bg-amber-900/);
     
     // Step 5: Verify horizontal crossbar exists (now part of column structure)
-    const crossbar = page.locator('.h-2.bg-amber-900.rounded-full.shadow-md');
+    const crossbar = page.locator('.bg-amber-900.rounded-full.shadow-md');
     await expect(crossbar).toBeVisible();
   });
 
@@ -68,7 +68,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     await expect(lowerBeads).toHaveCount(28); // 7 columns × 4 lower beads each
     
     // Verify the unified column structure
-    const boardContainer = page.locator('.bg-amber-100.p-4').locator('.flex.justify-between');
+    const boardContainer = page.locator('.bg-amber-100').locator('.flex.justify-between');
     await expect(boardContainer).toBeVisible();
     
     const columns = boardContainer.locator('> div');
@@ -117,7 +117,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     // we'll verify they maintain their rod positioning structure
     
     // The board structure now uses direct flex layout
-    const sempoaBoard = page.locator('.bg-amber-100.p-4.rounded.border-2.border-amber-800');
+    const sempoaBoard = page.locator('.bg-amber-100.rounded.border-2.border-amber-800');
     await expect(sempoaBoard).toBeVisible();
     
     // Verify that the bead container maintains proper column structure

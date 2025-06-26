@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { BeadPosition } from '../types'
+import { SEMPOA_CONFIG } from '../config/sempoaConfig'
 
 interface DraggableBeadProps {
   bead: BeadPosition
@@ -42,8 +43,8 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
   const dragClasses = isDragging ? 'opacity-50' : ''
   
   const beadStyle = {
-    width: '28px',
-    height: '20px',
+    width: `${SEMPOA_CONFIG.BEAD.WIDTH}px`,
+    height: `${SEMPOA_CONFIG.BEAD.HEIGHT}px`,
     borderRadius: '50%',
     background: 'linear-gradient(135deg, #2C1810 0%, #8B4513 20%, #D2691E 40%, #CD853F 60%, #8B4513 80%, #2C1810 100%)',
     border: '1px solid #1A0F0A',
@@ -58,8 +59,8 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '4px',
-    height: '4px',
+    width: `${SEMPOA_CONFIG.BEAD.HOLE_SIZE}px`,
+    height: `${SEMPOA_CONFIG.BEAD.HOLE_SIZE}px`,
     borderRadius: '50%',
     background: 'radial-gradient(circle, #000 0%, #333 50%, #000 100%)',
     boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)'
