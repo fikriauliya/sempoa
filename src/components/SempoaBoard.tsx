@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react'
 import { BeadPosition, SempoaState } from '../types'
 import { useGame } from '../context/GameContext'
 import DraggableBead from './DraggableBead'
-import { SEMPOA_CONFIG } from '../config/sempoaConfig'
+import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } = SEMPOA_CONFIG
 
@@ -196,7 +196,7 @@ const SempoaBoard: React.FC = () => {
                           key={`upper-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? `${SEMPOA_CONFIG.POSITIONING.UPPER_ACTIVE_TOP}px` : `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`,
+                            top: active ? `${DERIVED_CONFIG.UPPER_ACTIVE_TOP}px` : `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: `top ${SEMPOA_CONFIG.ANIMATION.TRANSITION_DURATION} ${SEMPOA_CONFIG.ANIMATION.TRANSITION_EASING}`,
@@ -230,7 +230,7 @@ const SempoaBoard: React.FC = () => {
                           className="absolute"
                           style={{
                             top: active 
-                              ? `${SEMPOA_CONFIG.POSITIONING.LOWER_ACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px` 
+                              ? `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px` 
                               : `${SEMPOA_CONFIG.POSITIONING.LOWER_INACTIVE_TOP + (row * SEMPOA_CONFIG.POSITIONING.LOWER_BEAD_SPACING)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',

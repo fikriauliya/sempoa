@@ -112,7 +112,7 @@ test.describe('Bead Border Alignment', () => {
   test('upper bead gap should equal one bead height when active', async ({ page }) => {
     // Use configuration values
     const EXPECTED_UPPER_SECTION_HEIGHT = SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT
-    const EXPECTED_ACTIVE_POSITION = SEMPOA_CONFIG.POSITIONING.UPPER_ACTIVE_TOP
+    const EXPECTED_ACTIVE_POSITION = DERIVED_CONFIG.UPPER_ACTIVE_TOP
 
     // Verify upper section height
     const upperSections = page.locator('.upper-section')

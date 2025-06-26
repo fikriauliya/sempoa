@@ -36,21 +36,19 @@ export const SEMPOA_CONFIG = {
 
   // Horizontal separator
   SEPARATOR: {
-    HEIGHT: 2, // px
+    HEIGHT: 10, // px
     WIDTH_PERCENTAGE: 900, // % (relative to column width)
     LEFT_OFFSET_PERCENTAGE: -400, // % (relative to column width)
     CENTER_POSITION: 40, // px from top of main container
   },
 
-  // Bead positioning
+  // Bead positioning (base values)
   POSITIONING: {
     // Upper beads
     UPPER_INACTIVE_TOP: 0, // px from top of upper section
-    UPPER_ACTIVE_TOP: 19, // px from top of upper section (touching separator top at 39px)
-
+    
     // Lower beads
     LOWER_INACTIVE_TOP: 20, // px from top of lower section
-    LOWER_ACTIVE_TOP: 1, // px from top of lower section (touching separator bottom at 41px)
     LOWER_BEAD_SPACING: 18, // px between consecutive lower beads
   },
 
@@ -83,6 +81,17 @@ export const DERIVED_CONFIG = {
   SEPARATOR_BOTTOM:
     SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION +
     SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2,
+
+  // Calculated bead positions (to avoid intersection with separator)
+  UPPER_ACTIVE_TOP:
+    SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION -
+    SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+    SEMPOA_CONFIG.BEAD.HEIGHT, // Position so bead bottom touches separator top
+    
+  LOWER_ACTIVE_TOP:
+    SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION +
+    SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+    SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT, // Position so bead top touches separator bottom
 
   // Total board height (for container sizing)
   TOTAL_BOARD_HEIGHT:
