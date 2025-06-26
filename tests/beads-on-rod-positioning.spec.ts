@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { DERIVED_CONFIG } from '../src/config/sempoaConfig';
 
 test.describe('Sempoa Board - Beads on Rod Positioning', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,7 +23,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     
     // Step 4: Verify rods have proper styling
     const firstRod = verticalRods.first();
-    await expect(firstRod).toHaveCSS('height', '170px');
+    await expect(firstRod).toHaveCSS('height', `${DERIVED_CONFIG.ROD_HEIGHT}px`);
     await expect(firstRod).toHaveClass(/bg-amber-900/);
     
     // Step 5: Verify horizontal crossbar exists (now part of column structure)

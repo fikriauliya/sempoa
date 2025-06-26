@@ -31,7 +31,6 @@ export const SEMPOA_CONFIG = {
   // Rod dimensions
   ROD: {
     WIDTH: 4, // px
-    HEIGHT: 170, // px
   },
 
   // Horizontal separator
@@ -91,8 +90,12 @@ export const DERIVED_CONFIG = {
 
   // Lower bead positioning (calculated for proper spacing)
   LOWER_INACTIVE_TOP: SEMPOA_CONFIG.BEAD.HEIGHT, // Provide spacing equal to one bead height from separator
-  
+
   LOWER_BEAD_SPACING: SEMPOA_CONFIG.BEAD.HEIGHT - 2, // Space beads almost their full height apart (with 2px gap)
+
+  // Rod height (calculated to match board height)
+  ROD_HEIGHT: 
+    SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
 
   // Total board height (for container sizing)
   TOTAL_BOARD_HEIGHT:
