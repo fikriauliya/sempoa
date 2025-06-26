@@ -80,11 +80,11 @@ test.describe('Bead Border Alignment', () => {
 
   test('beads should maintain proper spacing in initial position', async ({ page }) => {
     // Verify the overall board structure - the main flex container
-    const mainContainer = page.locator(`div[style*="height: ${SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT}px"]`)
+    const mainContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800 .flex.justify-between').first()
     const containerHeight = await mainContainer.evaluate(el => 
       parseInt(el.style.height)
     )
-    expect(containerHeight).toBe(SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT)
+    expect(containerHeight).toBe(DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT)
 
     // Verify that upper sections start at the top (no gap)
     const firstUpperSection = page.locator('.upper-section').first()
@@ -198,5 +198,37 @@ test.describe('Bead Border Alignment', () => {
     
     // Verify no intersection: lower bead top should be >= separator bottom
     expect(lowerBeadTop).toBeGreaterThanOrEqual(SEPARATOR_BOTTOM - 0.5)
+  })
+
+  test('rod height should equal total board height', async ({ page }) => {
+    // Verify that the rod height matches the calculated total board height
+    const rods = page.locator('.bg-amber-900.rounded-full.shadow-sm')
+    const firstRod = rods.first()
+    
+    // Get the actual CSS height of the rod
+    const rodHeight = await firstRod.evaluate(el => 
+      parseInt(window.getComputedStyle(el).getPropertyValue('height'))
+    )
+    
+    // Rod height should equal the calculated rod height (which now matches board container)
+    expect(rodHeight).toBe(DERIVED_CONFIG.ROD_HEIGHT)
+    expect(rodHeight).toBe(DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT)
+    
+    // Get the visual board container dimensions for comparison
+    const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
+    const boardHeight = await boardContainer.evaluate(el => {
+      const mainContainer = el.querySelector('.flex.justify-between') as HTMLElement
+      return mainContainer ? parseInt(mainContainer.style.height) : 0
+    })
+    
+    // Document the current relationship - this test should initially fail if there's a mismatch
+    console.log(`Rod height: ${rodHeight}px`)
+    console.log(`Board container height: ${boardHeight}px`) 
+    console.log(`Expected rod height (DERIVED_CONFIG.ROD_HEIGHT): ${DERIVED_CONFIG.ROD_HEIGHT}px`)
+    console.log(`Expected total board height: ${DERIVED_CONFIG.TOTAL_BOARD_HEIGHT}px`)
+    
+    // The rod should span the full height of the board container  
+    // Rod height should now equal board container height (150px)
+    expect(rodHeight).toBe(boardHeight)
   })
 })

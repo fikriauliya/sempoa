@@ -151,7 +151,7 @@ const SempoaBoard: React.FC = () => {
           {/* Sempoa board with vertical rods */}
           <div className="relative bg-amber-100 rounded border-2 border-amber-800">
             {/* Column structure - using flex for even distribution */}
-            <div className="flex justify-between" style={{ height: `${SEMPOA_CONFIG.SECTIONS.MAIN_CONTAINER_HEIGHT}px` }}>
+            <div className="flex justify-between" style={{ height: `${DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT}px` }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
                 <div key={col} className="relative flex flex-col items-center" style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}>
                   {/* Vertical rod for this column */}

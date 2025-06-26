@@ -96,3 +96,7 @@ The sempoa implements authentic abacus behavior:
 ### Tests
 - `tests/abacus-behavior.spec.ts` - Comprehensive tests for the abacus behavior
 - Verifies proper bead grouping, value calculations, and visual positioning
+
+## Workflow Guidelines
+
+- Never autocommit, I will ask you to commit when needed

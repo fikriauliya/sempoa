@@ -24,8 +24,7 @@ export const SEMPOA_CONFIG = {
   // Section heights
   SECTIONS: {
     UPPER_HEIGHT: 40, // px
-    LOWER_HEIGHT: 80, // px
-    MAIN_CONTAINER_HEIGHT: 150, // px
+    LOWER_HEIGHT: 100, // px (increased to accommodate proper bead spacing)
   },
 
   // Rod dimensions
@@ -91,10 +90,14 @@ export const DERIVED_CONFIG = {
   // Lower bead positioning (calculated for proper spacing)
   LOWER_INACTIVE_TOP: SEMPOA_CONFIG.BEAD.HEIGHT, // Provide spacing equal to one bead height from separator
 
-  LOWER_BEAD_SPACING: SEMPOA_CONFIG.BEAD.HEIGHT - 2, // Space beads almost their full height apart (with 2px gap)
+  LOWER_BEAD_SPACING: SEMPOA_CONFIG.BEAD.HEIGHT, // Space beads equal to bead height (no intersection)
 
-  // Rod height (calculated to match board height)
-  ROD_HEIGHT: 
+  // Main container height (calculated from section heights)
+  MAIN_CONTAINER_HEIGHT:
+    SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
+
+  // Rod height (calculated to match board container height)
+  ROD_HEIGHT:
     SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
 
   // Total board height (for container sizing)

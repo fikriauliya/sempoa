@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Abacus Behavior', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5176')
+    await page.goto('http://localhost:5173')
     
     // Reset the board to ensure initial state
     await page.click('button:has-text("Reset")')
@@ -25,13 +26,13 @@ test.describe('Abacus Behavior', () => {
     const thirdBead = firstColumn.locator('.absolute').nth(2)
     const fourthBead = firstColumn.locator('.absolute').nth(3)
     
-    // Active beads should be at lower positions (5px, 23px, 41px)
-    await expect(firstBead).toHaveCSS('top', '5px')
-    await expect(secondBead).toHaveCSS('top', '23px')
-    await expect(thirdBead).toHaveCSS('top', '41px')
+    // Active beads should be at calculated positions
+    await expect(firstBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`) // 5px
+    await expect(secondBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`) // 17px
+    await expect(thirdBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (2 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`) // 29px
     
-    // Fourth bead should still be in inactive position (74px)
-    await expect(fourthBead).toHaveCSS('top', '74px')
+    // Fourth bead should still be in inactive position
+    await expect(fourthBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (3 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`) // 56px
   })
 
   test('lower beads should move together - deactivating a bead moves all beads below it', async ({ page }) => {
@@ -57,13 +58,13 @@ test.describe('Abacus Behavior', () => {
     const thirdBead = firstColumn.locator('.absolute').nth(2)
     const fourthBead = firstColumn.locator('.absolute').nth(3)
     
-    // Only first bead should be active (5px)
-    await expect(firstBead).toHaveCSS('top', '5px')
+    // Only first bead should be active
+    await expect(firstBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`) // 5px
     
-    // Beads 1, 2, 3 should be in inactive positions
-    await expect(secondBead).toHaveCSS('top', '38px')
-    await expect(thirdBead).toHaveCSS('top', '56px')
-    await expect(fourthBead).toHaveCSS('top', '74px')
+    // Beads 1, 2, 3 should be in inactive positions  
+    await expect(secondBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`) // 32px
+    await expect(thirdBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (2 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`) // 44px
+    await expect(fourthBead).toHaveCSS('top', `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (3 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`) // 56px
   })
 
   test('upper beads should toggle independently', async ({ page }) => {
@@ -76,7 +77,7 @@ test.describe('Abacus Behavior', () => {
     await expect(valueDisplay).toContainText('Value: 5000000')
     
     // Verify upper bead moved to active position
-    await expect(upperBead).toHaveCSS('top', '40px')
+    await expect(upperBead).toHaveCSS('top', `${DERIVED_CONFIG.UPPER_ACTIVE_TOP}px`)
     
     // Click again to deactivate
     await upperBead.click()
