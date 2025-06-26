@@ -133,24 +133,35 @@ const SempoaBoard: React.FC = () => {
           
           {/* Sempoa board with vertical rods */}
           <div className="relative bg-amber-100 p-4 rounded border-2 border-amber-800">
-            {/* Vertical rods */}
-            <div className="absolute inset-0 flex justify-between px-4 py-4">
+            {/* Column structure - using flex for even distribution */}
+            <div className="flex justify-between" style={{ height: '180px' }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
-                <div
-                  key={col}
-                  className="w-1 bg-amber-900 rounded-full"
-                  style={{ height: '200px' }}
-                />
-              ))}
-            </div>
-            
-            {/* Horizontal crossbar */}
-            <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 h-2 bg-amber-900 mx-4 rounded-full shadow-md"></div>
-            
-            {/* Beads container */}
-            <div className="relative z-10 flex justify-between px-2">
-              {Array.from({ length: COLUMNS }, (_, col) => (
-                <div key={col} className="flex flex-col items-center" style={{ width: '48px' }}>
+                <div key={col} className="relative flex flex-col items-center" style={{ width: '48px' }}>
+                  {/* Vertical rod for this column */}
+                  <div
+                    className="absolute bg-amber-900 rounded-full shadow-sm"
+                    style={{ 
+                      height: '200px', 
+                      width: '4px',
+                      left: '50%',
+                      top: '-10px',
+                      transform: 'translateX(-50%)',
+                      zIndex: 1
+                    }}
+                  />
+                  
+                  {/* Horizontal crossbar segment */}
+                  {col === Math.floor(COLUMNS / 2) && (
+                    <div className="absolute h-2 bg-amber-900 rounded-full shadow-md" 
+                         style={{ 
+                           width: '900%', 
+                           left: '-400%',
+                           top: '50%',
+                           transform: 'translateY(-50%)',
+                           zIndex: 0
+                         }}
+                    />
+                  )}
                   {/* Upper section beads */}
                   <div className="upper-section relative flex flex-col items-center" style={{ height: '90px' }}>
                     {Array.from({ length: UPPER_BEADS_PER_COLUMN }, (_, row) => {
@@ -168,7 +179,10 @@ const SempoaBoard: React.FC = () => {
                           className="absolute"
                           style={{
                             top: active ? '60px' : '10px',
-                            transition: 'top 0.3s ease'
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            transition: 'top 0.3s ease',
+                            zIndex: 20
                           }}
                         >
                           <DraggableBead
@@ -197,8 +211,11 @@ const SempoaBoard: React.FC = () => {
                           key={`lower-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? `${10 + (row * 18)}px` : `${60 + (row * 18)}px`,
-                            transition: 'top 0.3s ease'
+                            top: active ? `${10 + (row * 22)}px` : `${60 + (row * 22)}px`,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            transition: 'top 0.3s ease',
+                            zIndex: 20
                           }}
                         >
                           <DraggableBead

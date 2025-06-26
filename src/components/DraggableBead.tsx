@@ -42,14 +42,27 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
   const dragClasses = isDragging ? 'opacity-50' : ''
   
   const beadStyle = {
-    width: '24px',
-    height: '16px',
+    width: '28px',
+    height: '20px',
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #8B4513 0%, #D2691E  30%, #CD853F  60%, #8B4513 100%)',
-    border: '1px solid #654321',
+    background: 'linear-gradient(135deg, #2C1810 0%, #8B4513 20%, #D2691E 40%, #CD853F 60%, #8B4513 80%, #2C1810 100%)',
+    border: '1px solid #1A0F0A',
     boxShadow: isActive 
-      ? '0 2px 8px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px rgba(255,255,255,0.1)'
-      : '0 1px 4px rgba(0,0,0,0.2), inset -1px -1px 2px rgba(0,0,0,0.1), inset 1px 1px 2px rgba(255,255,255,0.1)'
+      ? '0 3px 10px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.1)'
+      : '0 2px 6px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px rgba(255,255,255,0.1)',
+    position: 'relative' as const,
+  }
+
+  const holeStyle = {
+    position: 'absolute' as const,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '4px',
+    height: '4px',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, #000 0%, #333 50%, #000 100%)',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)'
   }
 
   return (
@@ -63,7 +76,9 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
       className={`${baseClasses} ${activeClasses} ${dragClasses}`}
       style={beadStyle}
       onClick={onClick}
-    />
+    >
+      <div style={holeStyle} />
+    </div>
   )
 }
 
