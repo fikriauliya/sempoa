@@ -163,7 +163,7 @@ const SempoaBoard: React.FC = () => {
                     />
                   )}
                   {/* Upper section beads */}
-                  <div className="upper-section relative flex flex-col items-center" style={{ height: '90px' }}>
+                  <div className="upper-section relative flex flex-col items-center" style={{ height: '70px' }}>
                     {Array.from({ length: UPPER_BEADS_PER_COLUMN }, (_, row) => {
                       const bead: BeadPosition = {
                         column: col,
@@ -178,7 +178,7 @@ const SempoaBoard: React.FC = () => {
                           key={`upper-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? '60px' : '10px',
+                            top: active ? '50px' : '20px',
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: 'top 0.3s ease',
@@ -211,7 +211,7 @@ const SempoaBoard: React.FC = () => {
                           key={`lower-${row}`}
                           className="absolute"
                           style={{
-                            top: active ? `${10 + (row * 22)}px` : `${60 + (row * 22)}px`,
+                            top: active ? `${10 + (row * 18)}px` : `${25 + (row * 18)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
                             transition: 'top 0.3s ease',
