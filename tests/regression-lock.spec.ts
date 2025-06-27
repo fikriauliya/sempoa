@@ -232,7 +232,8 @@ test.describe('Regression Lock - Correct Behavior Validation', () => {
       separatorHeight: 10,
       separatorCenter: 40,
       containerHeight: 140,
-      rodHeight: 140
+      rodHeight: 140,
+      totalBoardWidth: 336 // 7 columns × 48px
     }
     
     // Verify all exact measurements
@@ -246,6 +247,7 @@ test.describe('Regression Lock - Correct Behavior Validation', () => {
     expect(SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION).toBe(exactMeasurements.separatorCenter)
     expect(DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT).toBe(exactMeasurements.containerHeight)
     expect(DERIVED_CONFIG.ROD_HEIGHT).toBe(exactMeasurements.rodHeight)
+    expect(DERIVED_CONFIG.TOTAL_BOARD_WIDTH).toBe(exactMeasurements.totalBoardWidth)
     
     console.log(`✓ All pixel-perfect measurements locked`)
     

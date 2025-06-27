@@ -21,10 +21,13 @@ export const SEMPOA_CONFIG = {
     WIDTH: 48, // px
   },
 
-  // Section heights
-  SECTIONS: {
-    UPPER_HEIGHT: 40, // px
-    LOWER_HEIGHT: 100, // px (increased to accommodate proper bead spacing)
+  // Section heights (dynamically calculated based on bead count)
+  // Each section needs space for all beads plus one empty space
+  get SECTIONS() {
+    return {
+      UPPER_HEIGHT: (this.UPPER_BEADS_PER_COLUMN + 1) * this.BEAD.HEIGHT, // px
+      LOWER_HEIGHT: (this.LOWER_BEADS_PER_COLUMN + 1) * this.BEAD.HEIGHT, // px
+    };
   },
 
   // Rod dimensions
@@ -33,11 +36,13 @@ export const SEMPOA_CONFIG = {
   },
 
   // Horizontal separator
-  SEPARATOR: {
-    HEIGHT: 10, // px
-    WIDTH_PERCENTAGE: 900, // % (relative to column width)
-    LEFT_OFFSET_PERCENTAGE: -400, // % (relative to column width)
-    CENTER_POSITION: 40, // px from top of main container
+  get SEPARATOR() {
+    return {
+      HEIGHT: 10, // px
+      WIDTH_PERCENTAGE: 900, // % (relative to column width)
+      LEFT_OFFSET_PERCENTAGE: -400, // % (relative to column width)
+      CENTER_POSITION: this.SECTIONS.UPPER_HEIGHT, // px from top of main container (at boundary between sections)
+    };
   },
 
   // Bead positioning (base values)
@@ -100,7 +105,9 @@ export const DERIVED_CONFIG = {
   ROD_HEIGHT:
     SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
 
-  // Total board height (for container sizing)
+  // Total board dimensions (for container sizing)
   TOTAL_BOARD_HEIGHT:
     SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
+
+  TOTAL_BOARD_WIDTH: SEMPOA_CONFIG.COLUMNS * SEMPOA_CONFIG.COLUMN.WIDTH,
 } as const;

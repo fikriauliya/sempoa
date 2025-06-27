@@ -45,10 +45,14 @@ test.describe('Configuration Calculations', () => {
     expect(DERIVED_CONFIG.ROD_HEIGHT).toBe(expectedRodHeight)
     console.log(`✓ ROD_HEIGHT: ${DERIVED_CONFIG.ROD_HEIGHT} = ${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT} + ${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}`)
 
-    // Test total board height
+    // Test total board dimensions
     const expectedTotalBoardHeight = SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT
     expect(DERIVED_CONFIG.TOTAL_BOARD_HEIGHT).toBe(expectedTotalBoardHeight)
     console.log(`✓ TOTAL_BOARD_HEIGHT: ${DERIVED_CONFIG.TOTAL_BOARD_HEIGHT} = ${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT} + ${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}`)
+
+    const expectedTotalBoardWidth = SEMPOA_CONFIG.COLUMNS * SEMPOA_CONFIG.COLUMN.WIDTH
+    expect(DERIVED_CONFIG.TOTAL_BOARD_WIDTH).toBe(expectedTotalBoardWidth)
+    console.log(`✓ TOTAL_BOARD_WIDTH: ${DERIVED_CONFIG.TOTAL_BOARD_WIDTH} = ${SEMPOA_CONFIG.COLUMNS} × ${SEMPOA_CONFIG.COLUMN.WIDTH}`)
   })
 
   test('separator positioning should create no-gap, no-intersection layout', async () => {
@@ -184,7 +188,7 @@ test.describe('Configuration Calculations', () => {
     // Get lower beads in first column
     const lowerBeads = page.locator('.lower-section').first().locator('.absolute')
     const beadCount = await lowerBeads.count()
-    expect(beadCount).toBe(4)
+    expect(beadCount).toBe(SEMPOA_CONFIG.LOWER_BEADS_PER_COLUMN)
     
     // Check each pair of adjacent beads for intersection
     for (let i = 0; i < beadCount - 1; i++) {
