@@ -2,11 +2,14 @@
 
 An interactive sempoa/abacus learning application built with React, TypeScript, and Tailwind CSS.
 
+![Sempoa Learning App Screenshot](screenshots/sempoa-app-main.png)
+
 ## Features
 
 ### Sempoa Board
-- Interactive 7-column sempoa board with upper (red) and lower (blue) beads
-- Click-to-toggle bead manipulation
+- Interactive 7-column sempoa board with authentic wooden bead appearance
+- Proper place value headers (1M, 100K, 10K, 1K, 100, 10, 1) aligned with columns
+- Click-to-toggle bead manipulation with authentic abacus behavior
 - Drag and drop support for desktop
 - Touch gesture support for mobile devices
 - Real-time value calculation and display
