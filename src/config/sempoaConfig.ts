@@ -6,7 +6,7 @@
 export const SEMPOA_CONFIG = {
   // Board structure
   COLUMNS: 7,
-  UPPER_BEADS_PER_COLUMN: 2,
+  UPPER_BEADS_PER_COLUMN: 1,
   LOWER_BEADS_PER_COLUMN: 4,
 
   // Bead dimensions

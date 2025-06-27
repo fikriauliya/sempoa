@@ -76,8 +76,8 @@ test.describe('Abacus Behavior', () => {
     const valueDisplay = page.getByText(/Value: \d+/)
     await expect(valueDisplay).toContainText('Value: 5000000')
     
-    // Verify upper bead moved to active position (one bead height down)
-    const expectedActivePosition = SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + SEMPOA_CONFIG.BEAD.HEIGHT
+    // Verify upper bead moved to active position (touching separator)
+    const expectedActivePosition = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT
     await expect(upperBead).toHaveCSS('top', `${expectedActivePosition}px`)
     
     // Click again to deactivate
