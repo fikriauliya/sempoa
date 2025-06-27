@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { DERIVED_CONFIG } from '../src/config/sempoaConfig'
+import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Abacus Behavior', () => {
   test.beforeEach(async ({ page }) => {
@@ -76,8 +76,9 @@ test.describe('Abacus Behavior', () => {
     const valueDisplay = page.getByText(/Value: \d+/)
     await expect(valueDisplay).toContainText('Value: 5000000')
     
-    // Verify upper bead moved to active position
-    await expect(upperBead).toHaveCSS('top', `${DERIVED_CONFIG.UPPER_ACTIVE_TOP}px`)
+    // Verify upper bead moved to active position (one bead height down)
+    const expectedActivePosition = SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + SEMPOA_CONFIG.BEAD.HEIGHT
+    await expect(upperBead).toHaveCSS('top', `${expectedActivePosition}px`)
     
     // Click again to deactivate
     await upperBead.click()

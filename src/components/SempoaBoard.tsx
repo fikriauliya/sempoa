@@ -197,7 +197,7 @@ const SempoaBoard: React.FC = () => {
                           className="absolute"
                           style={{
                             top: active 
-                              ? `${DERIVED_CONFIG.UPPER_ACTIVE_TOP + (row * SEMPOA_CONFIG.BEAD.HEIGHT)}px`
+                              ? `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + (row * SEMPOA_CONFIG.BEAD.HEIGHT) + SEMPOA_CONFIG.BEAD.HEIGHT}px`
                               : `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + (row * SEMPOA_CONFIG.BEAD.HEIGHT)}px`,
                             left: '50%',
                             transform: 'translateX(-50%)',
