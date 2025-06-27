@@ -4,7 +4,7 @@ import { GameProvider } from '../context/GameContext'
 import { GameState } from '../types'
 
 // Wrapper component to provide context
-const GameControllerWithProvider = (args: { initialGameState?: Partial<GameState> }) => {
+const GameControllerWithProvider = (_args: { initialGameState?: Partial<GameState> }) => {
   return (
     <GameProvider>
       <div style={{ maxWidth: '400px' }}>
