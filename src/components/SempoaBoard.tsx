@@ -157,11 +157,23 @@ const SempoaBoard: React.FC = () => {
           </div>
           
           {/* Sempoa board with vertical rods */}
-          <div className="relative bg-amber-100 rounded border-2 border-amber-800">
+          <div className="relative bg-amber-100 rounded border-2 border-amber-800" data-testid="sempoa-board">
+            {/* Horizontal crossbar spans the entire board */}
+            <div className="absolute bg-amber-900 rounded-full shadow-md" 
+                 style={{ 
+                   height: `${SEMPOA_CONFIG.SEPARATOR.HEIGHT}px`,
+                   width: '100%',
+                   left: '0',
+                   top: `${SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION}px`,
+                   transform: 'translateY(-50%)',
+                   zIndex: SEMPOA_CONFIG.Z_INDEX.SEPARATOR
+                 }}
+            />
+            
             {/* Column structure - using flex for even distribution */}
             <div className="flex justify-between" style={{ height: `${DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT}px` }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
-                <div key={col} className="relative flex flex-col items-center" style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}>
+                <div key={col} className="relative flex flex-col items-center" style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }} data-testid={`column-${col}`}>
                   {/* Vertical rod for this column */}
                   <div
                     className="absolute bg-amber-900 rounded-full shadow-sm"
@@ -174,20 +186,6 @@ const SempoaBoard: React.FC = () => {
                       zIndex: SEMPOA_CONFIG.Z_INDEX.ROD
                     }}
                   />
-                  
-                  {/* Horizontal crossbar segment */}
-                  {col === Math.floor(COLUMNS / 2) && (
-                    <div className="absolute bg-amber-900 rounded-full shadow-md" 
-                         style={{ 
-                           height: `${SEMPOA_CONFIG.SEPARATOR.HEIGHT}px`,
-                           width: `${SEMPOA_CONFIG.SEPARATOR.WIDTH_PERCENTAGE}%`, 
-                           left: `${SEMPOA_CONFIG.SEPARATOR.LEFT_OFFSET_PERCENTAGE}%`,
-                           top: `${SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION}px`,
-                           transform: 'translateY(-50%)',
-                           zIndex: SEMPOA_CONFIG.Z_INDEX.SEPARATOR
-                         }}
-                    />
-                  )}
                   {/* Upper section beads */}
                   <div className="upper-section relative flex flex-col items-center" style={{ height: `${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT}px` }}>
                     {Array.from({ length: UPPER_BEADS_PER_COLUMN }, (_, row) => {

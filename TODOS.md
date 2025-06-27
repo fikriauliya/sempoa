@@ -1,0 +1,7 @@
+- [x] BUG: The horizontal separators don't fill the entire board width on certain screen dimensions
+  - ✅ FIXED: Moved horizontal separator outside column loop to span full board width
+  - ✅ TESTED: Verified fix works across 8 different screen dimensions (mobile to desktop)
+  - ✅ IMPLEMENTATION: Changed from percentage-based positioning to absolute positioning with width: 100%
+- [ ] UI: Remove the hole from the bead
+- [ ] Make the beads closer to adjacent beads on the left and right. The current spacing is too wide.
+- [ ] Change the favicon to represent sempoa
