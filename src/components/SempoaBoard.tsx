@@ -51,11 +51,19 @@ const SempoaBoard: React.FC = () => {
     const newActiveBeads = new Set(activeBeads)
     
     if (bead.isUpper) {
-      // Upper beads toggle independently
+      // Upper beads: implement proper abacus behavior (opposite of lower beads)
       if (newActiveBeads.has(key)) {
-        newActiveBeads.delete(key)
+        // Deactivating: remove this bead and all beads above it in the same column
+        for (let row = 0; row <= bead.row; row++) {
+          const beadKey = `${bead.column}-upper-${row}`
+          newActiveBeads.delete(beadKey)
+        }
       } else {
-        newActiveBeads.add(key)
+        // Activating: add this bead and all beads below it in the same column
+        for (let row = bead.row; row < UPPER_BEADS_PER_COLUMN; row++) {
+          const beadKey = `${bead.column}-upper-${row}`
+          newActiveBeads.add(beadKey)
+        }
       }
     } else {
       // Lower beads: implement proper abacus behavior
