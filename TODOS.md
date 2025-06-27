@@ -1,10 +1,5 @@
 - [x] SP-001: [BUG] The horizontal separators don't fill the entire board width on certain screen dimensions
-  - ✅ FIXED: Moved horizontal separator outside column loop to span full board width
-  - ✅ TESTED: Verified fix works across 8 different screen dimensions (mobile to desktop)
-  - ✅ IMPLEMENTATION: Changed from percentage-based positioning to absolute positioning with width: 100%
 - [x] SP-002: [UI] Convert ring-shaped beads to solid circles for authentic abacus appearance
-  - ✅ IMPLEMENTED: Removed center hole styling from DraggableBead component
-  - ✅ VERIFIED: Build passes, beads now appear as solid circles without holes
-  - ✅ MAINTAINED: All bead interactions and animations preserved
-- [ ] Make the beads closer to adjacent beads on the left and right. The current spacing is too wide.
-- [ ] Change the favicon to represent sempoa
+- [x] SP-003: [UI] Reduce horizontal spacing between columns to make beads closer to adjacent beads
+- [ ] [UI] The number position label on the top should align the beads
+- [ ] [UI] Change the favicon to represent sempoa

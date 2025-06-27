@@ -80,7 +80,7 @@ test.describe('Bead Border Alignment', () => {
 
   test('beads should maintain proper spacing in initial position', async ({ page }) => {
     // Verify the overall board structure - the main flex container
-    const mainContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800 .flex.justify-between').first()
+    const mainContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800 .flex.justify-center.gap-2').first()
     const containerHeight = await mainContainer.evaluate(el => 
       parseInt(el.style.height)
     )
@@ -164,7 +164,7 @@ test.describe('Bead Border Alignment', () => {
     await page.waitForTimeout(500) // Wait for animations
 
     // Check separator position
-    const separator = page.locator(`[style*="width: ${SEMPOA_CONFIG.SEPARATOR.WIDTH_PERCENTAGE}%"]`)
+    const separator = page.locator(`[style*="width: 100%"]`)
     const separatorPosition = await separator.evaluate(el => {
       const parentRect = el.parentElement!.getBoundingClientRect()
       const elementRect = el.getBoundingClientRect()
@@ -217,7 +217,7 @@ test.describe('Bead Border Alignment', () => {
     // Get the visual board container dimensions for comparison
     const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
     const boardHeight = await boardContainer.evaluate(el => {
-      const mainContainer = el.querySelector('.flex.justify-between') as HTMLElement
+      const mainContainer = el.querySelector('.flex.justify-center.gap-2') as HTMLElement
       return mainContainer ? parseInt(mainContainer.style.height) : 0
     })
     

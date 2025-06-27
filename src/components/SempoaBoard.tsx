@@ -170,8 +170,8 @@ const SempoaBoard: React.FC = () => {
                  }}
             />
             
-            {/* Column structure - using flex for even distribution */}
-            <div className="flex justify-between" style={{ height: `${DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT}px` }}>
+            {/* Column structure - using flex with tight gap for closer bead spacing */}
+            <div className="flex justify-center gap-2" style={{ height: `${DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT}px` }}>
               {Array.from({ length: COLUMNS }, (_, col) => (
                 <div key={col} className="relative flex flex-col items-center" style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }} data-testid={`column-${col}`}>
                   {/* Vertical rod for this column */}

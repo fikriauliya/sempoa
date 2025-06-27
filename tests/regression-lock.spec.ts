@@ -15,7 +15,7 @@ test.describe('Regression Lock - Correct Behavior Validation', () => {
     expect(SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT).toBe(100)
     
     // Verify visual container matches calculated height
-    const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800 .flex.justify-between').first()
+    const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800 .flex.justify-center.gap-2').first()
     const containerHeight = await boardContainer.evaluate(el => parseInt(el.style.height))
     expect(containerHeight).toBe(140)
     

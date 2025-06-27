@@ -69,7 +69,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     await expect(lowerBeads).toHaveCount(28); // 7 columns × 4 lower beads each
     
     // Verify the unified column structure
-    const boardContainer = page.locator('.bg-amber-100').locator('.flex.justify-between');
+    const boardContainer = page.locator('.bg-amber-100').locator('.flex.justify-center.gap-2');
     await expect(boardContainer).toBeVisible();
     
     const columns = boardContainer.locator('> div');
@@ -123,7 +123,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
     
     // Verify that the bead container maintains proper column structure
     // Find the specific board container with columns
-    const boardContainer = sempoaBoard.locator('.flex.justify-between').first();
+    const boardContainer = sempoaBoard.locator('.flex.justify-center.gap-2').first();
     await expect(boardContainer).toBeVisible();
     
     const columnContainers = boardContainer.locator('> div');
