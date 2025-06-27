@@ -54,18 +54,6 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
     position: 'relative' as const,
   }
 
-  const holeStyle = {
-    position: 'absolute' as const,
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: `${SEMPOA_CONFIG.BEAD.HOLE_SIZE}px`,
-    height: `${SEMPOA_CONFIG.BEAD.HOLE_SIZE}px`,
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, #000 0%, #333 50%, #000 100%)',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)'
-  }
-
   return (
     <div
       draggable
@@ -77,9 +65,7 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
       className={`${baseClasses} ${activeClasses} ${dragClasses}`}
       style={beadStyle}
       onClick={onClick}
-    >
-      <div style={holeStyle} />
-    </div>
+    />
   )
 }
 
