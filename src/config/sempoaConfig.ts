@@ -63,12 +63,6 @@ export const SEMPOA_CONFIG = {
     ROD: 1,
     BEAD: 20,
   },
-
-  // Board styling
-  BOARD: {
-    PADDING: 4, // px
-    BORDER_WIDTH: 2, // px
-  },
 } as const;
 
 // Derived values (computed from base config)
