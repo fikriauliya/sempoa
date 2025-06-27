@@ -147,13 +147,23 @@ const SempoaBoard: React.FC = () => {
       
       <div className="sempoa-frame bg-black p-6 rounded-lg shadow-2xl">
         <div className="bg-amber-50 p-4 rounded relative">
-          {/* Column labels */}
-          <div className="flex justify-between mb-4">
-            {Array.from({ length: COLUMNS }, (_, col) => (
-              <div key={col} className="text-xs text-gray-600 font-mono text-center w-12">
-                {Math.pow(10, COLUMNS - 1 - col).toLocaleString()}
-              </div>
-            ))}
+          {/* Column labels - aligned with bead columns */}
+          <div className="flex justify-center gap-2 mb-4">
+            {Array.from({ length: COLUMNS }, (_, col) => {
+              const placeValue = Math.pow(10, COLUMNS - 1 - col);
+              const displayValue = placeValue >= 1000000 ? `${placeValue / 1000000}M` :
+                                 placeValue >= 1000 ? `${placeValue / 1000}K` :
+                                 placeValue.toString();
+              return (
+                <div 
+                  key={col} 
+                  className="text-xs text-gray-600 font-mono text-center flex items-center justify-center"
+                  style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
+                >
+                  {displayValue}
+                </div>
+              );
+            })}
           </div>
           
           {/* Sempoa board with vertical rods */}

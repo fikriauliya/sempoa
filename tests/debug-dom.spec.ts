@@ -6,8 +6,8 @@ test('Debug DOM structure', async ({ page }) => {
   // Wait for page to load
   await expect(page.getByRole('heading', { name: 'Sempoa Board' })).toBeVisible();
   
-  // Check column labels structure - be more specific to avoid selector conflict
-  const columnLabelsContainer = page.locator('.flex.justify-between.mb-4').nth(1); // Second one is the column labels
+  // Check column labels structure - updated selector for new implementation
+  const columnLabelsContainer = page.locator('.flex.justify-center.gap-2.mb-4');
   await expect(columnLabelsContainer).toBeVisible();
   
   const columnLabels = columnLabelsContainer.locator('> div');

@@ -1,5 +1,5 @@
 - [x] SP-001: [BUG] The horizontal separators don't fill the entire board width on certain screen dimensions
 - [x] SP-002: [UI] Convert ring-shaped beads to solid circles for authentic abacus appearance
 - [x] SP-003: [UI] Reduce horizontal spacing between columns to make beads closer to adjacent beads
-- [ ] [UI] The number position label on the top should align the beads
+- [x] SP-004: [UI] Align column header labels with beads and optimize large number display in limited space
 - [ ] [UI] Change the favicon to represent sempoa
