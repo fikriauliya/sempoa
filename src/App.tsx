@@ -1,6 +1,6 @@
 import { GameProvider } from './context/GameContext'
 import SempoaBoard from './components/SempoaBoard'
-import GameController from './components/GameController'
+import LearningJourney from './components/LearningJourney'
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
               <SempoaBoard />
             </div>
             <div className="lg:col-span-1">
-              <GameController />
+              <LearningJourney />
             </div>
           </div>
         </div>
