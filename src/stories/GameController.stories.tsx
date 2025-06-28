@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import GameController from '../components/GameController'
 import { GameProvider } from '../context/GameContext'
-import { GameState } from '../types'
 
 // Wrapper component to provide context
-const GameControllerWithProvider = (_args: { initialGameState?: Partial<GameState> }) => {
+const GameControllerWithProvider = () => {
   return (
     <GameProvider>
       <div style={{ maxWidth: '400px' }}>

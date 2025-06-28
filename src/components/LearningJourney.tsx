@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useGame } from '../context/GameContext'
-import { UserProgress, LevelProgress } from '../types'
+import { useGame } from '../hooks/useGame'
+import { UserProgress, LevelProgress, GameState } from '../types'
 import { ProgressionManager } from '../utils/progressionManager'
 import { generateQuestion } from '../utils/questionGenerator'
 
@@ -11,17 +11,7 @@ const LearningJourney: React.FC = () => {
   const [buttonState, setButtonState] = useState<'normal' | 'correct' | 'wrong'>('normal')
   const progressionManager = ProgressionManager.getInstance()
 
-  useEffect(() => {
-    const progress = progressionManager.loadProgress()
-    setUserProgress(progress)
-    
-    // Generate initial question if there's a current level
-    if (progress.currentLevel) {
-      generateNewQuestion(progress.currentLevel)
-    }
-  }, [])
-
-  const generateNewQuestion = (level: LevelProgress) => {
+  const generateNewQuestion = useCallback((level: LevelProgress) => {
     // Reset the sempoa board
     setCurrentValue(0)
     
@@ -32,11 +22,21 @@ const LearningJourney: React.FC = () => {
       useBigFriend: level.complementType === 'bigFriend' || level.complementType === 'both'
     })
     
-    setGameState(prev => ({
+    setGameState((prev: GameState) => ({
       ...prev,
       currentQuestion: question
     }))
-  }
+  }, [setCurrentValue, setGameState])
+
+  useEffect(() => {
+    const progress = progressionManager.loadProgress()
+    setUserProgress(progress)
+    
+    // Generate initial question if there's a current level
+    if (progress.currentLevel) {
+      generateNewQuestion(progress.currentLevel)
+    }
+  }, [generateNewQuestion, progressionManager])
 
   const handleCheckAnswer = useCallback(() => {
     if (!userProgress?.currentLevel || !gameState.currentQuestion) return
@@ -72,7 +72,7 @@ const LearningJourney: React.FC = () => {
         }
       }, 300)
     }
-  }, [userProgress, gameState.currentQuestion, checkAnswer])
+  }, [userProgress, gameState.currentQuestion, checkAnswer, generateNewQuestion, progressionManager])
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {

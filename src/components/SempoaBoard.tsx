@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { BeadPosition, SempoaState } from '../types'
-import { useGame } from '../context/GameContext'
+import { useGame } from '../hooks/useGame'
 import DraggableBead from './DraggableBead'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 
@@ -103,7 +103,7 @@ const SempoaBoard: React.FC = () => {
     
     setSempoaState(prev => ({ ...prev, currentValue: newValue }))
     setCurrentValue(newValue)
-  }, [activeBeads])
+  }, [activeBeads, setCurrentValue])
 
   const reset = useCallback(() => {
     setActiveBeads(new Set())

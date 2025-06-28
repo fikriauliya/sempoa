@@ -1,32 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { useState, ReactNode } from 'react'
 import { GameState } from '../types'
-
-interface GameContextType {
-  gameState: GameState
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>
-  currentValue: number
-  setCurrentValue: React.Dispatch<React.SetStateAction<number>>
-  feedback: string | null
-  setFeedback: React.Dispatch<React.SetStateAction<string | null>>
-  checkAnswer: () => boolean
-}
-
-const GameContext = createContext<GameContextType | undefined>(undefined)
-
-export const useGame = () => {
-  const context = useContext(GameContext)
-  if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider')
-  }
-  return context
-}
+import { GameContext } from './context'
 
 interface GameProviderProps {
   children: ReactNode
 }
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
-
   const [gameState, setGameState] = useState<GameState>({
     currentQuestion: null,
     score: 0,
@@ -43,12 +23,12 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     const isCorrect = currentValue === gameState.currentQuestion.answer
     
     if (isCorrect) {
-      setGameState(prev => ({
+      setGameState((prev: GameState) => ({
         ...prev,
         score: prev.score + 1
       }))
     } else {
-      setGameState(prev => ({
+      setGameState((prev: GameState) => ({
         ...prev,
         mistakes: prev.mistakes + 1
       }))
@@ -57,12 +37,16 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     return isCorrect
   }
 
+  const handleSetCurrentValue = (value: number) => {
+    setCurrentValue(value)
+  }
+
   return (
     <GameContext.Provider value={{
       gameState,
       setGameState,
       currentValue,
-      setCurrentValue,
+      setCurrentValue: handleSetCurrentValue,
       feedback,
       setFeedback,
       checkAnswer

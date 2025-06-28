@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
-import { useGame } from '../context/GameContext'
+import { useGame } from '../hooks/useGame'
 import { generateQuestion } from '../utils/questionGenerator'
+import { GameState } from '../types'
 
 const GameController: React.FC = () => {
   const { gameState, setGameState } = useGame()
@@ -20,11 +21,11 @@ const GameController: React.FC = () => {
       useBigFriend: useComplements.bigFriend
     })
     
-    setGameState(prev => ({
+    setGameState((prev: GameState) => ({
       ...prev,
       currentQuestion: question
     }))
-  }, [difficulty, operation, useComplements])
+  }, [difficulty, operation, useComplements, setGameState])
 
 
   return (

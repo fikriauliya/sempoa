@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG } from '../src/config/sempoaConfig'
 
@@ -193,7 +193,7 @@ test.describe('Sempoa Board - UI Layout & Responsive Design', () => {
 
   test.describe('Responsive Layout Behavior', () => {
     // Helper function to get alignment data for responsive testing
-    const getAlignmentData = async (page: any): Promise<number[]> => {
+    const getAlignmentData = async (page: Page): Promise<number[]> => {
       const headers = page.locator('.column-header');
       const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
         .locator('.flex.justify-center.gap-2').first();
