@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+
+dotenv.config()
+const port = process.env.VITE_PORT || '5173'
 
 export default defineConfig({
   testDir: './tests',
@@ -12,7 +16,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${port}`,
     trace: 'on-first-retry',
     hasTouch: true, // Enable touch support for all tests
   },
@@ -31,17 +35,18 @@ export default defineConfig({
         hasTouch: true
       },
     },
-    {
-      name: 'Mobile Safari',
-      use: { 
-        ...devices['iPhone 12'],
-        hasTouch: true
-      },
-    },
+    // Disabled due to WebKit Bus error: 10 on this system
+    // {
+    //   name: 'Mobile Safari',
+    //   use: { 
+    //     ...devices['iPhone 12'],
+    //     hasTouch: true
+    //   },
+    // },
   ],
   webServer: {
     command: 'npm run dev',
-    port: 5173,
+    port: parseInt(port),
     reuseExistingServer: !process.env.CI,
   },
 })
