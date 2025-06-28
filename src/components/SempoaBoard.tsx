@@ -7,7 +7,7 @@ import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } = SEMPOA_CONFIG
 
 const SempoaBoard: React.FC = () => {
-  const { currentValue, setCurrentValue, feedback, checkAnswer, gameState, setOnReset } = useGame()
+  const { currentValue, setCurrentValue, checkAnswer, gameState, setOnReset } = useGame()
   
   const [, setSempoaState] = useState<SempoaState>(() => {
     const initialBeads: BeadPosition[] = []

@@ -32,7 +32,8 @@ const createInitialLevels = (): LearningLevel[] => {
           useBigFriend: combo.big,
           isUnlocked: levelIndex === 0, // Only first level unlocked initially
           isCompleted: false,
-          completionPercentage: 0
+          completionPercentage: 0,
+          questionsCompleted: 0
         })
         levelIndex++
       })
@@ -48,7 +49,16 @@ const LearningJourney: React.FC = () => {
   const [journeyState, setJourneyState] = useState<LearningJourneyState>(() => {
     const saved = localStorage.getItem('learning-journey')
     if (saved) {
-      return JSON.parse(saved)
+      const parsedState = JSON.parse(saved)
+      // Ensure all levels have questionsCompleted field (for backward compatibility)
+      const updatedLevels = parsedState.levels.map((level: any) => ({
+        ...level,
+        questionsCompleted: level.questionsCompleted || 0
+      }))
+      return {
+        ...parsedState,
+        levels: updatedLevels
+      }
     }
     return {
       levels: createInitialLevels(),
@@ -84,41 +94,45 @@ const LearningJourney: React.FC = () => {
 
   // Track correct answers and update level progress
   useEffect(() => {
-    if (!journeyState.currentLevelId) return
+    if (!journeyState.currentLevelId || !lastAnswerResult) return
     
     const currentLevelIndex = journeyState.levels.findIndex(l => l.id === journeyState.currentLevelId)
     if (currentLevelIndex === -1) return
 
-    // Check if we need to update progress (when score changes)
-    const questionsCompleted = gameState.score
-    const targetQuestions = 5 // Complete 5 questions to finish a level
-    const completion = Math.min(100, (questionsCompleted % targetQuestions) * 20)
-    
-    setJourneyState(prev => {
-      const newLevels = [...prev.levels]
-      newLevels[currentLevelIndex] = {
-        ...newLevels[currentLevelIndex],
-        completionPercentage: completion
-      }
-
-      // If level is completed, mark it and unlock next level
-      if (completion === 100 && !newLevels[currentLevelIndex].isCompleted) {
-        newLevels[currentLevelIndex].isCompleted = true
+    // Only increment on correct answers
+    if (lastAnswerResult.isCorrect) {
+      setJourneyState(prev => {
+        const newLevels = [...prev.levels]
+        const currentLevel = newLevels[currentLevelIndex]
+        const newQuestionsCompleted = currentLevel.questionsCompleted + 1
+        const targetQuestions = 5 // Complete 5 questions to finish a level
+        const completion = Math.min(100, (newQuestionsCompleted / targetQuestions) * 100)
         
-        // Unlock next level if it exists
-        if (currentLevelIndex + 1 < newLevels.length) {
-          newLevels[currentLevelIndex + 1].isUnlocked = true
+        newLevels[currentLevelIndex] = {
+          ...currentLevel,
+          questionsCompleted: newQuestionsCompleted,
+          completionPercentage: completion
         }
-      }
 
-      return {
-        ...prev,
-        levels: newLevels,
-        totalScore: questionsCompleted,
-        overallProgress: (newLevels.filter(l => l.isCompleted).length / newLevels.length) * 100
-      }
-    })
-  }, [gameState.score, journeyState.currentLevelId])
+        // If level is completed, mark it and unlock next level
+        if (completion === 100 && !currentLevel.isCompleted) {
+          newLevels[currentLevelIndex].isCompleted = true
+          
+          // Unlock next level if it exists
+          if (currentLevelIndex + 1 < newLevels.length) {
+            newLevels[currentLevelIndex + 1].isUnlocked = true
+          }
+        }
+
+        return {
+          ...prev,
+          levels: newLevels,
+          totalScore: gameState.score,
+          overallProgress: (newLevels.filter(l => l.isCompleted).length / newLevels.length) * 100
+        }
+      })
+    }
+  }, [lastAnswerResult, journeyState.currentLevelId, gameState.score])
 
   const selectLevel = useCallback((levelId: string) => {
     const level = journeyState.levels.find(l => l.id === levelId)

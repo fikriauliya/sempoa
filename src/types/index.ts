@@ -36,6 +36,7 @@ export interface LearningLevel {
   isUnlocked: boolean
   isCompleted: boolean
   completionPercentage: number
+  questionsCompleted: number
 }
 
 export interface LearningJourneyState {
