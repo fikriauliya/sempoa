@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { BeadPosition, SempoaState } from '../types'
 import { useGame } from '../context/GameContext'
 import DraggableBead from './DraggableBead'
@@ -7,7 +7,7 @@ import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } = SEMPOA_CONFIG
 
 const SempoaBoard: React.FC = () => {
-  const { currentValue, setCurrentValue, feedback, checkAnswer, gameState } = useGame()
+  const { currentValue, setCurrentValue, feedback } = useGame()
   
   const [, setSempoaState] = useState<SempoaState>(() => {
     const initialBeads: BeadPosition[] = []
@@ -39,6 +39,13 @@ const SempoaBoard: React.FC = () => {
   })
 
   const [activeBeads, setActiveBeads] = useState<Set<string>>(new Set())
+  
+  // Reset beads when currentValue is set to 0
+  useEffect(() => {
+    if (currentValue === 0) {
+      setActiveBeads(new Set())
+    }
+  }, [currentValue])
 
   const getBeadKey = (bead: BeadPosition): string => 
     `${bead.column}-${bead.isUpper ? 'upper' : 'lower'}-${bead.row}`
@@ -104,11 +111,6 @@ const SempoaBoard: React.FC = () => {
     setCurrentValue(0)
   }, [setCurrentValue])
 
-  const submitAnswer = useCallback(() => {
-    if (gameState.currentQuestion) {
-      checkAnswer(currentValue)
-    }
-  }, [currentValue, checkAnswer, gameState.currentQuestion])
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -124,14 +126,6 @@ const SempoaBoard: React.FC = () => {
           >
             Reset
           </button>
-          {gameState.currentQuestion && (
-            <button
-              onClick={submitAnswer}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-            >
-              Submit Answer
-            </button>
-          )}
         </div>
       </div>
       
