@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useGame } from '../hooks/useGame'
 import { UserProgress, LevelProgress, GameState } from '../types'
 import { ProgressionManager } from '../utils/progressionManager'
@@ -9,7 +9,7 @@ const LearningJourney: React.FC = () => {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [buttonState, setButtonState] = useState<'normal' | 'correct' | 'wrong'>('normal')
-  const progressionManager = ProgressionManager.getInstance()
+  const progressionManager = useMemo(() => ProgressionManager.getInstance(), [])
 
   const generateNewQuestion = useCallback((level: LevelProgress) => {
     // Reset the sempoa board
@@ -34,9 +34,22 @@ const LearningJourney: React.FC = () => {
     
     // Generate initial question if there's a current level
     if (progress.currentLevel) {
-      generateNewQuestion(progress.currentLevel)
+      // Reset the sempoa board
+      setCurrentValue(0)
+      
+      const question = generateQuestion({
+        difficulty: progress.currentLevel.digitLevel,
+        operation: progress.currentLevel.operationType,
+        useSmallFriend: progress.currentLevel.complementType === 'smallFriend' || progress.currentLevel.complementType === 'both',
+        useBigFriend: progress.currentLevel.complementType === 'bigFriend' || progress.currentLevel.complementType === 'both'
+      })
+      
+      setGameState((prev: GameState) => ({
+        ...prev,
+        currentQuestion: question
+      }))
     }
-  }, [generateNewQuestion, progressionManager])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckAnswer = useCallback(() => {
     if (!userProgress?.currentLevel || !gameState.currentQuestion) return
@@ -58,7 +71,20 @@ const LearningJourney: React.FC = () => {
       // Generate new question quickly
       setTimeout(() => {
         if (updatedProgress.currentLevel) {
-          generateNewQuestion(updatedProgress.currentLevel)
+          // Reset the sempoa board
+          setCurrentValue(0)
+          
+          const question = generateQuestion({
+            difficulty: updatedProgress.currentLevel.digitLevel,
+            operation: updatedProgress.currentLevel.operationType,
+            useSmallFriend: updatedProgress.currentLevel.complementType === 'smallFriend' || updatedProgress.currentLevel.complementType === 'both',
+            useBigFriend: updatedProgress.currentLevel.complementType === 'bigFriend' || updatedProgress.currentLevel.complementType === 'both'
+          })
+          
+          setGameState((prev: GameState) => ({
+            ...prev,
+            currentQuestion: question
+          }))
         }
       }, 300)
     } else {
@@ -68,11 +94,24 @@ const LearningJourney: React.FC = () => {
       // Also generate new question when wrong
       setTimeout(() => {
         if (updatedProgress.currentLevel) {
-          generateNewQuestion(updatedProgress.currentLevel)
+          // Reset the sempoa board
+          setCurrentValue(0)
+          
+          const question = generateQuestion({
+            difficulty: updatedProgress.currentLevel.digitLevel,
+            operation: updatedProgress.currentLevel.operationType,
+            useSmallFriend: updatedProgress.currentLevel.complementType === 'smallFriend' || updatedProgress.currentLevel.complementType === 'both',
+            useBigFriend: updatedProgress.currentLevel.complementType === 'bigFriend' || updatedProgress.currentLevel.complementType === 'both'
+          })
+          
+          setGameState((prev: GameState) => ({
+            ...prev,
+            currentQuestion: question
+          }))
         }
       }, 300)
     }
-  }, [userProgress, gameState.currentQuestion, checkAnswer, generateNewQuestion, progressionManager])
+  }, [userProgress, gameState.currentQuestion, checkAnswer]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
