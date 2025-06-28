@@ -10,8 +10,6 @@ import * as questionGenerator from '../../utils/questionGenerator'
 jest.mock('../../utils/progressionManager')
 jest.mock('../../utils/questionGenerator')
 
-const MockedProgressionManager = ProgressionManager as jest.MockedClass<typeof ProgressionManager>
-
 // Test wrapper with GameProvider
 const LearningJourneyWithProvider = () => (
   <GameProvider>
@@ -93,7 +91,7 @@ describe('LearningJourney', () => {
       getSectionProgress: jest.fn(),
     }
 
-    ;(MockedProgressionManager.getInstance as jest.Mock).mockReturnValue(mockProgressionManager)
+    ;(ProgressionManager.getInstance as jest.Mock).mockReturnValue(mockProgressionManager)
     
     // Setup default return values
     mockProgressionManager.loadProgress.mockReturnValue(mockUserProgress)
