@@ -1,5 +1,3 @@
-Workflow:
-
 - Select one task from @TODOS.md and implement it.
 - Tasks are ordered by priority. Choose the highest priority task.
 - Clarify the task requirements and obtain approval.
