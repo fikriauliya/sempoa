@@ -25,3 +25,10 @@ export interface GameState {
   level: number
   mistakes: number
 }
+
+export interface CompletionTime {
+  time: string
+  question: string
+  timestamp: number
+  answer: number
+}

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Question Timer', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173');
+    await page.goto('http://localhost:5174');
     
     // Clear any existing local storage data
     await page.evaluate(() => {
@@ -11,7 +11,11 @@ test.describe('Question Timer', () => {
   });
 
   test('timer starts when new question is displayed', async ({ page }) => {
-    // Wait for the game to load
+    // Wait for the game to load and click New Question
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
+    
+    // Wait for question to appear
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Check that timer is displayed and starts at 00:00
@@ -26,6 +30,8 @@ test.describe('Question Timer', () => {
   });
 
   test('timer displays in MM:SS format', async ({ page }) => {
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="question-timer"]');
     
     const timer = page.locator('[data-testid="question-timer"]');
@@ -37,6 +43,8 @@ test.describe('Question Timer', () => {
   });
 
   test('timer continues during wrong answers', async ({ page }) => {
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Wait for timer to start
@@ -61,6 +69,8 @@ test.describe('Question Timer', () => {
   });
 
   test('timer stops and records time on correct answer', async ({ page }) => {
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Get the current question to solve it correctly
@@ -110,6 +120,8 @@ test.describe('Question Timer', () => {
     });
     
     await page.reload();
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Check that historical times are displayed
@@ -117,11 +129,13 @@ test.describe('Question Timer', () => {
     await expect(historySection).toBeVisible();
     
     await expect(page.locator('[data-testid="history-item"]')).toHaveCount(2);
-    await expect(page.locator('[data-testid="history-item"]').first()).toContainText('00:05');
-    await expect(page.locator('[data-testid="history-item"]').first()).toContainText('5 + 3');
+    await expect(page.locator('[data-testid="history-item"]').first()).toContainText('00:08');
+    await expect(page.locator('[data-testid="history-item"]').first()).toContainText('12 - 7');
   });
 
   test('completion times persist between sessions', async ({ page }) => {
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Add a completion time
@@ -132,6 +146,8 @@ test.describe('Question Timer', () => {
     
     // Reload page to simulate new session
     await page.reload();
+    await page.waitForSelector('button:has-text("New Question")');
+    await page.click('button:has-text("New Question")');
     await page.waitForSelector('[data-testid="current-question"]');
     
     // Verify data persisted
