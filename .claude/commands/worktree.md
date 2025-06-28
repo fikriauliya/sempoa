@@ -1,0 +1,4 @@
+- For each uncompleted task in @TODOS.md, if not yet created:
+  - Create a corresponding branch in the format <ticket-id>-task-name (don't checkout). Use lower cases for the branch name
+  - Create a git worktree for each branch, put it on ../<branch-name>
+  - Use single git command: `git worktree add` for the tasks above
