@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Upper Bead Separator Intersection', () => {
@@ -10,7 +11,7 @@ test.describe('Upper Bead Separator Intersection', () => {
     console.log(`Separator top: ${DERIVED_CONFIG.SEPARATOR_TOP}px`)
     console.log(`Separator bottom: ${DERIVED_CONFIG.SEPARATOR_BOTTOM}px`)
     
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
     

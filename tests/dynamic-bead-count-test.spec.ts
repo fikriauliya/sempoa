@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 
 // This test demonstrates that changing bead counts works with the new dynamic configuration
 test.describe('Dynamic Bead Count Configuration Test', () => {

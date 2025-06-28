@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Upper Bead Separator Alignment', () => {
@@ -6,7 +7,7 @@ test.describe('Upper Bead Separator Alignment', () => {
     console.log('=== Testing Complete Upper Bead Alignment ===')
     console.log(`Configuration: ${SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN} upper beads per column`)
     
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
     

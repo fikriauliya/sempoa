@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 
 test.describe('Multiple Upper Beads Configuration', () => {
   test('should support 2 upper beads per column without intersection', async ({ page }) => {
@@ -19,7 +20,7 @@ test.describe('Multiple Upper Beads Configuration', () => {
     // This test will demonstrate what should work when we have 2 upper beads
     // Currently it will show the current state vs what we need
     
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
     
@@ -173,7 +174,7 @@ test.describe('Multiple Upper Beads Configuration', () => {
   test('should demonstrate current vs required configuration for 2 upper beads', async ({ page }) => {
     console.log('=== Current vs Required Configuration Comparison ===')
     
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
     

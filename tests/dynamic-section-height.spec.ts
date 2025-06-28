@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Dynamic Section Height Based on Bead Count', () => {
@@ -62,7 +63,7 @@ test.describe('Dynamic Section Height Based on Bead Count', () => {
   })
 
   test('all beads should fit within their sections with proper spacing', async ({ page }) => {
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     
     // Test upper section
     console.log('\nTesting upper bead fit:')

@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Regression Lock - Correct Behavior Validation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
   })

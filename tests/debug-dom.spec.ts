@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { TEST_CONFIG } from './test-config'
 
 test('Debug DOM structure', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  await page.goto(TEST_CONFIG.BASE_URL);
   
   // Wait for page to load
   await expect(page.getByRole('heading', { name: 'Sempoa Board' })).toBeVisible();

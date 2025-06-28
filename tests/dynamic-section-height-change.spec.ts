@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 
 test.describe('Dynamic Section Height - Configuration Change Simulation', () => {
   test('should demonstrate failure when bead counts change', async () => {

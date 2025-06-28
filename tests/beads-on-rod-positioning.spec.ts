@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { TEST_CONFIG } from './test-config'
 import { DERIVED_CONFIG } from '../src/config/sempoaConfig';
 
 test.describe('Sempoa Board - Beads on Rod Positioning', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the sempoa application
-    await page.goto('http://localhost:5173');
+    await page.goto(TEST_CONFIG.BASE_URL);
   });
 
   test('should verify beads are properly positioned on vertical rods', async ({ page }) => {

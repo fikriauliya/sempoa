@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { TEST_CONFIG } from './test-config'
 
 test.describe('Sempoa Board - Column Header Alignment', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173');
+    await page.goto(TEST_CONFIG.BASE_URL);
   });
 
   test('should verify column headers are centered above their respective bead columns', async ({ page }) => {

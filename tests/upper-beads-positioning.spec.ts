@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 
 test.describe('Upper Beads Positioning', () => {
   test('should properly position multiple upper beads without intersection', async () => {
@@ -88,7 +89,7 @@ test.describe('Upper Beads Positioning', () => {
   test('should verify component positioning formula matches expected logic', async ({ page }) => {
     console.log('=== Testing Component Implementation ===')
     
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     await page.click('button:has-text("Reset")')
     await page.waitForTimeout(500)
     

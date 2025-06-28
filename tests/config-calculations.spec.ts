@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../src/config/sempoaConfig'
 
 test.describe('Configuration Calculations', () => {
@@ -166,7 +167,7 @@ test.describe('Configuration Calculations', () => {
   })
 
   test('beads should not intersect each other', async ({ page }) => {
-    await page.goto('http://localhost:5173')
+    await page.goto(TEST_CONFIG.BASE_URL)
     
     // Reset board to ensure clean state
     await page.click('button:has-text("Reset")')

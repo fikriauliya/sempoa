@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TEST_CONFIG } from './test-config'
 
 test.describe('Horizontal Separator Width', () => {
   // Test different viewport dimensions where the issue might occur
@@ -19,7 +20,7 @@ test.describe('Horizontal Separator Width', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       
       // Navigate to the sempoa application
-      await page.goto('http://localhost:5173');
+      await page.goto(TEST_CONFIG.BASE_URL);
       
       // Wait for the sempoa board to load
       await page.waitForSelector('[data-testid="sempoa-board"]', { timeout: 10000 });
@@ -73,7 +74,7 @@ test.describe('Horizontal Separator Width', () => {
   }
   
   test('horizontal separator visual alignment', async ({ page }) => {
-    await page.goto('http://localhost:5173');
+    await page.goto(TEST_CONFIG.BASE_URL);
     await page.waitForSelector('[data-testid="sempoa-board"]');
     
     // Take screenshot for visual verification
