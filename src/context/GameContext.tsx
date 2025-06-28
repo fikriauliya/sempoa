@@ -9,6 +9,7 @@ interface GameContextType {
   feedback: string | null
   setFeedback: React.Dispatch<React.SetStateAction<string | null>>
   checkAnswer: (userAnswer: number) => void
+  setOnAnswerChecked: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -35,6 +36,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   
   const [currentValue, setCurrentValue] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const [onAnswerChecked, setOnAnswerChecked] = useState<(() => void) | undefined>(undefined)
 
   const checkAnswer = (userAnswer: number) => {
     if (!gameState.currentQuestion) return
@@ -52,12 +54,17 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       setFeedback(`Incorrect. The answer is ${gameState.currentQuestion.answer}`)
       setGameState(prev => ({
         ...prev,
-        mistakes: prev.mistakes + 1
+        mistakes: prev.mistakes + 1,
+        currentQuestion: null
       }))
     }
 
+    // Call the callback to generate next question
     setTimeout(() => {
       setFeedback(null)
+      if (onAnswerChecked) {
+        onAnswerChecked()
+      }
     }, 2000)
   }
 
@@ -69,7 +76,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       setCurrentValue,
       feedback,
       setFeedback,
-      checkAnswer
+      checkAnswer,
+      setOnAnswerChecked
     }}>
       {children}
     </GameContext.Provider>

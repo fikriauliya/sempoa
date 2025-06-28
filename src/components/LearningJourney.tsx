@@ -43,7 +43,7 @@ const createInitialLevels = (): LearningLevel[] => {
 }
 
 const LearningJourney: React.FC = () => {
-  const { gameState, setGameState } = useGame()
+  const { gameState, setGameState, setOnAnswerChecked } = useGame()
   
   const [journeyState, setJourneyState] = useState<LearningJourneyState>(() => {
     const saved = localStorage.getItem('learning-journey')
@@ -142,6 +142,11 @@ const LearningJourney: React.FC = () => {
       currentQuestion: question
     }))
   }, [journeyState.currentLevelId, journeyState.levels, setGameState])
+
+  // Set up the callback to automatically generate next question after answer
+  useEffect(() => {
+    setOnAnswerChecked(() => generateNewQuestion)
+  }, [generateNewQuestion, setOnAnswerChecked])
 
   const getLevelIcon = (level: LearningLevel) => {
     if (level.operation === 'addition') return '➕'
