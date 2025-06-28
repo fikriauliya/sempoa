@@ -43,7 +43,7 @@ const createInitialLevels = (): LearningLevel[] => {
 }
 
 const LearningJourney: React.FC = () => {
-  const { gameState, setGameState, setOnAnswerChecked, lastAnswerCorrect } = useGame()
+  const { gameState, setGameState, setOnAnswerChecked, lastAnswerResult } = useGame()
   
   const [journeyState, setJourneyState] = useState<LearningJourneyState>(() => {
     const saved = localStorage.getItem('learning-journey')
@@ -68,9 +68,9 @@ const LearningJourney: React.FC = () => {
 
   // Trigger animation when answer is submitted
   useEffect(() => {
-    if (lastAnswerCorrect !== null && journeyState.currentLevelId) {
+    if (lastAnswerResult && journeyState.currentLevelId) {
       setAnimatingLevelId(journeyState.currentLevelId)
-      setAnimationType(lastAnswerCorrect ? 'correct' : 'wrong')
+      setAnimationType(lastAnswerResult.isCorrect ? 'correct' : 'wrong')
       
       // Clear animation after it completes
       const timer = setTimeout(() => {
@@ -80,7 +80,7 @@ const LearningJourney: React.FC = () => {
       
       return () => clearTimeout(timer)
     }
-  }, [lastAnswerCorrect, journeyState.currentLevelId])
+  }, [lastAnswerResult, journeyState.currentLevelId])
 
   // Track correct answers and update level progress
   useEffect(() => {
