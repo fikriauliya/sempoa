@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG } from './test-config'
 
 test('Learning journey UI screenshot', async ({ page }) => {
-  await page.goto('http://localhost:5178')
+  await page.goto(TEST_CONFIG.BASE_URL)
   
   // Wait for the page to load completely
   await page.waitForLoadState('networkidle')
