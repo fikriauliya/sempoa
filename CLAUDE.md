@@ -125,4 +125,5 @@ The sempoa implements authentic abacus behavior:
 
 ## Workflow Guidelines
 
-- Never autocommit, I will ask you to commit when needed
+- Never autocommit changes; wait for explicit request to commit
+- When creating pull requests, include screenshots of visual changes. Use GitHub's content API to upload the image and embed the ![image description](image-url) markdown in the PR description
