@@ -1,4 +1,4 @@
-- Implement tasks #$ARGUMENTS from @TODOS.md. If the task ID is not given, ask which task to implement.
+- You are to implement tasks #$ARGUMENTS from @TODOS.md. If the task ID is not given, ask which task to implement.
 - Clarify the task requirements and obtain approval.
 - After approval, improve the task title for clarity
 - Create a concise PRD/TRD in the @stories folder named "<ticket-number>-<task-name>.md"

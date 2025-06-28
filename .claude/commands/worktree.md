@@ -2,3 +2,4 @@
   - Create a corresponding branch in the format <ticket-id>-task-name (don't checkout). Use lower cases for the branch name
   - Create a git worktree for each branch, put it on ../<branch-name>
   - Use single git command: `git worktree add` for the tasks above
+- If it has been created, merge the latest changes from the main branch into the worktree.
