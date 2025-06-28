@@ -1,0 +1,2 @@
+- Ensure the .env file exists. If not, run `npm run dev` and save the port to the .env file
+- Refer to @CLAUDE.md for test execution instructions
