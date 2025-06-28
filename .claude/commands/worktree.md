@@ -1,5 +1,7 @@
 - For each uncompleted task in @TODOS.md, if not yet created:
-  - Create a corresponding branch in the format <ticket-id>-task-name (don't checkout). Use lower cases for the branch name
-  - Create a git worktree for each branch, put it on ../<branch-name>
-  - Use single git command: `git worktree add` for the tasks above
-- If it has been created, merge the latest changes from the main branch into the worktree.
+- Create a corresponding branch using the format `<ticket-id>-task-name` (don't checkout). Use lowercase for the branch name.
+  - Create a git worktree for each branch and place it in `../<branch-name>`
+  - Use the single git command: `git worktree add` for the above tasks
+- If the worktree already exists, merge the latest changes from the main branch into it. Don't `cd` there, but use `git -C`
+- If `.env` doesn't exist, create one with an available unique port for the HTTP server
+- Each branch should have a different VITE_PORT in its .env file
