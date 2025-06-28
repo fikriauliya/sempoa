@@ -24,7 +24,7 @@ npx playwright test beads-on-rod-positioning.spec.ts # Run bead alignment tests
 **Port Configuration**: Both development server and tests load the port from `.env` file:
 
 - Create `.env` file with `VITE_PORT=5173` (or your preferred port)
-- If `.env` doesn't exist: run `npm run dev`, note the port it uses, then create `.env` with that port
+- If `.env` doesn't exist: ask user to run `npm run dev`, note the port it uses, then create `.env` with that port
 - Both `npm run dev` and `npx playwright test` will use the same port from `.env`
 - The `.env` file is gitignored and won't be committed
 
@@ -76,8 +76,8 @@ Key types in `src/types/index.ts`:
 
 **Pre-Test Setup**:
 
-- Ensure the .env file exists. If not, run `npm run dev` and save the port to the .env file
-- Ensure the development server is running with `npm run dev` (check if already running to avoid port conflicts)
+- Ensure the .env file exists. If not, ask user to run `npm run dev` and save the port to the .env file
+- Ensure the development server is running (assume user has already started it; if not, ask user to run `npm run dev`)
 
 **Playwright E2E Tests**: Focus on sempoa board functionality and bead positioning
 
@@ -126,4 +126,5 @@ The sempoa implements authentic abacus behavior:
 ## Workflow Guidelines
 
 - Never autocommit changes; wait for explicit request to commit
+- Never run `npm run dev`; assume it's already running or ask user to start it if needed
 - When creating pull requests, include screenshots of visual changes. Use GitHub's content API to upload the image and embed the ![image description](image-url) markdown in the PR description
