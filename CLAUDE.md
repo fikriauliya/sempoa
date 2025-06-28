@@ -77,6 +77,7 @@ Key types in `src/types/index.ts`:
 **Pre-Test Setup**:
 
 - Ensure the .env file exists. If not, run `npm run dev` and save the port to the .env file
+- Ensure the development server is running with `npm run dev` (check if already running to avoid port conflicts)
 
 **Playwright E2E Tests**: Focus on sempoa board functionality and bead positioning
 
