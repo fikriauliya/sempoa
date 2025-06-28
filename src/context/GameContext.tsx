@@ -13,6 +13,7 @@ interface GameContextType {
   onReset?: () => void
   setOnReset: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
   lastAnswerResult: { isCorrect: boolean; timestamp: number } | null
+  clearLastAnswer: () => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -74,6 +75,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     }
   }
 
+  const clearLastAnswer = () => {
+    setLastAnswerResult(null)
+  }
+
   return (
     <GameContext.Provider value={{
       gameState,
@@ -86,7 +91,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       setOnAnswerChecked,
       onReset,
       setOnReset,
-      lastAnswerResult
+      lastAnswerResult,
+      clearLastAnswer
     }}>
       {children}
     </GameContext.Provider>

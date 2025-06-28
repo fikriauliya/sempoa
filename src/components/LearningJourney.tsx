@@ -44,7 +44,7 @@ const createInitialLevels = (): LearningLevel[] => {
 }
 
 const LearningJourney: React.FC = () => {
-  const { gameState, setGameState, setOnAnswerChecked, lastAnswerResult } = useGame()
+  const { gameState, setGameState, setOnAnswerChecked, lastAnswerResult, clearLastAnswer } = useGame()
   
   const [journeyState, setJourneyState] = useState<LearningJourneyState>(() => {
     const saved = localStorage.getItem('learning-journey')
@@ -132,30 +132,50 @@ const LearningJourney: React.FC = () => {
         }
       })
     }
-  }, [lastAnswerResult, journeyState.currentLevelId, gameState.score])
+  }, [lastAnswerResult?.timestamp, journeyState.currentLevelId])
 
   const selectLevel = useCallback((levelId: string) => {
+    // Defensive checks
+    if (!levelId || typeof levelId !== 'string') {
+      return
+    }
+    
     const level = journeyState.levels.find(l => l.id === levelId)
-    if (!level || !level.isUnlocked) return
+    
+    if (!level) {
+      return
+    }
+    
+    if (!level.isUnlocked) {
+      return
+    }
+
+    // Clear any previous answer result to prevent stale data issues
+    clearLastAnswer()
 
     setJourneyState(prev => ({
       ...prev,
       currentLevelId: levelId
     }))
 
-    // Generate question for this level
-    const question = generateQuestion({
-      difficulty: level.difficulty,
-      operation: level.operation,
-      useSmallFriend: level.useSmallFriend,
-      useBigFriend: level.useBigFriend
-    })
-    
-    setGameState(prev => ({
-      ...prev,
-      currentQuestion: question
-    }))
-  }, [journeyState.levels, setGameState])
+    try {
+      // Generate question for this level
+      const question = generateQuestion({
+        difficulty: level.difficulty,
+        operation: level.operation,
+        useSmallFriend: level.useSmallFriend,
+        useBigFriend: level.useBigFriend
+      })
+      
+      setGameState(prev => ({
+        ...prev,
+        currentQuestion: question
+      }))
+    } catch (error) {
+      // Silently handle errors to prevent crashes
+      return
+    }
+  }, [journeyState.levels, setGameState, clearLastAnswer])
 
   const generateNewQuestion = useCallback(() => {
     if (!journeyState.currentLevelId) return
@@ -227,7 +247,14 @@ const LearningJourney: React.FC = () => {
           {journeyState.levels.map((level) => (
             <button
               key={level.id}
-              onClick={() => selectLevel(level.id)}
+              onClick={(e) => {
+                if (!level.isUnlocked) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  return false
+                }
+                selectLevel(level.id)
+              }}
               disabled={!level.isUnlocked}
               className={`w-full p-3 rounded-lg text-left transition-all ${
                 level.id === journeyState.currentLevelId
