@@ -6,18 +6,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Development
-npm run dev              # Start development server (usually http://localhost:5173)
+npm run dev              # Start development server (loads port from .env VITE_PORT, defaults to 5173)
 npm run build           # TypeScript compilation + Vite production build
 npm run lint            # ESLint validation with TypeScript rules
 npm run preview         # Preview production build locally
 
 # Testing
-npx playwright test                                    # Run all E2E tests
+npx playwright test                                    # Run all E2E tests (loads port from .env)
 npx playwright test <test-file>                       # Run specific test file
 npx playwright test --headed                          # Run tests with browser UI
 npx playwright test --debug                           # Debug tests interactively
 npx playwright test beads-on-rod-positioning.spec.ts # Run bead alignment tests
 ```
+
+## Environment Configuration
+
+**Port Configuration**: Both development server and tests load the port from `.env` file:
+- Create `.env` file with `VITE_PORT=5173` (or your preferred port)
+- If `.env` doesn't exist: run `npm run dev`, note the port it uses, then create `.env` with that port
+- Both `npm run dev` and `npx playwright test` will use the same port from `.env`
+- The `.env` file is gitignored and won't be committed
 
 ## Core Architecture
 
