@@ -12,6 +12,7 @@ interface GameContextType {
   setOnAnswerChecked: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
   onReset?: () => void
   setOnReset: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
+  lastAnswerCorrect: boolean | null
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -40,21 +41,21 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [feedback, setFeedback] = useState<string | null>(null)
   const [onAnswerChecked, setOnAnswerChecked] = useState<(() => void) | undefined>(undefined)
   const [onReset, setOnReset] = useState<(() => void) | undefined>(undefined)
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null)
 
   const checkAnswer = (userAnswer: number) => {
     if (!gameState.currentQuestion) return
 
     const isCorrect = userAnswer === gameState.currentQuestion.answer
+    setLastAnswerCorrect(isCorrect)
     
     if (isCorrect) {
-      setFeedback('Correct! Well done!')
       setGameState(prev => ({
         ...prev,
         score: prev.score + 1,
         currentQuestion: null
       }))
     } else {
-      setFeedback(`Incorrect. The answer is ${gameState.currentQuestion.answer}`)
       setGameState(prev => ({
         ...prev,
         mistakes: prev.mistakes + 1,
@@ -71,11 +72,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     if (onAnswerChecked) {
       onAnswerChecked()
     }
-
-    // Clear feedback after 2 seconds
-    setTimeout(() => {
-      setFeedback(null)
-    }, 2000)
   }
 
   return (
@@ -89,7 +85,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       checkAnswer,
       setOnAnswerChecked,
       onReset,
-      setOnReset
+      setOnReset,
+      lastAnswerCorrect
     }}>
       {children}
     </GameContext.Provider>

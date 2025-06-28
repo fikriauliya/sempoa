@@ -43,7 +43,7 @@ const createInitialLevels = (): LearningLevel[] => {
 }
 
 const LearningJourney: React.FC = () => {
-  const { gameState, setGameState, setOnAnswerChecked } = useGame()
+  const { gameState, setGameState, setOnAnswerChecked, lastAnswerCorrect } = useGame()
   
   const [journeyState, setJourneyState] = useState<LearningJourneyState>(() => {
     const saved = localStorage.getItem('learning-journey')
@@ -57,11 +57,30 @@ const LearningJourney: React.FC = () => {
       overallProgress: 0
     }
   })
+  
+  const [animatingLevelId, setAnimatingLevelId] = useState<string | null>(null)
+  const [animationType, setAnimationType] = useState<'correct' | 'wrong' | null>(null)
 
   // Save to localStorage whenever journeyState changes
   useEffect(() => {
     localStorage.setItem('learning-journey', JSON.stringify(journeyState))
   }, [journeyState])
+
+  // Trigger animation when answer is submitted
+  useEffect(() => {
+    if (lastAnswerCorrect !== null && journeyState.currentLevelId) {
+      setAnimatingLevelId(journeyState.currentLevelId)
+      setAnimationType(lastAnswerCorrect ? 'correct' : 'wrong')
+      
+      // Clear animation after it completes
+      const timer = setTimeout(() => {
+        setAnimatingLevelId(null)
+        setAnimationType(null)
+      }, 600)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [lastAnswerCorrect, journeyState.currentLevelId])
 
   // Track correct answers and update level progress
   useEffect(() => {
@@ -167,12 +186,22 @@ const LearningJourney: React.FC = () => {
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Learning Journey</h2>
       
       {/* Score Display */}
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
+      <div className={`bg-blue-50 p-4 rounded-lg mb-6 transition-all ${
+        animatingLevelId && animationType === 'correct' ? 'animate-correct-pulse' : ''
+      } ${
+        animatingLevelId && animationType === 'wrong' ? 'animate-wrong-shake' : ''
+      }`}>
         <h3 className="font-semibold text-blue-800 mb-2">Progress</h3>
-        <div className="text-2xl font-mono text-blue-600">
+        <div className={`text-2xl font-mono ${
+          animatingLevelId && animationType === 'correct' ? 'text-green-600' : 'text-blue-600'
+        } ${
+          animatingLevelId && animationType === 'wrong' ? 'text-red-600' : ''
+        } transition-colors`}>
           {gameState.score}
         </div>
-        <div className="text-sm text-blue-600">
+        <div className={`text-sm ${
+          animatingLevelId && animationType === 'wrong' ? 'text-red-600' : 'text-blue-600'
+        } transition-colors`}>
           Mistakes: {gameState.mistakes}
         </div>
       </div>
@@ -208,14 +237,30 @@ const LearningJourney: React.FC = () => {
                   {level.isCompleted && <span className="text-green-500">✓</span>}
                   {!level.isUnlocked && <span className="text-gray-400">🔒</span>}
                   {level.isUnlocked && !level.isCompleted && level.completionPercentage > 0 && (
-                    <div className="flex items-center space-x-1">
-                      <div className="w-8 h-2 bg-gray-200 rounded-full">
+                    <div className={`flex items-center space-x-1 ${
+                      animatingLevelId === level.id && animationType === 'correct' ? 'animate-correct-shake' : ''
+                    } ${
+                      animatingLevelId === level.id && animationType === 'wrong' ? 'animate-wrong-shake' : ''
+                    }`}>
+                      <div className="w-8 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-blue-500 rounded-full"
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            animatingLevelId === level.id && animationType === 'correct' 
+                              ? 'bg-green-500' 
+                              : animatingLevelId === level.id && animationType === 'wrong'
+                              ? 'bg-red-500'
+                              : 'bg-blue-500'
+                          }`}
                           style={{ width: `${level.completionPercentage}%` }}
                         />
                       </div>
-                      <span className="text-xs text-gray-600">{level.completionPercentage}%</span>
+                      <span className={`text-xs transition-colors ${
+                        animatingLevelId === level.id && animationType === 'correct' 
+                          ? 'text-green-600' 
+                          : animatingLevelId === level.id && animationType === 'wrong'
+                          ? 'text-red-600'
+                          : 'text-gray-600'
+                      }`}>{level.completionPercentage}%</span>
                     </div>
                   )}
                 </div>

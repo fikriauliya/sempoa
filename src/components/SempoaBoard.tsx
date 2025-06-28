@@ -152,15 +152,6 @@ const SempoaBoard: React.FC = () => {
         </div>
       </div>
       
-      {feedback && (
-        <div className={`mb-4 p-3 rounded-lg text-center font-medium ${
-          feedback.includes('Correct') 
-            ? 'bg-green-100 text-green-800 border border-green-300' 
-            : 'bg-red-100 text-red-800 border border-red-300'
-        }`}>
-          {feedback}
-        </div>
-      )}
       
       <div className="sempoa-frame bg-black p-6 rounded-lg shadow-2xl">
         <div className="bg-amber-50 p-4 rounded relative">
