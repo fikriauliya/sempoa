@@ -101,6 +101,7 @@ storybook-static/
 test-results/
 playwright-report/
 playwright/.cache/
+tests/screenshots/
 
 # Temporary folders
 tmp/
