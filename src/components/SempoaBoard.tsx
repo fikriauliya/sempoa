@@ -151,9 +151,20 @@ const SempoaBoard: React.FC = () => {
           <div className="flex justify-center gap-2 mb-4">
             {Array.from({ length: COLUMNS }, (_, col) => {
               const placeValue = Math.pow(10, COLUMNS - 1 - col);
-              const displayValue = placeValue >= 1000000 ? `${placeValue / 1000000}M` :
-                                 placeValue >= 1000 ? `${placeValue / 1000}K` :
-                                 placeValue.toString();
+              let displayValue: string;
+              
+              if (placeValue >= 1000000000000) { // Trillions
+                displayValue = `${placeValue / 1000000000000}T`;
+              } else if (placeValue >= 1000000000) { // Billions
+                displayValue = `${placeValue / 1000000000}B`;
+              } else if (placeValue >= 1000000) { // Millions
+                displayValue = `${placeValue / 1000000}M`;
+              } else if (placeValue >= 1000) { // Thousands
+                displayValue = `${placeValue / 1000}K`;
+              } else { // Units
+                displayValue = placeValue.toString();
+              }
+              
               return (
                 <div 
                   key={col} 
