@@ -1,5 +1,4 @@
 - Update the specs on @stories if necessary
 - Push changes on the current branch
 - If the Pull Request has not been created yet, create a Pull Request. Otherwise, update the Pull Request description
-- Pull Request should contain an attached image of the screen that was changed (use Playwright). Follow @CLAUDE.md
 - PR description should include a summary of changes made between the current branch and the main branch

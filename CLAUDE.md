@@ -127,4 +127,3 @@ The sempoa implements authentic abacus behavior:
 
 - Never autocommit changes; wait for explicit request to commit
 - Never run `npm run dev`; assume it's already running or ask user to start it if needed
-- When creating pull requests, include screenshots of visual changes. Use GitHub's content API to upload the image and embed the ![image description](image-url) markdown in the PR description

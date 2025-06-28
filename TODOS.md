@@ -8,3 +8,4 @@
 - [ ] SP-008: [FEATURE] Add question timer to track and store completion time for each problem in local storage
 - [ ] SP-010: [FEATURE] Enable swipe gestures for bead manipulation on tablets and mobile devices
 - [ ] SP-009: [GAMIFICATION] Create SVG cat illustration with connect-the-dots reveal mechanism - dots/lines progressively appear with each correct answer (supporting curved paths)
+- [ ] Faster
