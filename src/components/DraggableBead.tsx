@@ -62,9 +62,10 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
-      className={`${baseClasses} ${activeClasses} ${dragClasses}`}
+      className={`${baseClasses} ${activeClasses} ${dragClasses} ${isActive ? 'bead active' : 'bead'}`}
       style={beadStyle}
       onClick={onClick}
+      data-testid={`bead-${bead.column}-${bead.row}-${bead.isUpper ? 'upper' : 'lower'}`}
     />
   )
 }

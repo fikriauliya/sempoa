@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext'
 import { generateQuestion } from '../utils/questionGenerator'
 
 const GameController: React.FC = () => {
-  const { gameState, setGameState } = useGame()
+  const { gameState, setGameState, currentTime, completionTimes } = useGame()
 
   const [difficulty, setDifficulty] = useState<'single' | 'double' | 'triple'>('single')
   const [operation, setOperation] = useState<'addition' | 'subtraction' | 'mixed'>('addition')
@@ -116,7 +116,7 @@ const GameController: React.FC = () => {
         {gameState.currentQuestion && (
           <div className="bg-green-50 p-4 rounded-lg">
             <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
-            <div className="text-lg font-mono text-green-700 mb-2">
+            <div className="text-lg font-mono text-green-700 mb-2" data-testid="current-question">
               {gameState.currentQuestion.operation === 'addition' 
                 ? gameState.currentQuestion.operands.join(' + ')
                 : gameState.currentQuestion.operation === 'subtraction'
@@ -127,12 +127,28 @@ const GameController: React.FC = () => {
             <div className="text-sm text-green-600 mb-2">
               Difficulty: {gameState.currentQuestion.difficulty}
             </div>
+            <div className="text-sm text-green-600 mb-2">
+              Time: <span className="font-mono" data-testid="question-timer">{currentTime}</span>
+            </div>
             {gameState.currentQuestion.useSmallFriend && (
               <div className="text-xs text-green-500">Uses Small Friend</div>
             )}
             {gameState.currentQuestion.useBigFriend && (
               <div className="text-xs text-green-500">Uses Big Friend</div>
             )}
+          </div>
+        )}
+
+        {completionTimes.length > 0 && (
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-purple-800 mb-2">Recent Completion Times</h3>
+            <div className="space-y-1 max-h-32 overflow-y-auto" data-testid="completion-history">
+              {completionTimes.slice(-5).reverse().map((completion) => (
+                <div key={completion.timestamp} className="text-sm text-purple-700 font-mono" data-testid="history-item">
+                  {completion.time} - {completion.question}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
