@@ -11,7 +11,7 @@ test.describe('Sempoa Board - Column Header Alignment', () => {
     await expect(page.getByRole('heading', { name: 'Sempoa Board' })).toBeVisible();
     
     // Get column headers and bead columns
-    const columnHeaders = page.locator('.text-xs.text-gray-600.font-mono.text-center.flex.items-center.justify-center');
+    const columnHeaders = page.locator('.column-header');
     const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
       .locator('.flex.justify-center.gap-2').first();
     const beadColumns = boardContainer.locator('> div');
@@ -44,7 +44,7 @@ test.describe('Sempoa Board - Column Header Alignment', () => {
   });
 
   test('should display place values in readable format within limited space', async ({ page }) => {
-    const columnHeaders = page.locator('.text-xs.text-gray-600.font-mono.text-center.flex.items-center.justify-center');
+    const columnHeaders = page.locator('.column-header');
     
     // Verify all 7 headers are visible and readable
     await expect(columnHeaders).toHaveCount(7);
@@ -81,7 +81,7 @@ test.describe('Sempoa Board - Column Header Alignment', () => {
     
     // Get initial alignment measurements
     const getAlignmentData = async () => {
-      const headers = page.locator('.text-xs.text-gray-600.font-mono.text-center.flex.items-center.justify-center');
+      const headers = page.locator('.column-header');
       const boardContainer = page.locator('.bg-amber-100.rounded.border-2.border-amber-800')
         .locator('.flex.justify-center.gap-2').first();
       const columns = boardContainer.locator('> div');
@@ -129,7 +129,7 @@ test.describe('Sempoa Board - Column Header Alignment', () => {
     await expect(page.getByRole('heading', { name: 'Sempoa Board' })).toBeVisible();
     
     // Get headers and beads
-    const columnHeaders = page.locator('.text-xs.text-gray-600.font-mono.text-center.flex.items-center.justify-center');
+    const columnHeaders = page.locator('.column-header');
     const allBeads = page.locator('[draggable="true"]');
     
     await expect(columnHeaders).toHaveCount(7);
