@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { BeadPosition, SempoaState } from '../types'
 import { useGame } from '../context/GameContext'
 import DraggableBead from './DraggableBead'
@@ -7,7 +7,7 @@ import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } = SEMPOA_CONFIG
 
 const SempoaBoard: React.FC = () => {
-  const { currentValue, setCurrentValue, feedback, checkAnswer, gameState } = useGame()
+  const { currentValue, setCurrentValue, feedback, checkAnswer, gameState, setOnReset } = useGame()
   
   const [, setSempoaState] = useState<SempoaState>(() => {
     const initialBeads: BeadPosition[] = []
@@ -109,6 +109,23 @@ const SempoaBoard: React.FC = () => {
       checkAnswer(currentValue)
     }
   }, [currentValue, checkAnswer, gameState.currentQuestion])
+
+  // Set up reset callback
+  useEffect(() => {
+    setOnReset(() => reset)
+  }, [reset, setOnReset])
+
+  // Add keyboard event listener for Enter key
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && gameState.currentQuestion) {
+        submitAnswer()
+      }
+    }
+
+    window.addEventListener('keypress', handleKeyPress)
+    return () => window.removeEventListener('keypress', handleKeyPress)
+  }, [submitAnswer, gameState.currentQuestion])
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">

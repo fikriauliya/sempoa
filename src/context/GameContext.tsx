@@ -10,6 +10,8 @@ interface GameContextType {
   setFeedback: React.Dispatch<React.SetStateAction<string | null>>
   checkAnswer: (userAnswer: number) => void
   setOnAnswerChecked: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
+  onReset?: () => void
+  setOnReset: React.Dispatch<React.SetStateAction<(() => void) | undefined>>
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -37,6 +39,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [currentValue, setCurrentValue] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [onAnswerChecked, setOnAnswerChecked] = useState<(() => void) | undefined>(undefined)
+  const [onReset, setOnReset] = useState<(() => void) | undefined>(undefined)
 
   const checkAnswer = (userAnswer: number) => {
     if (!gameState.currentQuestion) return
@@ -59,12 +62,19 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       }))
     }
 
-    // Call the callback to generate next question
+    // Reset the board
+    if (onReset) {
+      onReset()
+    }
+
+    // Generate next question immediately
+    if (onAnswerChecked) {
+      onAnswerChecked()
+    }
+
+    // Clear feedback after 2 seconds
     setTimeout(() => {
       setFeedback(null)
-      if (onAnswerChecked) {
-        onAnswerChecked()
-      }
     }, 2000)
   }
 
@@ -77,7 +87,9 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       feedback,
       setFeedback,
       checkAnswer,
-      setOnAnswerChecked
+      setOnAnswerChecked,
+      onReset,
+      setOnReset
     }}>
       {children}
     </GameContext.Provider>
