@@ -115,7 +115,7 @@ const SempoaBoard: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-800">Sempoa Board</h2>
         <div className="flex gap-4 items-center">
-          <div className="text-lg font-mono bg-gray-100 px-3 py-1 rounded">
+          <div className="text-lg font-mono bg-gray-100 px-3 py-1 rounded" data-testid="current-value">
             Value: {currentValue}
           </div>
           <button
@@ -223,6 +223,7 @@ const SempoaBoard: React.FC = () => {
                         <div
                           key={`upper-${row}`}
                           className="absolute"
+                          data-testid={`bead-${col}-${row}-upper`}
                           style={{
                             top: active 
                               ? `${DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - ((UPPER_BEADS_PER_COLUMN - 1 - row) * SEMPOA_CONFIG.BEAD.HEIGHT)}px`
@@ -258,6 +259,7 @@ const SempoaBoard: React.FC = () => {
                         <div
                           key={`lower-${row}`}
                           className="absolute"
+                          data-testid={`bead-${col}-${row}-lower`}
                           style={{
                             top: active 
                               ? `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (row * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px` 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { BeadPosition } from '../types'
 import { SEMPOA_CONFIG } from '../config/sempoaConfig'
 
@@ -8,8 +8,14 @@ interface DraggableBeadProps {
   onClick: () => void
 }
 
+interface TouchInfo {
+  startY: number
+  startTime: number
+}
+
 const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }) => {
   const [isDragging, setIsDragging] = useState(false)
+  const touchInfo = useRef<TouchInfo | null>(null)
 
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true)
@@ -23,11 +29,53 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({ bead, isActive, onClick }
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault()
     setIsDragging(true)
+    
+    const touch = e.touches[0]
+    touchInfo.current = {
+      startY: touch.clientY,
+      startTime: Date.now()
+    }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault()
     setIsDragging(false)
+    
+    if (!touchInfo.current) {
+      onClick()
+      return
+    }
+
+    const touch = e.changedTouches[0]
+    const endY = touch.clientY
+    const endTime = Date.now()
+    
+    const deltaY = touchInfo.current.startY - endY // Positive = swipe up, Negative = swipe down
+    const deltaTime = endTime - touchInfo.current.startTime
+    const distance = Math.abs(deltaY)
+    const velocity = distance / deltaTime // pixels per millisecond
+    
+    // Swipe detection thresholds
+    const MIN_SWIPE_DISTANCE = 30 // pixels
+    const MIN_SWIPE_VELOCITY = 0.1 // pixels per millisecond (100px/s)
+    
+    // Check if this qualifies as a swipe gesture
+    if (distance >= MIN_SWIPE_DISTANCE && velocity >= MIN_SWIPE_VELOCITY) {
+      // Handle swipe gesture
+      handleSwipeGesture(deltaY > 0 ? 'up' : 'down')
+    } else {
+      // Fallback to tap behavior
+      onClick()
+    }
+    
+    touchInfo.current = null
+  }
+
+  const handleSwipeGesture = (_direction: 'up' | 'down') => {
+    // For swipe gestures, we treat them as enhanced tap behavior
+    // Both swipe up and swipe down trigger the same onClick behavior
+    // The abacus logic in the parent component handles activation/deactivation properly
+    // This maintains authentic abacus behavior while adding intuitive gesture support
     onClick()
   }
 
