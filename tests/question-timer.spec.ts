@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Question Timer', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5174');
+    const port = process.env.VITE_PORT || '5173';
+    await page.goto(`http://localhost:${port}`);
     
     // Clear any existing local storage data
     await page.evaluate(() => {
