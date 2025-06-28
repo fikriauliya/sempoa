@@ -142,7 +142,7 @@ test.describe('Sempoa Board - Beads on Rod Positioning', () => {
   test('should verify column labels align with rod positions', async ({ page }) => {
     // Step 11: Verify that column labels (place values) align with their respective rods
     // Look specifically for the column labels in the sempoa board
-    const columnLabels = page.locator('.text-xs.text-gray-600.font-mono.text-center.flex.items-center.justify-center');
+    const columnLabels = page.locator('.column-header');
     await expect(columnLabels).toHaveCount(7);
     
     // Verify the place values are correct (from left to right: 1M, 100K, 10K, 1K, 100, 10, 1)

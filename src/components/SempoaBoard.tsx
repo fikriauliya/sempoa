@@ -168,8 +168,9 @@ const SempoaBoard: React.FC = () => {
               return (
                 <div 
                   key={col} 
-                  className="text-xs text-gray-600 font-mono text-center flex items-center justify-center"
+                  className="column-header text-xs text-gray-600 font-mono text-center flex items-center justify-center"
                   style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
+                  data-testid={`column-header-${col}`}
                 >
                   {displayValue}
                 </div>

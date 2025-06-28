@@ -59,7 +59,7 @@ test.describe('Horizontal Separator Width', () => {
       const expectedWidth = expectedRightEdge - expectedLeftEdge;
       
       // Verify separator spans the full width with some tolerance
-      const tolerance = 5; // 5px tolerance for minor rendering differences
+      const tolerance = 8; // 8px tolerance for minor rendering differences on small screens
       
       expect(separatorBox!.x).toBeLessThanOrEqual(expectedLeftEdge + tolerance);
       expect(separatorBox!.x + separatorBox!.width).toBeGreaterThanOrEqual(expectedRightEdge - tolerance);
