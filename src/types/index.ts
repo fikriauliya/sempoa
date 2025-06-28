@@ -25,3 +25,22 @@ export interface GameState {
   level: number
   mistakes: number
 }
+
+export interface LearningLevel {
+  id: string
+  name: string
+  operation: 'addition' | 'subtraction' | 'mixed'
+  difficulty: 'single' | 'double' | 'triple'
+  useSmallFriend: boolean
+  useBigFriend: boolean
+  isUnlocked: boolean
+  isCompleted: boolean
+  completionPercentage: number
+}
+
+export interface LearningJourneyState {
+  levels: LearningLevel[]
+  currentLevelId: string | null
+  totalScore: number
+  overallProgress: number
+}
