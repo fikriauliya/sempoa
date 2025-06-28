@@ -11,21 +11,27 @@ npm run build           # TypeScript compilation + Vite production build
 npm run lint            # ESLint validation with TypeScript rules
 npm run preview         # Preview production build locally
 
-# Testing
-npx playwright test                                    # Run all E2E tests (loads port from .env)
-npx playwright test <test-file>                       # Run specific test file
-npx playwright test --headed                          # Run tests with browser UI
-npx playwright test --debug                           # Debug tests interactively
-npx playwright test beads-on-rod-positioning.spec.ts # Run bead alignment tests
+# Testing - Component Tests (React Testing Library + Jest)
+npm test                                              # Run all component tests (fast <2s)
+npm run test:watch                                    # Run component tests in watch mode
+npm run test:coverage                                 # Run component tests with coverage report
+
+# Testing - E2E Tests (Playwright)
+npx playwright test                                   # Run all E2E tests (loads port from .env)
+npx playwright test --project=chromium               # Run E2E tests on Chromium only
+npx playwright test <test-file>                      # Run specific E2E test file
+npx playwright test --headed                         # Run E2E tests with browser UI
+npx playwright test --debug                          # Debug E2E tests interactively
 ```
 
 ## Environment Configuration
 
-**Port Configuration**: Both development server and tests load the port from `.env` file:
+**Port Configuration**: Development server and E2E tests load the port from `.env` file:
 
 - Create `.env` file with `VITE_PORT=5173` (or your preferred port)
 - If `.env` doesn't exist: ask user to run `npm run dev`, note the port it uses, then create `.env` with that port
 - Both `npm run dev` and `npx playwright test` will use the same port from `.env`
+- Component tests (Jest) don't require the dev server - they run in JSDOM
 - The `.env` file is gitignored and won't be committed
 
 ## Core Architecture
@@ -50,7 +56,7 @@ App.tsx
 
 ### Sempoa Board Implementation
 
-- **Structure**: 7 columns representing place values (1,000,000 down to 1)
+- **Structure**: 13 columns representing place values (1,000,000,000,000 down to 1)
 - **Bead System**: Each column has 1 upper bead (value 5×place) + 4 lower beads (value 1×place)
 - **Positioning**: Uses CSS absolute positioning with `left: 50%` and `translateX(-50%)` for rod alignment
 - **Interaction**: Click-to-toggle, drag-and-drop, and touch gesture support
@@ -74,16 +80,49 @@ Key types in `src/types/index.ts`:
 
 ## Testing Strategy
 
-**Pre-Test Setup**:
+This project uses a **dual testing approach** for comprehensive coverage:
 
+### Component Tests (React Testing Library + Jest)
+
+**Purpose**: Fast unit testing of component logic and behavior
+**Location**: `src/components/__tests__/`
+**Runtime**: <2 seconds, no browser required
+
+**Test Files**:
+- `SempoaBoard.test.tsx` - Core abacus behavior (bead clicking, value calculations, reset)
+- `SempoaBoard.positioning.test.tsx` - CSS positioning, layout verification, mathematical formulas
+- `SempoaBoard.upperBeads.test.tsx` - Upper bead positioning, interaction, configuration support
+
+**Key Features**:
+- 35 tests covering all SempoaBoard functionality
+- 100% statement coverage on SempoaBoard component
+- Tests bead interactions, value calculations, and CSS positioning
+- Uses test utilities in `src/test-utils/sempoa-test-helpers.ts`
+- Runs in JSDOM environment (no dev server needed)
+
+**When to Run**: During development for fast feedback on component logic
+
+### E2E Tests (Playwright)
+
+**Purpose**: Visual layout validation and cross-browser compatibility
+**Location**: `tests/`
+**Runtime**: ~5 seconds, requires browser and dev server
+
+**Test Files**:
+- `configuration.spec.ts` - Mathematical configuration validation and derived calculations
+- `ui-layout.spec.ts` - Responsive design, visual alignment, separator positioning
+
+**Key Features**:
+- Tests actual browser rendering and visual layout
+- Validates responsive design across different viewport sizes
+- Captures screenshots for visual regression testing
+- Tests mathematical configuration consistency
+
+**Pre-Test Setup**:
 - Ensure the .env file exists. If not, ask user to run `npm run dev` and save the port to the .env file
 - Ensure the development server is running (assume user has already started it; if not, ask user to run `npm run dev`)
 
-**Playwright E2E Tests**: Focus on sempoa board functionality and bead positioning
-
-- `tests/beads-on-rod-positioning.spec.ts`: Critical test ensuring beads are properly centered on vertical rods
-- Tests verify bounding box alignment, CSS positioning, and visual layout
-- Run tests after any changes to sempoa board layout or positioning logic
+**When to Run**: Before releases or when making visual/layout changes
 
 ## Development Notes
 
@@ -101,7 +140,10 @@ Key types in `src/types/index.ts`:
 - **Tailwind CSS**: Utility-first styling with custom sempoa board components
 - **ESLint**: TypeScript-specific rules with React hooks validation
 
-When making changes to the sempoa board layout or bead positioning, always run the Playwright tests to ensure proper alignment is maintained.
+**Testing Workflow**:
+- Run `npm test` after making component logic changes (fast feedback)
+- Run `npx playwright test --project=chromium` after layout/visual changes
+- Both test suites should pass before committing changes
 
 ## Abacus Behavior
 
@@ -120,8 +162,14 @@ The sempoa implements authentic abacus behavior:
 
 ### Tests
 
-- `tests/abacus-behavior.spec.ts` - Comprehensive tests for the abacus behavior
-- Verifies proper bead grouping, value calculations, and visual positioning
+**Component Tests** (React Testing Library):
+- `src/components/__tests__/SempoaBoard.test.tsx` - Comprehensive tests for abacus behavior
+- `src/components/__tests__/SempoaBoard.positioning.test.tsx` - Bead positioning and CSS verification
+- `src/components/__tests__/SempoaBoard.upperBeads.test.tsx` - Upper bead specific behavior
+
+**E2E Tests** (Playwright):
+- `tests/configuration.spec.ts` - Mathematical formula validation
+- `tests/ui-layout.spec.ts` - Visual layout and responsive design
 
 ## Workflow Guidelines
 

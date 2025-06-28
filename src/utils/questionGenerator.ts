@@ -1,7 +1,7 @@
 import { Question } from '../types'
 
 interface QuestionConfig {
-  difficulty: 'single' | 'double' | 'triple'
+  difficulty: 'single' | 'double' | 'triple' | 'four' | 'five'
   operation: 'addition' | 'subtraction' | 'mixed'
   useSmallFriend: boolean
   useBigFriend: boolean
@@ -11,7 +11,7 @@ const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-const generateNumber = (difficulty: 'single' | 'double' | 'triple'): number => {
+const generateNumber = (difficulty: 'single' | 'double' | 'triple' | 'four' | 'five'): number => {
   switch (difficulty) {
     case 'single':
       return getRandomInt(1, 9)
@@ -19,6 +19,10 @@ const generateNumber = (difficulty: 'single' | 'double' | 'triple'): number => {
       return getRandomInt(10, 99)
     case 'triple':
       return getRandomInt(100, 999)
+    case 'four':
+      return getRandomInt(1000, 9999)
+    case 'five':
+      return getRandomInt(10000, 99999)
     default:
       return getRandomInt(1, 9)
   }
@@ -40,7 +44,9 @@ const generateAdditionQuestion = (config: QuestionConfig): Question => {
   
   if (config.useSmallFriend && !needsSmallFriend(num1, num2)) {
     const digits = config.difficulty === 'single' ? 1 : 
-                   config.difficulty === 'double' ? 2 : 3
+                   config.difficulty === 'double' ? 2 : 
+                   config.difficulty === 'triple' ? 3 :
+                   config.difficulty === 'four' ? 4 : 5
     const maxForDigits = Math.pow(10, digits) - 1
     
     while (!needsSmallFriend(num1, num2) && num1 + num2 <= maxForDigits) {
