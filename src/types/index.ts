@@ -1,7 +1,6 @@
 export interface BeadPosition {
   column: number
   row: number
-  value: number
   isUpper: boolean
 }
 

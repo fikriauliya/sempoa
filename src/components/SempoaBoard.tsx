@@ -201,7 +201,6 @@ const SempoaBoard: React.FC = () => {
                       const bead: BeadPosition = {
                         column: col,
                         row: row,
-                        value: 5 * Math.pow(10, COLUMNS - 1 - col),
                         isUpper: true,
                       };
                       return (
@@ -226,7 +225,6 @@ const SempoaBoard: React.FC = () => {
                       const bead: BeadPosition = {
                         column: col,
                         row: row,
-                        value: Math.pow(10, COLUMNS - 1 - col),
                         isUpper: false,
                       };
                       return (

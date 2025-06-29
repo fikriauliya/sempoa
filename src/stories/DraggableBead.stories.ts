@@ -31,14 +31,12 @@ type Story = StoryObj<typeof meta>
 const upperBead: BeadPosition = {
   column: 3,
   row: 0,
-  value: 5000,
   isUpper: true
 }
 
 const lowerBead: BeadPosition = {
   column: 3,
   row: 1,
-  value: 1000,
   isUpper: false
 }
 
@@ -75,7 +73,6 @@ export const HighValueBead: Story = {
     bead: {
       column: 0,
       row: 0,
-      value: 5000000,
       isUpper: true
     },
     isActive: false
@@ -87,7 +84,6 @@ export const UnitValueBead: Story = {
     bead: {
       column: 6,
       row: 0,
-      value: 1,
       isUpper: false
     },
     isActive: false
