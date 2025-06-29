@@ -1,21 +1,23 @@
-import React, { useState, ReactNode, createContext, useContext } from 'react'
-import { GameState } from '../types'
+import React, { useState, ReactNode, createContext, useContext } from "react";
+import { GameState } from "../types";
 
 export interface GameContextType {
-  gameState: GameState
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>
-  currentValue: number
-  setCurrentValue: (value: number) => void
-  feedback: string | null
-  setFeedback: React.Dispatch<React.SetStateAction<string | null>>
-  checkAnswer: () => boolean
+  gameState: GameState;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  currentValue: number;
+  setCurrentValue: (value: number) => void;
+  feedback: string | null;
+  setFeedback: React.Dispatch<React.SetStateAction<string | null>>;
+  checkAnswer: () => boolean;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const GameContext = createContext<GameContextType | undefined>(undefined)
+export const GameContext = createContext<GameContextType | undefined>(
+  undefined
+);
 
 interface GameProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
@@ -23,56 +25,54 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     currentQuestion: null,
     score: 0,
     level: 1,
-    mistakes: 0
-  })
-  
-  const [currentValue, setCurrentValue] = useState(0)
-  const [feedback, setFeedback] = useState<string | null>(null)
+    mistakes: 0,
+  });
+
+  const [currentValue, setCurrentValue] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const checkAnswer = () => {
-    if (!gameState.currentQuestion) return false
+    if (!gameState.currentQuestion) return false;
 
-    const isCorrect = currentValue === gameState.currentQuestion.answer
-    
+    const isCorrect = currentValue === gameState.currentQuestion.answer;
+
     if (isCorrect) {
       setGameState((prev: GameState) => ({
         ...prev,
-        score: prev.score + 1
-      }))
+        score: prev.score + 1,
+      }));
     } else {
       setGameState((prev: GameState) => ({
         ...prev,
-        mistakes: prev.mistakes + 1
-      }))
+        mistakes: prev.mistakes + 1,
+      }));
     }
-    
-    return isCorrect
-  }
 
-  const handleSetCurrentValue = (value: number) => {
-    setCurrentValue(value)
-  }
+    return isCorrect;
+  };
 
   return (
-    <GameContext.Provider value={{
-      gameState,
-      setGameState,
-      currentValue,
-      setCurrentValue: handleSetCurrentValue,
-      feedback,
-      setFeedback,
-      checkAnswer
-    }}>
+    <GameContext.Provider
+      value={{
+        gameState,
+        setGameState,
+        currentValue,
+        setCurrentValue,
+        feedback,
+        setFeedback,
+        checkAnswer,
+      }}
+    >
       {children}
     </GameContext.Provider>
-  )
-}
+  );
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useGame = () => {
-  const context = useContext(GameContext)
+  const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider')
+    throw new Error("useGame must be used within a GameProvider");
   }
-  return context
-}
+  return context;
+};

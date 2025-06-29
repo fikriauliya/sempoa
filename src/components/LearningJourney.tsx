@@ -34,22 +34,9 @@ const LearningJourney: React.FC = () => {
     
     // Generate initial question if there's a current level
     if (progress.currentLevel) {
-      // Reset the sempoa board
-      setCurrentValue(0)
-      
-      const question = generateQuestion({
-        difficulty: progress.currentLevel.digitLevel,
-        operation: progress.currentLevel.operationType,
-        useSmallFriend: progress.currentLevel.complementType === 'smallFriend' || progress.currentLevel.complementType === 'both',
-        useBigFriend: progress.currentLevel.complementType === 'bigFriend' || progress.currentLevel.complementType === 'both'
-      })
-      
-      setGameState((prev: GameState) => ({
-        ...prev,
-        currentQuestion: question
-      }))
+      generateNewQuestion(progress.currentLevel)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [generateNewQuestion]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckAnswer = useCallback(() => {
     if (!userProgress?.currentLevel || !gameState.currentQuestion) return
@@ -71,20 +58,7 @@ const LearningJourney: React.FC = () => {
       // Generate new question quickly
       setTimeout(() => {
         if (updatedProgress.currentLevel) {
-          // Reset the sempoa board
-          setCurrentValue(0)
-          
-          const question = generateQuestion({
-            difficulty: updatedProgress.currentLevel.digitLevel,
-            operation: updatedProgress.currentLevel.operationType,
-            useSmallFriend: updatedProgress.currentLevel.complementType === 'smallFriend' || updatedProgress.currentLevel.complementType === 'both',
-            useBigFriend: updatedProgress.currentLevel.complementType === 'bigFriend' || updatedProgress.currentLevel.complementType === 'both'
-          })
-          
-          setGameState((prev: GameState) => ({
-            ...prev,
-            currentQuestion: question
-          }))
+          generateNewQuestion(updatedProgress.currentLevel)
         }
       }, 300)
     } else {
@@ -94,20 +68,7 @@ const LearningJourney: React.FC = () => {
       // Also generate new question when wrong
       setTimeout(() => {
         if (updatedProgress.currentLevel) {
-          // Reset the sempoa board
-          setCurrentValue(0)
-          
-          const question = generateQuestion({
-            difficulty: updatedProgress.currentLevel.digitLevel,
-            operation: updatedProgress.currentLevel.operationType,
-            useSmallFriend: updatedProgress.currentLevel.complementType === 'smallFriend' || updatedProgress.currentLevel.complementType === 'both',
-            useBigFriend: updatedProgress.currentLevel.complementType === 'bigFriend' || updatedProgress.currentLevel.complementType === 'both'
-          })
-          
-          setGameState((prev: GameState) => ({
-            ...prev,
-            currentQuestion: question
-          }))
+          generateNewQuestion(updatedProgress.currentLevel)
         }
       }, 300)
     }
