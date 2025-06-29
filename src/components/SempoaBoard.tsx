@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { BeadPosition, SempoaState } from '../types'
-import { useGame } from '../hooks/useGame'
+import { useGame } from '../context/GameContext'
 import DraggableBead from './DraggableBead'
 import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../config/sempoaConfig'
 

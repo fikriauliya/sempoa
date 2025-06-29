@@ -1,6 +1,18 @@
-import React, { useState, ReactNode } from 'react'
+import React, { useState, ReactNode, createContext, useContext } from 'react'
 import { GameState } from '../types'
-import { GameContext } from './context'
+
+export interface GameContextType {
+  gameState: GameState
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>
+  currentValue: number
+  setCurrentValue: (value: number) => void
+  feedback: string | null
+  setFeedback: React.Dispatch<React.SetStateAction<string | null>>
+  checkAnswer: () => boolean
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const GameContext = createContext<GameContextType | undefined>(undefined)
 
 interface GameProviderProps {
   children: ReactNode
@@ -54,4 +66,13 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       {children}
     </GameContext.Provider>
   )
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useGame = () => {
+  const context = useContext(GameContext)
+  if (context === undefined) {
+    throw new Error('useGame must be used within a GameProvider')
+  }
+  return context
 }

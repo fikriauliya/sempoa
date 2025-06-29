@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useGame } from '../hooks/useGame'
+import { useGame } from '../context/GameContext'
 import { UserProgress, LevelProgress, GameState } from '../types'
 import { ProgressionManager } from '../utils/progressionManager'
 import { generateQuestion } from '../utils/questionGenerator'
