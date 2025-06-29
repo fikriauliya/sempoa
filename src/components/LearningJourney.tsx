@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { motion, useAnimate } from 'framer-motion'
 import { useGame } from '../context/GameContext'
 import { UserProgress, LevelProgress, GameState } from '../types'
 import { ProgressionManager } from '../utils/progressionManager'
@@ -10,6 +11,7 @@ const LearningJourney: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [buttonState, setButtonState] = useState<'normal' | 'correct' | 'wrong'>('normal')
   const progressionManager = useMemo(() => ProgressionManager.getInstance(), [])
+  const [scope, animate] = useAnimate()
 
   const generateNewQuestion = useCallback((level: LevelProgress) => {
     // Reset the sempoa board
@@ -38,7 +40,7 @@ const LearningJourney: React.FC = () => {
     }
   }, [generateNewQuestion]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCheckAnswer = useCallback(() => {
+  const handleCheckAnswer = useCallback(async () => {
     if (!userProgress?.currentLevel || !gameState.currentQuestion) return
     
     const isCorrect = checkAnswer()
@@ -46,33 +48,28 @@ const LearningJourney: React.FC = () => {
     // Show feedback on button
     setButtonState(isCorrect ? 'correct' : 'wrong')
     
-    // Reset button state and move to next question quickly
-    setTimeout(() => {
-      setButtonState('normal')
-    }, 300)
+    // Animate button feedback, then reset state and move to next question
+    await animate(scope.current, { scale: [1, 1.05, 1] }, { duration: 0.3 })
+    setButtonState('normal')
     
     if (isCorrect) {
       const updatedProgress = progressionManager.recordCorrectAnswer(userProgress)
       setUserProgress(updatedProgress)
       
-      // Generate new question quickly
-      setTimeout(() => {
-        if (updatedProgress.currentLevel) {
-          generateNewQuestion(updatedProgress.currentLevel)
-        }
-      }, 300)
+      // Generate new question after animation
+      if (updatedProgress.currentLevel) {
+        generateNewQuestion(updatedProgress.currentLevel)
+      }
     } else {
       const updatedProgress = progressionManager.recordIncorrectAnswer(userProgress)
       setUserProgress(updatedProgress)
       
       // Also generate new question when wrong
-      setTimeout(() => {
-        if (updatedProgress.currentLevel) {
-          generateNewQuestion(updatedProgress.currentLevel)
-        }
-      }, 300)
+      if (updatedProgress.currentLevel) {
+        generateNewQuestion(updatedProgress.currentLevel)
+      }
     }
-  }, [userProgress, gameState.currentQuestion, checkAnswer]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userProgress, gameState.currentQuestion, checkAnswer, animate, scope, generateNewQuestion, progressionManager])
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -291,7 +288,8 @@ const LearningJourney: React.FC = () => {
           </div>
         )}
         
-        <button
+        <motion.button
+          ref={scope}
           onClick={handleCheckAnswer}
           className={`w-full py-2 px-4 rounded-md transition-all duration-200 font-medium flex items-center justify-center gap-2 ${
             buttonState === 'correct' 
@@ -312,7 +310,7 @@ const LearningJourney: React.FC = () => {
             </svg>
           )}
           <span>Check Answer</span>
-        </button>
+        </motion.button>
       </div>
     </div>
   )
