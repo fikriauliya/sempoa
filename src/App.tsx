@@ -1,6 +1,6 @@
-import { GameProvider } from './context/GameContext'
-import SempoaBoard from './components/SempoaBoard'
-import LearningJourney from './components/LearningJourney'
+import LearningJourney from './components/LearningJourney';
+import SempoaBoard from './components/SempoaBoard';
+import { GameProvider } from './context/GameContext';
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
         </div>
       </div>
     </GameProvider>
-  )
+  );
 }
 
-export default App
+export default App;

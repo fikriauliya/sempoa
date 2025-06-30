@@ -8,7 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Development
 npm run dev              # Start development server (loads port from .env VITE_PORT, defaults to 5173)
 npm run build           # TypeScript compilation + Vite production build
-npm run lint            # ESLint validation with TypeScript rules
+npm run lint            # Biome check for linting and formatting issues
+npm run lint:fix        # Auto-fix linting and formatting issues with Biome
+npm run format          # Format code with Biome
 npm run preview         # Preview production build locally
 
 # Testing - Component Tests (React Testing Library + Jest)
@@ -138,7 +140,7 @@ This project uses a **dual testing approach** for comprehensive coverage:
 - **Vite**: Fast development server with HMR
 - **TypeScript**: Strict mode enabled with ES2020 target
 - **Tailwind CSS**: Utility-first styling with custom sempoa board components
-- **ESLint**: TypeScript-specific rules with React hooks validation
+- **Biome**: Fast linter and formatter for TypeScript and React
 
 **Testing Workflow**:
 - Run `npm test` after making component logic changes (fast feedback)

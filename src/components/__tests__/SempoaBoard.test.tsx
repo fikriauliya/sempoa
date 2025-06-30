@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SempoaBoard from '../SempoaBoard';
+import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../../config/sempoaConfig';
 import { GameProvider } from '../../context/GameContext';
-import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../../config/sempoaConfig';
+import SempoaBoard from '../SempoaBoard';
 
 // Test wrapper with GameProvider
 const SempoaBoardWithProvider = () => (
@@ -25,19 +25,23 @@ describe('SempoaBoard - Abacus Behavior', () => {
   describe('Lower Beads Behavior', () => {
     test('should move together when activating - clicking a bead activates all beads above it', async () => {
       render(<SempoaBoardWithProvider />);
-      
+
       // Reset the board to ensure initial state
       const resetButton = screen.getByRole('button', { name: /reset/i });
       await user.click(resetButton);
 
       // Find the actual bead columns (not headers)
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const lowerSections = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const lowerSections = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       expect(lowerSections).toHaveLength(SEMPOA_CONFIG.COLUMNS);
 
       // Get all draggable beads in the first column
       const firstColumn = lowerSections[0];
-      const lowerBeads = firstColumn.querySelectorAll('.lower-section [draggable="true"]');
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
       expect(lowerBeads).toHaveLength(SEMPOA_CONFIG.LOWER_BEADS_PER_COLUMN);
 
       // Click on the 3rd lower bead (index 2, should activate beads 0, 1, 2)
@@ -57,32 +61,36 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Active beads should be at calculated positions
       expect(firstBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`
+        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`,
       });
       expect(secondBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`
+        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
       expect(thirdBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + (2 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`
+        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP + 2 * DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
 
       // Fourth bead should still be in inactive position
       expect(fourthBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (3 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`
+        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + 3 * DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
     });
 
     test('should move together when deactivating - clicking active bead deactivates all beads below it', async () => {
       render(<SempoaBoardWithProvider />);
-      
+
       const resetButton = screen.getByRole('button', { name: /reset/i });
       await user.click(resetButton);
 
       // Get first column lower beads
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const lowerBeads = firstColumn.querySelectorAll('.lower-section [draggable="true"]');
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
 
       // First activate all 4 beads by clicking the 4th bead
       const fourthBead = lowerBeads[3] as HTMLElement;
@@ -108,18 +116,18 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Only first bead should be active
       expect(firstBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`
+        top: `${DERIVED_CONFIG.LOWER_ACTIVE_TOP}px`,
       });
 
       // Beads 1, 2, 3 should be in inactive positions
       expect(secondBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`
+        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
       expect(thirdBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (2 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`
+        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + 2 * DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
       expect(fourthBead.parentElement).toHaveStyle({
-        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + (3 * DERIVED_CONFIG.LOWER_BEAD_SPACING)}px`
+        top: `${DERIVED_CONFIG.LOWER_INACTIVE_TOP + 3 * DERIVED_CONFIG.LOWER_BEAD_SPACING}px`,
       });
     });
   });
@@ -127,19 +135,23 @@ describe('SempoaBoard - Abacus Behavior', () => {
   describe('Upper Beads Behavior', () => {
     test('should toggle independently (current implementation)', async () => {
       render(<SempoaBoardWithProvider />);
-      
+
       const resetButton = screen.getByRole('button', { name: /reset/i });
       await user.click(resetButton);
 
       // Get first column upper bead
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       expect(upperBeads).toHaveLength(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
 
       const upperBead = upperBeads[0] as HTMLElement;
-      
+
       // Click to activate
       await user.click(upperBead);
 
@@ -149,9 +161,10 @@ describe('SempoaBoard - Abacus Behavior', () => {
       });
 
       // Verify upper bead moved to active position
-      const expectedActivePosition = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT;
+      const expectedActivePosition =
+        DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT;
       expect(upperBead.parentElement).toHaveStyle({
-        top: `${expectedActivePosition}px`
+        top: `${expectedActivePosition}px`,
       });
 
       // Click again to deactivate
@@ -164,7 +177,7 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Should be back to inactive position
       expect(upperBead.parentElement).toHaveStyle({
-        top: '0px'
+        top: '0px',
       });
     });
   });
@@ -172,15 +185,21 @@ describe('SempoaBoard - Abacus Behavior', () => {
   describe('Mixed Upper and Lower Bead Interaction', () => {
     test('should calculate combined values correctly', async () => {
       render(<SempoaBoardWithProvider />);
-      
+
       const resetButton = screen.getByRole('button', { name: /reset/i });
       await user.click(resetButton);
 
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
-      const lowerBeads = firstColumn.querySelectorAll('.lower-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
 
       // Activate upper bead in first column (5000000)
       const upperBead = upperBeads[0] as HTMLElement;
@@ -210,14 +229,18 @@ describe('SempoaBoard - Abacus Behavior', () => {
       render(<SempoaBoardWithProvider />);
 
       // Verify sempoa board is visible
-      expect(screen.getByRole('heading', { name: /sempoa board/i })).toBeInTheDocument();
-      
+      expect(
+        screen.getByRole('heading', { name: /sempoa board/i }),
+      ).toBeInTheDocument();
+
       // Verify the sempoa frame exists
       const sempoaBoard = screen.getByTestId('sempoa-board');
       expect(sempoaBoard).toBeInTheDocument();
 
       // Verify reset button exists
-      expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /reset/i }),
+      ).toBeInTheDocument();
 
       // Verify value display exists
       expect(screen.getByText(/value:/i)).toBeInTheDocument();
@@ -228,24 +251,32 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Verify we have the correct number of columns
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       expect(columns).toHaveLength(SEMPOA_CONFIG.COLUMNS);
 
       // Verify total number of beads
       const allBeads = document.querySelectorAll('[draggable="true"]');
-      const expectedTotalBeads = SEMPOA_CONFIG.COLUMNS * 
-        (SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN + SEMPOA_CONFIG.LOWER_BEADS_PER_COLUMN);
+      const expectedTotalBeads =
+        SEMPOA_CONFIG.COLUMNS *
+        (SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN +
+          SEMPOA_CONFIG.LOWER_BEADS_PER_COLUMN);
       expect(allBeads).toHaveLength(expectedTotalBeads);
     });
 
     test('should reset beads when reset button is clicked', async () => {
       render(<SempoaBoardWithProvider />);
-      
+
       // Activate some beads first
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const lowerBeads = firstColumn.querySelectorAll('.lower-section [draggable="true"]');
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
       const secondBead = lowerBeads[1] as HTMLElement;
       await user.click(secondBead);
 
@@ -270,8 +301,22 @@ describe('SempoaBoard - Abacus Behavior', () => {
       render(<SempoaBoardWithProvider />);
 
       // Verify column headers are present
-      const expectedValues = ['1T', '100B', '10B', '1B', '100M', '10M', '1M', '100K', '10K', '1K', '100', '10', '1'];
-      
+      const expectedValues = [
+        '1T',
+        '100B',
+        '10B',
+        '1B',
+        '100M',
+        '10M',
+        '1M',
+        '100K',
+        '10K',
+        '1K',
+        '100',
+        '10',
+        '1',
+      ];
+
       for (let i = 0; i < SEMPOA_CONFIG.COLUMNS; i++) {
         const header = screen.getByTestId(`column-header-${i}`);
         expect(header).toHaveTextContent(expectedValues[i]);

@@ -1,20 +1,21 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { BeadPosition } from "../types";
-import { useGame } from "../context/GameContext";
-import DraggableBead from "./DraggableBead";
-import { SEMPOA_CONFIG, DERIVED_CONFIG } from "../config/sempoaConfig";
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
+import { useGame } from '../context/GameContext';
+import type { BeadPosition } from '../types';
+import DraggableBead from './DraggableBead';
 
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } =
   SEMPOA_CONFIG;
 
 const calculateTotalValue = (activeBeads: Set<string>): number => {
   return Array.from(activeBeads).reduce((sum, beadKey) => {
-    const [col, type] = beadKey.split("-");
+    const [col, type] = beadKey.split('-');
     const column = parseInt(col);
-    const isUpper = type === "upper";
+    const isUpper = type === 'upper';
     const beadValue = isUpper
-      ? 5 * Math.pow(10, COLUMNS - 1 - column)
-      : Math.pow(10, COLUMNS - 1 - column);
+      ? 5 * 10 ** (COLUMNS - 1 - column)
+      : 10 ** (COLUMNS - 1 - column);
     return sum + beadValue;
   }, 0);
 };
@@ -30,14 +31,18 @@ const formatPlaceValue = (placeValue: number): string => {
 const calculateBeadPosition = (bead: BeadPosition, active: boolean): number => {
   if (bead.isUpper) {
     return active
-      ? DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - 
-        (UPPER_BEADS_PER_COLUMN - 1 - bead.row) * SEMPOA_CONFIG.BEAD.HEIGHT
-      : SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + bead.row * SEMPOA_CONFIG.BEAD.HEIGHT;
+      ? DERIVED_CONFIG.SEPARATOR_TOP -
+          SEMPOA_CONFIG.BEAD.HEIGHT -
+          (UPPER_BEADS_PER_COLUMN - 1 - bead.row) * SEMPOA_CONFIG.BEAD.HEIGHT
+      : SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP +
+          bead.row * SEMPOA_CONFIG.BEAD.HEIGHT;
   }
-  
+
   return active
-    ? DERIVED_CONFIG.LOWER_ACTIVE_TOP + bead.row * DERIVED_CONFIG.LOWER_BEAD_SPACING
-    : DERIVED_CONFIG.LOWER_INACTIVE_TOP + bead.row * DERIVED_CONFIG.LOWER_BEAD_SPACING;
+    ? DERIVED_CONFIG.LOWER_ACTIVE_TOP +
+        bead.row * DERIVED_CONFIG.LOWER_BEAD_SPACING
+    : DERIVED_CONFIG.LOWER_INACTIVE_TOP +
+        bead.row * DERIVED_CONFIG.LOWER_BEAD_SPACING;
 };
 
 interface BeadRendererProps {
@@ -46,13 +51,17 @@ interface BeadRendererProps {
   onClick: () => void;
 }
 
-const BeadRenderer: React.FC<BeadRendererProps> = ({ bead, isActive, onClick }) => (
+const BeadRenderer: React.FC<BeadRendererProps> = ({
+  bead,
+  isActive,
+  onClick,
+}) => (
   <div
     className="absolute"
     style={{
       top: `${calculateBeadPosition(bead, isActive)}px`,
-      left: "50%",
-      transform: "translateX(-50%)",
+      left: '50%',
+      transform: 'translateX(-50%)',
       transition: `top ${SEMPOA_CONFIG.ANIMATION.TRANSITION_DURATION} ${SEMPOA_CONFIG.ANIMATION.TRANSITION_EASING}`,
       zIndex: SEMPOA_CONFIG.Z_INDEX.BEAD,
     }}
@@ -73,7 +82,7 @@ const SempoaBoard: React.FC = () => {
   }, [currentValue]);
 
   const getBeadKey = (bead: BeadPosition): string =>
-    `${bead.column}-${bead.isUpper ? "upper" : "lower"}-${bead.row}`;
+    `${bead.column}-${bead.isUpper ? 'upper' : 'lower'}-${bead.row}`;
 
   const isBeadActive = (bead: BeadPosition): boolean =>
     activeBeads.has(getBeadKey(bead));
@@ -84,7 +93,7 @@ const SempoaBoard: React.FC = () => {
       const newActiveBeads = new Set(activeBeads);
 
       const isActive = newActiveBeads.has(key);
-      const type = bead.isUpper ? "upper" : "lower";
+      const type = bead.isUpper ? 'upper' : 'lower';
       const maxBeads = bead.isUpper
         ? UPPER_BEADS_PER_COLUMN
         : LOWER_BEADS_PER_COLUMN;
@@ -95,8 +104,8 @@ const SempoaBoard: React.FC = () => {
           ? [0, bead.row + 1]
           : [bead.row, maxBeads] // Upper: active removes above, inactive adds below
         : isActive
-        ? [bead.row, maxBeads]
-        : [0, bead.row + 1]; // Lower: active removes below, inactive adds above
+          ? [bead.row, maxBeads]
+          : [0, bead.row + 1]; // Lower: active removes below, inactive adds above
 
       // Update beads in the range
       for (let row = start; row < end; row++) {
@@ -107,7 +116,7 @@ const SempoaBoard: React.FC = () => {
       setActiveBeads(newActiveBeads);
       setCurrentValue(calculateTotalValue(newActiveBeads));
     },
-    [activeBeads, setCurrentValue]
+    [activeBeads, setCurrentValue],
   );
 
   const reset = useCallback(() => {
@@ -143,7 +152,7 @@ const SempoaBoard: React.FC = () => {
                 style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
                 data-testid={`column-header-${col}`}
               >
-                {formatPlaceValue(Math.pow(10, COLUMNS - 1 - col))}
+                {formatPlaceValue(10 ** (COLUMNS - 1 - col))}
               </div>
             ))}
           </div>
@@ -158,10 +167,10 @@ const SempoaBoard: React.FC = () => {
               className="absolute bg-amber-900 rounded-full shadow-md"
               style={{
                 height: `${SEMPOA_CONFIG.SEPARATOR.HEIGHT}px`,
-                width: "100%",
-                left: "0",
+                width: '100%',
+                left: '0',
                 top: `${SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION}px`,
-                transform: "translateY(-50%)",
+                transform: 'translateY(-50%)',
                 zIndex: SEMPOA_CONFIG.Z_INDEX.SEPARATOR,
               }}
             />
@@ -184,9 +193,9 @@ const SempoaBoard: React.FC = () => {
                     style={{
                       height: `${DERIVED_CONFIG.ROD_HEIGHT}px`,
                       width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
-                      left: "50%",
-                      top: "0px",
-                      transform: "translateX(-50%)",
+                      left: '50%',
+                      top: '0px',
+                      transform: 'translateX(-50%)',
                       zIndex: SEMPOA_CONFIG.Z_INDEX.ROD,
                     }}
                   />
@@ -197,21 +206,24 @@ const SempoaBoard: React.FC = () => {
                       height: `${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT}px`,
                     }}
                   >
-                    {Array.from({ length: UPPER_BEADS_PER_COLUMN }, (_, row) => {
-                      const bead: BeadPosition = {
-                        column: col,
-                        row: row,
-                        isUpper: true,
-                      };
-                      return (
-                        <BeadRenderer
-                          key={`upper-${row}`}
-                          bead={bead}
-                          isActive={isBeadActive(bead)}
-                          onClick={() => toggleBead(bead)}
-                        />
-                      );
-                    })}
+                    {Array.from(
+                      { length: UPPER_BEADS_PER_COLUMN },
+                      (_, row) => {
+                        const bead: BeadPosition = {
+                          column: col,
+                          row: row,
+                          isUpper: true,
+                        };
+                        return (
+                          <BeadRenderer
+                            key={`upper-${row}`}
+                            bead={bead}
+                            isActive={isBeadActive(bead)}
+                            onClick={() => toggleBead(bead)}
+                          />
+                        );
+                      },
+                    )}
                   </div>
 
                   {/* Lower section beads */}
@@ -221,21 +233,24 @@ const SempoaBoard: React.FC = () => {
                       height: `${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}px`,
                     }}
                   >
-                    {Array.from({ length: LOWER_BEADS_PER_COLUMN }, (_, row) => {
-                      const bead: BeadPosition = {
-                        column: col,
-                        row: row,
-                        isUpper: false,
-                      };
-                      return (
-                        <BeadRenderer
-                          key={`lower-${row}`}
-                          bead={bead}
-                          isActive={isBeadActive(bead)}
-                          onClick={() => toggleBead(bead)}
-                        />
-                      );
-                    })}
+                    {Array.from(
+                      { length: LOWER_BEADS_PER_COLUMN },
+                      (_, row) => {
+                        const bead: BeadPosition = {
+                          column: col,
+                          row: row,
+                          isUpper: false,
+                        };
+                        return (
+                          <BeadRenderer
+                            key={`lower-${row}`}
+                            bead={bead}
+                            isActive={isBeadActive(bead)}
+                            onClick={() => toggleBead(bead)}
+                          />
+                        );
+                      },
+                    )}
                   </div>
                 </div>
               ))}

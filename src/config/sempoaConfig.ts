@@ -53,8 +53,8 @@ export const SEMPOA_CONFIG = {
 
   // Animation
   ANIMATION: {
-    TRANSITION_DURATION: "0.3s",
-    TRANSITION_EASING: "ease",
+    TRANSITION_DURATION: '0.3s',
+    TRANSITION_EASING: 'ease',
   },
 
   // Z-index layers

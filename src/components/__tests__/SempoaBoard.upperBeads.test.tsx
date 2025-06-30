@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SempoaBoard from '../SempoaBoard';
+import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../../config/sempoaConfig';
 import { GameProvider } from '../../context/GameContext';
-import { SEMPOA_CONFIG, DERIVED_CONFIG } from '../../config/sempoaConfig';
+import SempoaBoard from '../SempoaBoard';
 
 // Test wrapper with GameProvider
 const SempoaBoardWithProvider = () => (
@@ -23,24 +23,33 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       render(<SempoaBoardWithProvider />);
 
       const currentBeadCount = SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN;
-      
+
       // Test positioning formula for current configuration
       for (let row = 0; row < currentBeadCount; row++) {
         // Calculate positions using the same formula as the component
-        const inactiveTop = SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + (row * SEMPOA_CONFIG.BEAD.HEIGHT);
-        const activeTop = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - 
-          ((currentBeadCount - 1 - row) * SEMPOA_CONFIG.BEAD.HEIGHT);
-        
+        const inactiveTop =
+          SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP +
+          row * SEMPOA_CONFIG.BEAD.HEIGHT;
+        const activeTop =
+          DERIVED_CONFIG.SEPARATOR_TOP -
+          SEMPOA_CONFIG.BEAD.HEIGHT -
+          (currentBeadCount - 1 - row) * SEMPOA_CONFIG.BEAD.HEIGHT;
+
         // Verify positioning is valid
         expect(inactiveTop).toBeGreaterThanOrEqual(0);
         expect(activeTop).toBeGreaterThanOrEqual(0);
-        expect(inactiveTop + SEMPOA_CONFIG.BEAD.HEIGHT).toBeLessThanOrEqual(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT);
-        expect(activeTop + SEMPOA_CONFIG.BEAD.HEIGHT).toBeLessThanOrEqual(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT);
+        expect(inactiveTop + SEMPOA_CONFIG.BEAD.HEIGHT).toBeLessThanOrEqual(
+          SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT,
+        );
+        expect(activeTop + SEMPOA_CONFIG.BEAD.HEIGHT).toBeLessThanOrEqual(
+          SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT,
+        );
       }
 
       // Verify lowest active bead touches separator when active
       if (currentBeadCount > 0) {
-        const lowestActiveTop = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT;
+        const lowestActiveTop =
+          DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT;
         const lowestActiveBottom = lowestActiveTop + SEMPOA_CONFIG.BEAD.HEIGHT;
         expect(lowestActiveBottom).toBe(DERIVED_CONFIG.SEPARATOR_TOP);
       }
@@ -51,10 +60,10 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       const testConfigurations = [
         { beads: 1, description: 'Traditional (current)' },
         { beads: 2, description: 'Extended configuration' },
-        { beads: 3, description: 'Large abacus' }
+        { beads: 3, description: 'Large abacus' },
       ];
 
-      testConfigurations.forEach(config => {
+      testConfigurations.forEach((config) => {
         const sectionHeight = (config.beads + 1) * SEMPOA_CONFIG.BEAD.HEIGHT;
         let allBeadsFit = true;
         let noIntersections = true;
@@ -92,9 +101,13 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
 
       // Test first column upper beads
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       const beadCount = upperBeads.length;
 
       expect(beadCount).toBe(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
@@ -105,7 +118,9 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         const beadContainer = bead.parentElement as HTMLElement;
         const position = parseInt(beadContainer.style.top);
 
-        const expectedPosition = SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP + (i * SEMPOA_CONFIG.BEAD.HEIGHT);
+        const expectedPosition =
+          SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP +
+          i * SEMPOA_CONFIG.BEAD.HEIGHT;
         expect(position).toBe(expectedPosition);
       }
     });
@@ -120,9 +135,13 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
 
       // Get upper beads in first column
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       const beadCount = upperBeads.length;
 
       if (beadCount === 1) {
@@ -143,12 +162,14 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         // Test each bead independently for multiple upper beads
         for (let i = 0; i < beadCount; i++) {
           const bead = upperBeads[i] as HTMLElement;
-          const expectedValue = 5 * Math.pow(10, 6); // 5 million for first column
+          const expectedValue = 5 * 10 ** 6; // 5 million for first column
 
           // Activate this bead
           await user.click(bead);
           await waitFor(() => {
-            expect(screen.getByText(`Value: ${expectedValue}`)).toBeInTheDocument();
+            expect(
+              screen.getByText(`Value: ${expectedValue}`),
+            ).toBeInTheDocument();
           });
 
           // Deactivate this bead
@@ -167,12 +188,12 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       if (currentConfig < 2) {
         // Skip actual testing but document expected behavior
         expect(currentConfig).toBe(1);
-        
+
         // This documents what the behavior should be:
         // 1. Clicking a bead activates it AND all beads below it in the same column
         // 2. Clicking an active bead deactivates it AND all beads above it in the same column
         // 3. This mimics physical abacus where beads are pushed together
-        
+
         // Example with 2 upper beads:
         // - Clicking top bead: activates only top bead (value = 1 × 5 × place_value)
         // - Clicking bottom bead: activates both beads (value = 2 × 5 × place_value)
@@ -193,18 +214,26 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       if (currentConfig < 2) {
         // Current configuration only has 1 upper bead per column
         const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
-      const firstColumn = columns[0];
-        const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+        const columns = sempoaBoard.querySelectorAll(
+          '[data-testid^="column-"]:not([data-testid*="header"])',
+        );
+        const firstColumn = columns[0];
+        const upperBeads = firstColumn.querySelectorAll(
+          '.upper-section [draggable="true"]',
+        );
         expect(upperBeads).toHaveLength(1);
         return;
       }
 
       // Test multiple upper beads behavior
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       expect(upperBeads).toHaveLength(currentConfig);
 
       const firstBead = upperBeads[0] as HTMLElement; // Top bead
@@ -237,9 +266,13 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       await user.click(resetButton);
 
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       const beadCount = upperBeads.length;
 
       expect(beadCount).toBe(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
@@ -253,12 +286,15 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         await user.click(bead);
 
         // Calculate expected active position using the formula
-        const expectedActivePosition = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - 
-          ((SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN - 1 - i) * SEMPOA_CONFIG.BEAD.HEIGHT);
+        const expectedActivePosition =
+          DERIVED_CONFIG.SEPARATOR_TOP -
+          SEMPOA_CONFIG.BEAD.HEIGHT -
+          (SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN - 1 - i) *
+            SEMPOA_CONFIG.BEAD.HEIGHT;
 
         // Verify correct positioning
         expect(beadContainer).toHaveStyle({
-          top: `${expectedActivePosition}px`
+          top: `${expectedActivePosition}px`,
         });
 
         // For the lowest bead, verify separator alignment
@@ -282,14 +318,18 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
 
       // Check inactive bead position (should be at top)
       const sempoaBoard = screen.getByTestId('sempoa-board');
-      const columns = sempoaBoard.querySelectorAll('[data-testid^="column-"]:not([data-testid*="header"])');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll('.upper-section [draggable="true"]');
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
       const firstUpperBead = upperBeads[0] as HTMLElement;
       const beadContainer = firstUpperBead.parentElement as HTMLElement;
 
       expect(beadContainer).toHaveStyle({
-        top: `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`
+        top: `${SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP}px`,
       });
 
       // Click to activate the upper bead
@@ -297,7 +337,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
 
       // Check active bead position (should be one bead height down)
       expect(beadContainer).toHaveStyle({
-        top: `${expectedActivePosition}px`
+        top: `${expectedActivePosition}px`,
       });
 
       // Verify the gap is approximately one bead height
@@ -310,18 +350,25 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
 
       for (let row = 0; row < currentBeadCount; row++) {
         // Calculate positions using the formula
-        const activeTop = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - 
-          ((currentBeadCount - 1 - row) * SEMPOA_CONFIG.BEAD.HEIGHT);
+        const activeTop =
+          DERIVED_CONFIG.SEPARATOR_TOP -
+          SEMPOA_CONFIG.BEAD.HEIGHT -
+          (currentBeadCount - 1 - row) * SEMPOA_CONFIG.BEAD.HEIGHT;
         const activeBottom = activeTop + SEMPOA_CONFIG.BEAD.HEIGHT;
 
         // Verify positioning is valid for current configuration
         expect(activeTop).toBeGreaterThanOrEqual(0);
-        expect(activeBottom).toBeLessThanOrEqual(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT);
+        expect(activeBottom).toBeLessThanOrEqual(
+          SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT,
+        );
       }
 
       // Verify lowest bead touches separator
-      const lowestActiveTop = DERIVED_CONFIG.SEPARATOR_TOP - SEMPOA_CONFIG.BEAD.HEIGHT - 
-        ((currentBeadCount - 1 - (currentBeadCount - 1)) * SEMPOA_CONFIG.BEAD.HEIGHT);
+      const lowestActiveTop =
+        DERIVED_CONFIG.SEPARATOR_TOP -
+        SEMPOA_CONFIG.BEAD.HEIGHT -
+        (currentBeadCount - 1 - (currentBeadCount - 1)) *
+          SEMPOA_CONFIG.BEAD.HEIGHT;
       const lowestActiveBottom = lowestActiveTop + SEMPOA_CONFIG.BEAD.HEIGHT;
       expect(lowestActiveBottom).toBe(DERIVED_CONFIG.SEPARATOR_TOP);
     });
@@ -333,10 +380,10 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       const testConfigurations = [
         { beads: 1, description: 'Traditional (current)' },
         { beads: 2, description: 'Extended configuration' },
-        { beads: 3, description: 'Large abacus' }
+        { beads: 3, description: 'Large abacus' },
       ];
 
-      testConfigurations.forEach(config => {
+      testConfigurations.forEach((config) => {
         const sectionHeight = (config.beads + 1) * SEMPOA_CONFIG.BEAD.HEIGHT;
 
         // Calculate positions for all beads
@@ -346,7 +393,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
           positions.push({
             bead: i + 1,
             top: position,
-            bottom: position + SEMPOA_CONFIG.BEAD.HEIGHT
+            bottom: position + SEMPOA_CONFIG.BEAD.HEIGHT,
           });
         }
 
@@ -382,17 +429,19 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       expect(totalUpperBeads).toBe(26); // 2 * 13 columns
 
       // Verify current configuration matches expectations
-      expect(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT).toBe((SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN + 1) * SEMPOA_CONFIG.BEAD.HEIGHT);
+      expect(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT).toBe(
+        (SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN + 1) * SEMPOA_CONFIG.BEAD.HEIGHT,
+      );
     });
 
     test('should document configuration impact on layout calculations', () => {
       const examples = [
         { beads: 1, desc: 'Traditional abacus (current)' },
         { beads: 2, desc: 'Extended configuration' },
-        { beads: 3, desc: 'Large abacus' }
+        { beads: 3, desc: 'Large abacus' },
       ];
 
-      examples.forEach(example => {
+      examples.forEach((example) => {
         const sectionHeight = (example.beads + 1) * SEMPOA_CONFIG.BEAD.HEIGHT;
         const separatorPosition = sectionHeight;
 

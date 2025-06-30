@@ -1,5 +1,6 @@
-import React, { useState, ReactNode, createContext, useContext } from "react";
-import { GameState } from "../types";
+import type React from 'react';
+import { createContext, type ReactNode, useContext, useState } from 'react';
+import type { GameState } from '../types';
 
 export interface GameContextType {
   gameState: GameState;
@@ -13,7 +14,7 @@ export interface GameContextType {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const GameContext = createContext<GameContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface GameProviderProps {
@@ -72,7 +73,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 export const useGame = () => {
   const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error("useGame must be used within a GameProvider");
+    throw new Error('useGame must be used within a GameProvider');
   }
   return context;
 };
