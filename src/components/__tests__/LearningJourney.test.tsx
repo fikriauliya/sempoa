@@ -85,16 +85,31 @@ const mockQuestion = {
 };
 
 // Helper to create consistent mock return value
-const createMockUseUserProgressReturn = (overrides = {}) => ({
-  userProgress: mockUserProgress,
-  selectLevel: jest.fn().mockReturnValue(mockUserProgress),
-  currentLevel: mockLevelProgress,
-  completionPercentage: 25,
-  sectionProgress: jest.fn().mockReturnValue({ completed: 1, total: 4 }),
-  resetProgress: jest.fn(),
-  processAnswer: jest.fn(),
-  ...overrides,
-});
+const createMockUseUserProgressReturn = (overrides: any = {}) => {
+  const result = {
+    userProgress: {
+      ...mockUserProgress,
+      sectionProgress: jest.fn(() => ({ completed: 1, total: 3 })),
+    },
+    selectLevel: jest.fn().mockReturnValue(mockUserProgress),
+    currentLevel: mockLevelProgress,
+    completionPercentage: 25,
+    sectionProgress: jest.fn().mockReturnValue({ completed: 1, total: 4 }),
+    resetProgress: jest.fn(),
+    processAnswer: jest.fn(),
+    ...overrides,
+  };
+
+  // Ensure userProgress always has sectionProgress method
+  if (overrides.userProgress && !overrides.userProgress.sectionProgress) {
+    result.userProgress = {
+      ...overrides.userProgress,
+      sectionProgress: jest.fn(() => ({ completed: 0, total: 0 })),
+    };
+  }
+
+  return result;
+};
 
 describe('LearningJourney', () => {
   let user: ReturnType<typeof userEvent.setup>;

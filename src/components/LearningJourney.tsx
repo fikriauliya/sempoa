@@ -1,7 +1,10 @@
-import { motion, useAnimate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useGame } from '../context/GameContext';
+import { useAnswerChecking } from '../hooks/useAnswerChecking';
+import { useExpandedSections } from '../hooks/useExpandedSections';
+import { useQuestionGeneration } from '../hooks/useQuestionGeneration';
 import { useUserProgress } from '../hooks/useUserProgress';
 import type { GameState, LevelProgress, UserProgress } from '../types';
 import {
@@ -17,11 +20,8 @@ import {
   OPERATION_ICONS,
   OPERATIONS,
 } from '../utils/constants';
-import { generateQuestionForLevel } from '../utils/levelQuestionGenerator';
 import { CheckmarkIcon, CrossIcon } from './icons/SVGIcons';
-
-const BUTTON_FEEDBACK_DURATION = 0.3;
-const KEYBOARD_SHORTCUTS = ['Enter', ' '] as const;
+import { KEYBOARD_SHORTCUTS } from './LearningJourney/constants';
 
 interface ProgressCardProps {
   completionPercentage: number;
@@ -252,7 +252,7 @@ const CheckAnswerButton: React.FC<CheckAnswerButtonProps> = ({
 );
 
 const LearningJourney: React.FC = () => {
-  const { gameState, setGameState, checkAnswer, setCurrentValue } = useGame();
+  const { gameState } = useGame();
   const {
     userProgress,
     selectLevel: selectUserLevel,
@@ -261,58 +261,13 @@ const LearningJourney: React.FC = () => {
     sectionProgress,
     processAnswer,
   } = useUserProgress();
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({});
-  const [buttonState, setButtonState] = useState<
-    'normal' | 'correct' | 'wrong'
-  >('normal');
-  const [scope, animate] = useAnimate();
-
-  const generateNewQuestion = useCallback(() => {
-    const question = generateQuestionForLevel(currentLevel);
-    if (question) {
-      setCurrentValue(0);
-      setGameState((prev) => ({
-        ...prev,
-        currentQuestion: question,
-      }));
-    }
-  }, [currentLevel, setCurrentValue, setGameState]);
-
-  useEffect(() => {
-    // Generate initial question if there's a current level
-    generateNewQuestion();
-  }, [generateNewQuestion]);
-
-  const handleCheckAnswer = useCallback(async () => {
-    if (!userProgress.currentLevelId || !gameState.currentQuestion) return;
-
-    const isCorrect = checkAnswer();
-
-    // Show feedback on button
-    setButtonState(isCorrect ? 'correct' : 'wrong');
-
-    // Animate button feedback, then reset state and move to next question
-    await animate(
-      scope.current,
-      { scale: [1, 1.05, 1] },
-      { duration: BUTTON_FEEDBACK_DURATION },
-    );
-    setButtonState('normal');
-
-    // Process answer and generate new question
-    processAnswer(isCorrect);
-    generateNewQuestion();
-  }, [
-    userProgress.currentLevelId,
-    gameState.currentQuestion,
-    checkAnswer,
-    animate,
-    scope,
+  const { generateNewQuestion } = useQuestionGeneration(currentLevel);
+  const { handleCheckAnswer, buttonState, scope } = useAnswerChecking(
+    userProgress,
     processAnswer,
     generateNewQuestion,
-  ]);
+  );
+  const { toggleSection, expandedSections } = useExpandedSections();
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -331,13 +286,6 @@ const LearningJourney: React.FC = () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleCheckAnswer]);
-
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
 
   const selectLevel = (level: LevelProgress) => {
     if (!level.isUnlocked) return;
