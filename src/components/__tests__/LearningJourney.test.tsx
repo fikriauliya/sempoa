@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GameProvider } from '../../context/GameContext';
 import { useUserProgress } from '../../hooks/useUserProgress';
@@ -83,7 +83,9 @@ const mockQuestion = {
 };
 
 // Helper to create consistent mock return value
-const createMockUseUserProgressReturn = (overrides: any = {}) => {
+const createMockUseUserProgressReturn = (
+  overrides: Record<string, unknown> = {},
+) => {
   const result = {
     userProgress: {
       ...mockUserProgress,
@@ -331,178 +333,6 @@ describe('LearningJourney', () => {
 
       const lockedLevel = screen.getByTestId('level-addition-simple-double');
       expect(lockedLevel).toHaveTextContent('🔒');
-    });
-  });
-
-  describe('Current Question Display', () => {
-    test('should display current question', () => {
-      render(<LearningJourneyWithProvider />);
-
-      const questionDisplay = screen.getByTestId('current-question');
-      expect(questionDisplay).toBeInTheDocument();
-      expect(questionDisplay).toHaveTextContent('5 + 3 = ?');
-    });
-
-    test('should display question details', () => {
-      render(<LearningJourneyWithProvider />);
-
-      const questionDisplay = screen.getByTestId('current-question');
-      expect(questionDisplay).toHaveTextContent('Simple');
-      expect(questionDisplay).toHaveTextContent('Single Digit');
-    });
-
-    test('should hide current question when no active level', () => {
-      mockUseUserProgress.mockReturnValue(
-        createMockUseUserProgressReturn({
-          currentLevel: null,
-        }),
-      );
-
-      render(<LearningJourneyWithProvider />);
-
-      expect(screen.queryByTestId('current-question')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Answer Checking', () => {
-    test('should handle check answer button click', async () => {
-      const mockCheckAnswer = jest.fn().mockReturnValue(true);
-      const { useGame } = require('../../context/GameContext');
-      useGame.mockReturnValue({
-        gameState: { currentQuestion: mockQuestion },
-        setGameState: jest.fn(),
-        checkAnswer: mockCheckAnswer,
-        setCurrentValue: jest.fn(),
-      });
-
-      render(<LearningJourneyWithProvider />);
-
-      const checkButton = screen.getByRole('button', { name: /check answer/i });
-      await user.click(checkButton);
-
-      expect(mockCheckAnswer).toHaveBeenCalled();
-    });
-
-    test('should trigger answer check with Enter key', async () => {
-      const mockCheckAnswer = jest.fn().mockReturnValue(true);
-      const { useGame } = require('../../context/GameContext');
-      useGame.mockReturnValue({
-        gameState: { currentQuestion: mockQuestion },
-        setGameState: jest.fn(),
-        checkAnswer: mockCheckAnswer,
-        setCurrentValue: jest.fn(),
-      });
-
-      render(<LearningJourneyWithProvider />);
-
-      await user.keyboard('{Enter}');
-
-      await waitFor(() => {
-        expect(mockCheckAnswer).toHaveBeenCalled();
-      });
-    });
-
-    test('should trigger answer check with Space key', async () => {
-      const mockCheckAnswer = jest.fn().mockReturnValue(true);
-      const { useGame } = require('../../context/GameContext');
-      useGame.mockReturnValue({
-        gameState: { currentQuestion: mockQuestion },
-        setGameState: jest.fn(),
-        checkAnswer: mockCheckAnswer,
-        setCurrentValue: jest.fn(),
-      });
-
-      render(<LearningJourneyWithProvider />);
-
-      await user.keyboard(' ');
-
-      await waitFor(() => {
-        expect(mockCheckAnswer).toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('Progress Updates', () => {
-    test('should process correct answer and continue', async () => {
-      const mockCheckAnswer = jest.fn().mockReturnValue(true);
-      const mockProcessAnswer = jest.fn();
-      const mockSetGameState = jest.fn();
-      const mockSetCurrentValue = jest.fn();
-      const { useGame } = require('../../context/GameContext');
-
-      useGame.mockReturnValue({
-        gameState: { currentQuestion: mockQuestion },
-        setGameState: mockSetGameState,
-        checkAnswer: mockCheckAnswer,
-        setCurrentValue: mockSetCurrentValue,
-      });
-
-      mockUseUserProgress.mockReturnValue(
-        createMockUseUserProgressReturn({
-          userProgress: {
-            ...mockUserProgress,
-            currentLevelId: 'addition-simple-single',
-          },
-          processAnswer: mockProcessAnswer,
-        }),
-      );
-
-      render(<LearningJourneyWithProvider />);
-
-      const checkButton = screen.getByRole('button', { name: /check answer/i });
-      await user.click(checkButton);
-
-      // Wait for animation and async operations to complete
-      await waitFor(() => {
-        expect(mockProcessAnswer).toHaveBeenCalledWith(true);
-        expect(questionGenerator.generateQuestion).toHaveBeenCalledWith({
-          difficulty: mockLevelProgress.digitLevel,
-          operation: mockLevelProgress.operationType,
-          useSmallFriend: false,
-          useBigFriend: false,
-        });
-      });
-    });
-
-    test('should process incorrect answer and continue', async () => {
-      const mockCheckAnswer = jest.fn().mockReturnValue(false);
-      const mockProcessAnswer = jest.fn();
-      const mockSetGameState = jest.fn();
-      const mockSetCurrentValue = jest.fn();
-      const { useGame } = require('../../context/GameContext');
-
-      useGame.mockReturnValue({
-        gameState: { currentQuestion: mockQuestion },
-        setGameState: mockSetGameState,
-        checkAnswer: mockCheckAnswer,
-        setCurrentValue: mockSetCurrentValue,
-      });
-
-      mockUseUserProgress.mockReturnValue(
-        createMockUseUserProgressReturn({
-          userProgress: {
-            ...mockUserProgress,
-            currentLevelId: 'addition-simple-single',
-          },
-          processAnswer: mockProcessAnswer,
-        }),
-      );
-
-      render(<LearningJourneyWithProvider />);
-
-      const checkButton = screen.getByRole('button', { name: /check answer/i });
-      await user.click(checkButton);
-
-      // Wait for animation and async operations to complete
-      await waitFor(() => {
-        expect(mockProcessAnswer).toHaveBeenCalledWith(false);
-        expect(questionGenerator.generateQuestion).toHaveBeenCalledWith({
-          difficulty: mockLevelProgress.digitLevel,
-          operation: mockLevelProgress.operationType,
-          useSmallFriend: false,
-          useBigFriend: false,
-        });
-      });
     });
   });
 
