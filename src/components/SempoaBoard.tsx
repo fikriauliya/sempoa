@@ -81,8 +81,11 @@ const SempoaBoard: React.FC = () => {
     }
   }, [currentValue]);
 
-  const getBeadKey = (bead: BeadPosition): string =>
-    `${bead.column}-${bead.isUpper ? 'upper' : 'lower'}-${bead.row}`;
+  const getBeadKey = useCallback(
+    (bead: BeadPosition): string =>
+      `${bead.column}-${bead.isUpper ? 'upper' : 'lower'}-${bead.row}`,
+    [],
+  );
 
   const isBeadActive = (bead: BeadPosition): boolean =>
     activeBeads.has(getBeadKey(bead));
@@ -116,7 +119,7 @@ const SempoaBoard: React.FC = () => {
       setActiveBeads(newActiveBeads);
       setCurrentValue(calculateTotalValue(newActiveBeads));
     },
-    [activeBeads, setCurrentValue],
+    [activeBeads, setCurrentValue, getBeadKey],
   );
 
   const reset = useCallback(() => {
@@ -133,6 +136,7 @@ const SempoaBoard: React.FC = () => {
             Value: {currentValue}
           </div>
           <button
+            type="button"
             onClick={reset}
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
           >
@@ -145,16 +149,19 @@ const SempoaBoard: React.FC = () => {
         <div className="bg-amber-50 p-4 rounded relative">
           {/* Column labels - aligned with bead columns */}
           <div className="flex justify-center gap-2 mb-4">
-            {Array.from({ length: COLUMNS }, (_, col) => (
-              <div
-                key={col}
-                className="column-header text-xs text-gray-600 font-mono text-center flex items-center justify-center"
-                style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
-                data-testid={`column-header-${col}`}
-              >
-                {formatPlaceValue(10 ** (COLUMNS - 1 - col))}
-              </div>
-            ))}
+            {Array.from({ length: COLUMNS }, (_, col) => {
+              const placeValue = 10 ** (COLUMNS - 1 - col);
+              return (
+                <div
+                  key={`place-value-${placeValue}`}
+                  className="column-header text-xs text-gray-600 font-mono text-center flex items-center justify-center"
+                  style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
+                  data-testid={`column-header-${col}`}
+                >
+                  {formatPlaceValue(placeValue)}
+                </div>
+              );
+            })}
           </div>
 
           {/* Sempoa board with vertical rods */}
@@ -180,80 +187,83 @@ const SempoaBoard: React.FC = () => {
               className="flex justify-center gap-2"
               style={{ height: `${DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT}px` }}
             >
-              {Array.from({ length: COLUMNS }, (_, col) => (
-                <div
-                  key={col}
-                  className="relative flex flex-col items-center"
-                  style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
-                  data-testid={`column-${col}`}
-                >
-                  {/* Vertical rod for this column */}
+              {Array.from({ length: COLUMNS }, (_, col) => {
+                const placeValue = 10 ** (COLUMNS - 1 - col);
+                return (
                   <div
-                    className="absolute bg-amber-900 rounded-full shadow-sm"
-                    style={{
-                      height: `${DERIVED_CONFIG.ROD_HEIGHT}px`,
-                      width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
-                      left: '50%',
-                      top: '0px',
-                      transform: 'translateX(-50%)',
-                      zIndex: SEMPOA_CONFIG.Z_INDEX.ROD,
-                    }}
-                  />
-                  {/* Upper section beads */}
-                  <div
-                    className="upper-section relative flex flex-col items-center"
-                    style={{
-                      height: `${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT}px`,
-                    }}
+                    key={`column-place-${placeValue}`}
+                    className="relative flex flex-col items-center"
+                    style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
+                    data-testid={`column-${col}`}
                   >
-                    {Array.from(
-                      { length: UPPER_BEADS_PER_COLUMN },
-                      (_, row) => {
-                        const bead: BeadPosition = {
-                          column: col,
-                          row: row,
-                          isUpper: true,
-                        };
-                        return (
-                          <BeadRenderer
-                            key={`upper-${row}`}
-                            bead={bead}
-                            isActive={isBeadActive(bead)}
-                            onClick={() => toggleBead(bead)}
-                          />
-                        );
-                      },
-                    )}
-                  </div>
+                    {/* Vertical rod for this column */}
+                    <div
+                      className="absolute bg-amber-900 rounded-full shadow-sm"
+                      style={{
+                        height: `${DERIVED_CONFIG.ROD_HEIGHT}px`,
+                        width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
+                        left: '50%',
+                        top: '0px',
+                        transform: 'translateX(-50%)',
+                        zIndex: SEMPOA_CONFIG.Z_INDEX.ROD,
+                      }}
+                    />
+                    {/* Upper section beads */}
+                    <div
+                      className="upper-section relative flex flex-col items-center"
+                      style={{
+                        height: `${SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT}px`,
+                      }}
+                    >
+                      {Array.from(
+                        { length: UPPER_BEADS_PER_COLUMN },
+                        (_, row) => {
+                          const bead: BeadPosition = {
+                            column: col,
+                            row: row,
+                            isUpper: true,
+                          };
+                          return (
+                            <BeadRenderer
+                              key={getBeadKey(bead)}
+                              bead={bead}
+                              isActive={isBeadActive(bead)}
+                              onClick={() => toggleBead(bead)}
+                            />
+                          );
+                        },
+                      )}
+                    </div>
 
-                  {/* Lower section beads */}
-                  <div
-                    className="lower-section relative flex flex-col items-center"
-                    style={{
-                      height: `${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}px`,
-                    }}
-                  >
-                    {Array.from(
-                      { length: LOWER_BEADS_PER_COLUMN },
-                      (_, row) => {
-                        const bead: BeadPosition = {
-                          column: col,
-                          row: row,
-                          isUpper: false,
-                        };
-                        return (
-                          <BeadRenderer
-                            key={`lower-${row}`}
-                            bead={bead}
-                            isActive={isBeadActive(bead)}
-                            onClick={() => toggleBead(bead)}
-                          />
-                        );
-                      },
-                    )}
+                    {/* Lower section beads */}
+                    <div
+                      className="lower-section relative flex flex-col items-center"
+                      style={{
+                        height: `${SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT}px`,
+                      }}
+                    >
+                      {Array.from(
+                        { length: LOWER_BEADS_PER_COLUMN },
+                        (_, row) => {
+                          const bead: BeadPosition = {
+                            column: col,
+                            row: row,
+                            isUpper: false,
+                          };
+                          return (
+                            <BeadRenderer
+                              key={getBeadKey(bead)}
+                              bead={bead}
+                              isActive={isBeadActive(bead)}
+                              onClick={() => toggleBead(bead)}
+                            />
+                          );
+                        },
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

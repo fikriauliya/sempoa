@@ -59,14 +59,16 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
   };
 
   return (
-    <div
+    <button
+      type="button"
+      aria-label={`Bead in column ${bead.column + 1}, row ${bead.row + 1}, ${isActive ? 'active' : 'inactive'}`}
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
-      className={`${baseClasses} ${activeClasses} ${dragClasses}`}
+      className={`${baseClasses} ${activeClasses} ${dragClasses} border-none p-0`}
       style={beadStyle}
       onClick={onClick}
     />

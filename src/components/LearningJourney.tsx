@@ -54,7 +54,11 @@ const LearningJourney: React.FC = () => {
     if (currentLevel) {
       generateNewQuestion(currentLevel);
     }
-  }, [generateNewQuestion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    generateNewQuestion,
+    progressionManager.getCurrentLevel,
+    progressionManager.loadProgress,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckAnswer = useCallback(async () => {
     if (!userProgress?.currentLevelId || !gameState.currentQuestion) return;
@@ -218,6 +222,7 @@ const LearningJourney: React.FC = () => {
           return (
             <div key={operation} className="border rounded-lg overflow-hidden">
               <button
+                type="button"
                 onClick={() => toggleSection(operation)}
                 className={`w-full p-3 flex items-center justify-between ${
                   isOperationUnlocked
@@ -265,8 +270,9 @@ const LearningJourney: React.FC = () => {
 
                     return (
                       <div key={complement} className="space-y-1">
-                        <div
-                          className="font-medium text-sm text-gray-700 cursor-pointer hover:text-gray-900"
+                        <button
+                          type="button"
+                          className="font-medium text-sm text-gray-700 cursor-pointer hover:text-gray-900 bg-transparent border-none p-0 text-left"
                           onClick={() =>
                             toggleSection(`${operation}-${complement}`)
                           }
@@ -285,7 +291,7 @@ const LearningJourney: React.FC = () => {
                           >
                             {progress.completed}/{progress.total}
                           </span>
-                        </div>
+                        </button>
 
                         {expandedSections[`${operation}-${complement}`] && (
                           <div className="ml-4 space-y-1">
@@ -294,11 +300,12 @@ const LearningJourney: React.FC = () => {
                                 userProgress.currentLevelId === level.id;
 
                               return (
-                                <div
+                                <button
+                                  type="button"
                                   key={`${level.operationType}-${level.complementType}-${level.digitLevel}`}
                                   data-testid={`level-${level.operationType}-${level.complementType}-${level.digitLevel}`}
                                   className={`
-                                    p-2 rounded cursor-pointer text-sm flex items-center justify-between
+                                    p-2 rounded cursor-pointer text-sm flex items-center justify-between border-none bg-transparent text-left w-full
                                     ${!level.isUnlocked ? 'bg-gray-100 text-gray-400 locked' : ''}
                                     ${level.isCompleted ? 'bg-green-100 text-green-700' : ''}
                                     ${isCurrentLevel ? 'bg-blue-100 text-blue-700 in-progress' : ''}
@@ -318,7 +325,7 @@ const LearningJourney: React.FC = () => {
                                   {!level.isUnlocked && (
                                     <span className="text-gray-400">🔒</span>
                                   )}
-                                </div>
+                                </button>
                               );
                             })}
                           </div>
@@ -382,7 +389,9 @@ const LearningJourney: React.FC = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-label="Correct answer"
             >
+              <title>Correct answer checkmark</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -397,7 +406,9 @@ const LearningJourney: React.FC = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-label="Wrong answer"
             >
+              <title>Wrong answer cross</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
