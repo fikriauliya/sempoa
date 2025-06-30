@@ -1,7 +1,6 @@
 import type { LevelProgress, UserProgress } from '../types';
 import { COMPLEMENTS, DIGIT_LEVELS, OPERATIONS } from './constants';
 
-const STORAGE_KEY = 'sempoa_user_progress';
 const QUESTIONS_TO_COMPLETE = 10;
 
 export class ProgressionManager {
@@ -31,18 +30,6 @@ export class ProgressionManager {
       allLevels,
       totalScore: 0,
     };
-  }
-
-  loadProgress(): UserProgress {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    return this.initializeProgress();
-  }
-
-  saveProgress(progress: UserProgress): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }
 
   private generateAllLevels(): LevelProgress[] {
@@ -102,7 +89,6 @@ export class ProgressionManager {
       }
     }
 
-    this.saveProgress(updatedProgress);
     return updatedProgress;
   }
 
@@ -118,7 +104,6 @@ export class ProgressionManager {
       currentLevel.questionsCompleted++;
     }
 
-    this.saveProgress(updatedProgress);
     return updatedProgress;
   }
 
@@ -143,7 +128,6 @@ export class ProgressionManager {
     const updatedProgress = { ...progress };
     updatedProgress.currentLevelId = level.id;
 
-    this.saveProgress(updatedProgress);
     return updatedProgress;
   }
 

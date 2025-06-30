@@ -15,11 +15,15 @@ export interface Question {
   answer: number;
 }
 
+export type OperationType = 'addition' | 'subtraction' | 'mixed';
+export type ComplementType = 'simple' | 'smallFriend' | 'bigFriend' | 'both';
+export type DigitLevel = 'single' | 'double' | 'triple' | 'four' | 'five';
+
 export interface LevelProgress {
   id: string;
-  operationType: 'addition' | 'subtraction' | 'mixed';
-  complementType: 'simple' | 'smallFriend' | 'bigFriend' | 'both';
-  digitLevel: 'single' | 'double' | 'triple' | 'four' | 'five';
+  operationType: OperationType;
+  complementType: ComplementType;
+  digitLevel: DigitLevel;
   questionsCompleted: number;
   correctAnswers: number;
   isUnlocked: boolean;

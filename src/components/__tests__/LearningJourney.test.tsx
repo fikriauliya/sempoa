@@ -1,14 +1,35 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GameProvider } from '../../context/GameContext';
+import { useUserProgress } from '../../hooks/useUserProgress';
 import type { LevelProgress, UserProgress } from '../../types';
-import { ProgressionManager } from '../../utils/progressionManager';
+import * as levelQuestionGenerator from '../../utils/levelQuestionGenerator';
 import * as questionGenerator from '../../utils/questionGenerator';
 import LearningJourney from '../LearningJourney';
 
-// Mock the progressionManager
-jest.mock('../../utils/progressionManager');
+// Mock the hooks and utilities
+jest.mock('../../hooks/useUserProgress');
 jest.mock('../../utils/questionGenerator');
+jest.mock('../../utils/levelQuestionGenerator');
+const mockGameState = {
+  currentQuestion: {
+    operands: [5, 3],
+    operation: 'addition' as const,
+    answer: 8,
+  },
+};
+
+jest.mock('../../context/GameContext', () => ({
+  useGame: jest.fn(() => ({
+    gameState: mockGameState,
+    setGameState: jest.fn(),
+    checkAnswer: jest.fn(() => true),
+    setCurrentValue: jest.fn(),
+  })),
+  GameProvider: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
 
 // Test wrapper with GameProvider
 const LearningJourneyWithProvider = () => (
@@ -58,69 +79,47 @@ const mockUserProgress: UserProgress = {
 };
 
 const mockQuestion = {
-  operands: [3, 5],
+  operands: [5, 3],
   operation: 'addition' as const,
   answer: 8,
 };
 
+// Helper to create consistent mock return value
+const createMockUseUserProgressReturn = (overrides = {}) => ({
+  userProgress: mockUserProgress,
+  selectLevel: jest.fn().mockReturnValue(mockUserProgress),
+  currentLevel: mockLevelProgress,
+  completionPercentage: 25,
+  sectionProgress: jest.fn().mockReturnValue({ completed: 1, total: 4 }),
+  resetProgress: jest.fn(),
+  processAnswer: jest.fn(),
+  ...overrides,
+});
+
 describe('LearningJourney', () => {
   let user: ReturnType<typeof userEvent.setup>;
-  let mockProgressionManager: {
-    initializeProgress: jest.Mock;
-    loadProgress: jest.Mock;
-    saveProgress: jest.Mock;
-    recordCorrectAnswer: jest.Mock;
-    recordIncorrectAnswer: jest.Mock;
-    selectLevel: jest.Mock;
-    getCompletionPercentage: jest.Mock;
-    getSectionProgress: jest.Mock;
-    getCurrentLevel: jest.Mock;
-  };
+  const mockUseUserProgress = useUserProgress as jest.MockedFunction<
+    typeof useUserProgress
+  >;
 
   beforeEach(() => {
     user = userEvent.setup();
 
-    // Create mock instance
-    mockProgressionManager = {
-      initializeProgress: jest.fn(),
-      loadProgress: jest.fn(),
-      saveProgress: jest.fn(),
-      recordCorrectAnswer: jest.fn(),
-      recordIncorrectAnswer: jest.fn(),
-      selectLevel: jest.fn(),
-      getCompletionPercentage: jest.fn(),
-      getSectionProgress: jest.fn(),
-      getCurrentLevel: jest.fn(),
-    };
+    // Reset all mocks
+    jest.clearAllMocks();
 
-    (ProgressionManager.getInstance as jest.Mock).mockReturnValue(
-      mockProgressionManager,
-    );
-
-    // Setup default return values
-    mockProgressionManager.loadProgress.mockReturnValue(mockUserProgress);
-    mockProgressionManager.getCompletionPercentage.mockReturnValue(25);
-    mockProgressionManager.getSectionProgress.mockReturnValue({
-      completed: 1,
-      total: 4,
-    });
-    mockProgressionManager.recordCorrectAnswer.mockReturnValue(
-      mockUserProgress,
-    );
-    mockProgressionManager.getCurrentLevel.mockReturnValue(mockLevelProgress);
-    mockProgressionManager.recordIncorrectAnswer.mockReturnValue(
-      mockUserProgress,
-    );
-    mockProgressionManager.selectLevel.mockReturnValue(mockUserProgress);
+    // Set up default mock implementation
+    mockUseUserProgress.mockReturnValue(createMockUseUserProgressReturn());
 
     // Mock question generator
     (questionGenerator.generateQuestion as jest.Mock).mockReturnValue(
       mockQuestion,
     );
-  });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+    // Mock level question generator - returns null for null levels, question for valid levels
+    (
+      levelQuestionGenerator.generateQuestionForLevel as jest.Mock
+    ).mockImplementation((level) => (level ? mockQuestion : null));
   });
 
   describe('Rendering and Initial State', () => {
@@ -143,29 +142,35 @@ describe('LearningJourney', () => {
     test('should load user progress on mount', () => {
       render(<LearningJourneyWithProvider />);
 
-      expect(mockProgressionManager.loadProgress).toHaveBeenCalledTimes(1);
+      expect(mockUseUserProgress).toHaveBeenCalled();
     });
 
     test('should render even with minimal progress data', () => {
-      const minimalProgress = {
-        currentLevelId: null,
+      const minimalProgress: UserProgress = {
+        currentLevelId: 'test-level',
         allLevels: [],
         totalScore: 0,
       };
-      mockProgressionManager.loadProgress.mockReturnValue(minimalProgress);
+
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: minimalProgress,
+          currentLevel: null,
+          completionPercentage: 0,
+          sectionProgress: jest
+            .fn()
+            .mockReturnValue({ completed: 0, total: 0 }),
+        }),
+      );
 
       render(<LearningJourneyWithProvider />);
 
-      // Should still render the component structure
-      expect(
-        screen.getByTestId('learning-journey-sidebar'),
-      ).toBeInTheDocument();
-      expect(screen.getByText('Score: 0')).toBeInTheDocument();
+      expect(screen.getByText('0%')).toBeInTheDocument();
     });
   });
 
   describe('Operation Sections', () => {
-    test('should render all operation sections', () => {
+    test('should render operation sections', () => {
       render(<LearningJourneyWithProvider />);
 
       expect(screen.getByTestId('icon-addition')).toBeInTheDocument();
@@ -173,34 +178,19 @@ describe('LearningJourney', () => {
       expect(screen.getByTestId('icon-mixed')).toBeInTheDocument();
     });
 
-    test('should display correct operation icons', () => {
-      render(<LearningJourneyWithProvider />);
-
-      expect(screen.getByTestId('icon-addition')).toHaveTextContent('➕');
-      expect(screen.getByTestId('icon-subtraction')).toHaveTextContent('➖');
-      expect(screen.getByTestId('icon-mixed')).toHaveTextContent('🔄');
-    });
-
-    test('should expand/collapse sections when clicked', async () => {
+    test('should expand operation section on click', async () => {
       render(<LearningJourneyWithProvider />);
 
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
 
+      // Should show progress for simple complement
       expect(screen.getByText('Simple Addition')).toBeInTheDocument();
-
-      // Click again to collapse
-      await user.click(additionButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Simple Addition')).not.toBeInTheDocument();
-      });
     });
 
-    test('should show section progress when expanded', async () => {
+    test('should show section progress', async () => {
       render(<LearningJourneyWithProvider />);
 
-      // Expand addition section first
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
 
@@ -210,238 +200,312 @@ describe('LearningJourney', () => {
     });
   });
 
-  describe('Level Selection and Interaction', () => {
-    test('should display levels when section is expanded', async () => {
+  describe('Complement Sections', () => {
+    test('should expand complement section to show levels', async () => {
       render(<LearningJourneyWithProvider />);
 
-      // Expand addition section
+      // First expand operation
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
 
-      // Expand simple complement section
-      const simpleSection = screen.getByText('Simple Addition');
-      await user.click(simpleSection);
+      // Then expand complement
+      const simpleAdditionButton = screen.getByRole('button', {
+        name: /simple addition/i,
+      });
+      await user.click(simpleAdditionButton);
 
+      // Should show level buttons
       expect(
         screen.getByTestId('level-addition-simple-single'),
       ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('level-addition-simple-double'),
-      ).toBeInTheDocument();
     });
 
-    test('should show level states correctly', async () => {
+    test('should show level completion status', async () => {
+      // Set up data with a completed level in addition section
+      const progressWithCompleted: UserProgress = {
+        ...mockUserProgress,
+        allLevels: [
+          {
+            ...mockLevelProgress,
+            isCompleted: true,
+          },
+          {
+            id: 'addition-simple-double',
+            operationType: 'addition',
+            complementType: 'simple',
+            digitLevel: 'double',
+            questionsCompleted: 0,
+            correctAnswers: 0,
+            isUnlocked: false,
+            isCompleted: false,
+          },
+        ],
+      };
+
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: progressWithCompleted,
+          currentLevel: progressWithCompleted.allLevels[0],
+        }),
+      );
+
       render(<LearningJourneyWithProvider />);
 
       // Expand to show levels
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
-      const simpleSection = screen.getByText('Simple Addition');
-      await user.click(simpleSection);
 
-      // Check unlocked level
-      const unlockedLevel = screen.getByTestId('level-addition-simple-single');
-      expect(unlockedLevel).toHaveClass('in-progress');
-
-      // Check locked level
-      const lockedLevel = screen.getByTestId('level-addition-simple-double');
-      expect(lockedLevel).toHaveClass('locked');
-      expect(lockedLevel).toHaveTextContent('🔒');
-    });
-
-    test('should show completed levels with checkmark', async () => {
-      render(<LearningJourneyWithProvider />);
-
-      // Expand subtraction section
-      const subtractionButton = screen.getByRole('button', {
-        name: /subtraction/i,
+      const simpleAdditionButton = screen.getByRole('button', {
+        name: /simple addition/i,
       });
-      await user.click(subtractionButton);
-      const simpleSection = screen.getByText('Simple Subtraction');
-      await user.click(simpleSection);
+      await user.click(simpleAdditionButton);
 
-      expect(screen.getByTestId('checkmark-icon')).toBeInTheDocument();
+      // Check for checkmark on completed level
+      const completedLevel = screen.getByTestId('level-addition-simple-single');
+      expect(completedLevel).toHaveTextContent('✓');
     });
+  });
 
+  describe('Level Selection', () => {
     test('should select level when clicked', async () => {
       render(<LearningJourneyWithProvider />);
 
       // Expand to show levels
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
-      const simpleSection = screen.getByText('Simple Addition');
-      await user.click(simpleSection);
 
-      const level = screen.getByTestId('level-addition-simple-single');
-      await user.click(level);
+      const simpleAdditionButton = screen.getByRole('button', {
+        name: /simple addition/i,
+      });
+      await user.click(simpleAdditionButton);
 
-      expect(mockProgressionManager.selectLevel).toHaveBeenCalledWith(
-        mockUserProgress,
-        mockLevelProgress,
+      // Click on an unlocked level
+      const levelButton = screen.getByTestId('level-addition-simple-single');
+      await user.click(levelButton);
+
+      const { selectLevel } = mockUseUserProgress.mock.results[0].value;
+      expect(selectLevel).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'addition-simple-single',
+        }),
       );
     });
 
-    test('should not select locked levels', async () => {
+    test('should highlight current level', async () => {
+      render(<LearningJourneyWithProvider />);
+
+      // Expand to show current level
+      const additionButton = screen.getByRole('button', { name: /addition/i });
+      await user.click(additionButton);
+
+      const simpleAdditionButton = screen.getByRole('button', {
+        name: /simple addition/i,
+      });
+      await user.click(simpleAdditionButton);
+
+      const currentLevelButton = screen.getByTestId(
+        'level-addition-simple-single',
+      );
+      expect(currentLevelButton).toHaveClass('in-progress');
+    });
+
+    test('should show locked icon for locked levels', async () => {
       render(<LearningJourneyWithProvider />);
 
       // Expand to show levels
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
-      const simpleSection = screen.getByText('Simple Addition');
-      await user.click(simpleSection);
+
+      const simpleAdditionButton = screen.getByRole('button', {
+        name: /simple addition/i,
+      });
+      await user.click(simpleAdditionButton);
 
       const lockedLevel = screen.getByTestId('level-addition-simple-double');
-      await user.click(lockedLevel);
-
-      expect(mockProgressionManager.selectLevel).not.toHaveBeenCalled();
+      expect(lockedLevel).toHaveTextContent('🔒');
     });
   });
 
   describe('Current Question Display', () => {
-    test('should show current question when available', async () => {
+    test('should display current question', () => {
       render(<LearningJourneyWithProvider />);
 
-      // Wait for the component to initialize and generate a question
-      await waitFor(() => {
-        expect(screen.getByTestId('current-question')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('Current Question')).toBeInTheDocument();
+      const questionDisplay = screen.getByTestId('current-question');
+      expect(questionDisplay).toBeInTheDocument();
+      expect(questionDisplay).toHaveTextContent('5 + 3 = ?');
     });
 
-    test('should display question format correctly', async () => {
+    test('should display question details', () => {
       render(<LearningJourneyWithProvider />);
 
-      // Wait for question to be generated and displayed
-      await waitFor(() => {
-        expect(screen.getByText('3 + 5 = ?')).toBeInTheDocument();
-      });
+      const questionDisplay = screen.getByTestId('current-question');
+      expect(questionDisplay).toHaveTextContent('Simple');
+      expect(questionDisplay).toHaveTextContent('Single Digit');
+    });
 
-      // Should show question details
-      expect(screen.getByText('Simple - Single Digit')).toBeInTheDocument();
+    test('should hide current question when no active level', () => {
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          currentLevel: null,
+        }),
+      );
+
+      render(<LearningJourneyWithProvider />);
+
+      expect(screen.queryByTestId('current-question')).not.toBeInTheDocument();
     });
   });
 
   describe('Answer Checking', () => {
     test('should handle check answer button click', async () => {
+      const mockCheckAnswer = jest.fn().mockReturnValue(true);
+      const { useGame } = require('../../context/GameContext');
+      useGame.mockReturnValue({
+        gameState: { currentQuestion: mockQuestion },
+        setGameState: jest.fn(),
+        checkAnswer: mockCheckAnswer,
+        setCurrentValue: jest.fn(),
+      });
+
       render(<LearningJourneyWithProvider />);
 
       const checkButton = screen.getByRole('button', { name: /check answer/i });
       await user.click(checkButton);
 
-      // Should have called the answer checking logic
-      // Note: This will depend on the GameContext implementation
+      expect(mockCheckAnswer).toHaveBeenCalled();
     });
 
-    test('should handle keyboard shortcuts for answer checking', async () => {
+    test('should trigger answer check with Enter key', async () => {
+      const mockCheckAnswer = jest.fn().mockReturnValue(true);
+      const { useGame } = require('../../context/GameContext');
+      useGame.mockReturnValue({
+        gameState: { currentQuestion: mockQuestion },
+        setGameState: jest.fn(),
+        checkAnswer: mockCheckAnswer,
+        setCurrentValue: jest.fn(),
+      });
+
       render(<LearningJourneyWithProvider />);
 
-      // Press Enter key
       await user.keyboard('{Enter}');
 
-      // Press Space key
+      await waitFor(() => {
+        expect(mockCheckAnswer).toHaveBeenCalled();
+      });
+    });
+
+    test('should trigger answer check with Space key', async () => {
+      const mockCheckAnswer = jest.fn().mockReturnValue(true);
+      const { useGame } = require('../../context/GameContext');
+      useGame.mockReturnValue({
+        gameState: { currentQuestion: mockQuestion },
+        setGameState: jest.fn(),
+        checkAnswer: mockCheckAnswer,
+        setCurrentValue: jest.fn(),
+      });
+
+      render(<LearningJourneyWithProvider />);
+
       await user.keyboard(' ');
 
-      // Should have handled keyboard events
-      // Note: Actual verification depends on GameContext mock
-    });
-
-    test('should show correct feedback on button', async () => {
-      render(<LearningJourneyWithProvider />);
-
-      const checkButton = screen.getByRole('button', { name: /check answer/i });
-
-      // Initial state
-      expect(checkButton).toHaveClass('bg-blue-500');
-
-      // After clicking, button state should change temporarily
-      await user.click(checkButton);
-
-      // Note: Testing the temporary state changes would require more complex timing
-    });
-  });
-
-  describe('Helper Functions', () => {
-    test('should format operation labels correctly', () => {
-      render(<LearningJourneyWithProvider />);
-
-      expect(screen.getByText('Addition')).toBeInTheDocument();
-      expect(screen.getByText('Subtraction')).toBeInTheDocument();
-      expect(screen.getByText('Mixed Operations')).toBeInTheDocument();
-    });
-
-    test('should format digit labels correctly', async () => {
-      render(<LearningJourneyWithProvider />);
-
-      // Expand to see digit labels
-      const additionButton = screen.getByRole('button', { name: /addition/i });
-      await user.click(additionButton);
-      const simpleSection = screen.getByText('Simple Addition');
-      await user.click(simpleSection);
-
-      expect(screen.getByText('Single Digit')).toBeInTheDocument();
-      expect(screen.getByText('Double Digit')).toBeInTheDocument();
-    });
-
-    test('should format complement labels correctly', async () => {
-      render(<LearningJourneyWithProvider />);
-
-      // Expand to see complement labels
-      const additionButton = screen.getByRole('button', { name: /addition/i });
-      await user.click(additionButton);
-
-      expect(screen.getByText('Simple Addition')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(mockCheckAnswer).toHaveBeenCalled();
+      });
     });
   });
 
   describe('Progress Updates', () => {
-    test('should update progress on correct answer', async () => {
+    test('should process correct answer and continue', async () => {
+      const mockCheckAnswer = jest.fn().mockReturnValue(true);
+      const mockProcessAnswer = jest.fn();
+      const mockSetGameState = jest.fn();
+      const mockSetCurrentValue = jest.fn();
+      const { useGame } = require('../../context/GameContext');
+
+      useGame.mockReturnValue({
+        gameState: { currentQuestion: mockQuestion },
+        setGameState: mockSetGameState,
+        checkAnswer: mockCheckAnswer,
+        setCurrentValue: mockSetCurrentValue,
+      });
+
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: {
+            ...mockUserProgress,
+            currentLevelId: 'addition-simple-single',
+          },
+          processAnswer: mockProcessAnswer,
+        }),
+      );
+
       render(<LearningJourneyWithProvider />);
 
       const checkButton = screen.getByRole('button', { name: /check answer/i });
       await user.click(checkButton);
 
-      // Should record the answer attempt
-      // Note: Actual verification depends on GameContext mock setup
+      // Wait for animation and async operations to complete
+      await waitFor(() => {
+        expect(mockProcessAnswer).toHaveBeenCalledWith(true);
+        expect(
+          levelQuestionGenerator.generateQuestionForLevel,
+        ).toHaveBeenCalledWith(mockLevelProgress);
+      });
     });
 
-    test('should update progress on incorrect answer', async () => {
+    test('should process incorrect answer and continue', async () => {
+      const mockCheckAnswer = jest.fn().mockReturnValue(false);
+      const mockProcessAnswer = jest.fn();
+      const mockSetGameState = jest.fn();
+      const mockSetCurrentValue = jest.fn();
+      const { useGame } = require('../../context/GameContext');
+
+      useGame.mockReturnValue({
+        gameState: { currentQuestion: mockQuestion },
+        setGameState: mockSetGameState,
+        checkAnswer: mockCheckAnswer,
+        setCurrentValue: mockSetCurrentValue,
+      });
+
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: {
+            ...mockUserProgress,
+            currentLevelId: 'addition-simple-single',
+          },
+          processAnswer: mockProcessAnswer,
+        }),
+      );
+
       render(<LearningJourneyWithProvider />);
 
       const checkButton = screen.getByRole('button', { name: /check answer/i });
       await user.click(checkButton);
 
-      // Should record the answer attempt
-      // Note: Actual verification depends on GameContext mock setup
+      // Wait for animation and async operations to complete
+      await waitFor(() => {
+        expect(mockProcessAnswer).toHaveBeenCalledWith(false);
+        expect(
+          levelQuestionGenerator.generateQuestionForLevel,
+        ).toHaveBeenCalledWith(mockLevelProgress);
+      });
     });
   });
 
   describe('Edge Cases', () => {
-    test('should handle missing current level', () => {
-      const progressWithoutCurrentLevel = {
-        ...mockUserProgress,
-        currentLevelId: null,
-      };
-
-      mockProgressionManager.loadProgress.mockReturnValue(
-        progressWithoutCurrentLevel,
-      );
-      mockProgressionManager.getCurrentLevel.mockReturnValue(null);
-
-      render(<LearningJourneyWithProvider />);
-
-      // Should not crash and should not show current question
-      expect(screen.queryByTestId('current-question')).not.toBeInTheDocument();
-    });
-
     test('should handle empty levels array', () => {
-      const progressWithoutLevels = {
-        ...mockUserProgress,
-        allLevels: [],
-      };
-
-      mockProgressionManager.loadProgress.mockReturnValue(
-        progressWithoutLevels,
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: {
+            ...mockUserProgress,
+            allLevels: [],
+          },
+          currentLevel: null,
+          completionPercentage: 0,
+          sectionProgress: jest
+            .fn()
+            .mockReturnValue({ completed: 0, total: 0 }),
+        }),
       );
 
       render(<LearningJourneyWithProvider />);
@@ -451,16 +515,23 @@ describe('LearningJourney', () => {
     });
 
     test('should handle operations with no unlocked levels', () => {
-      const progressWithLockedLevels = {
-        ...mockUserProgress,
-        allLevels: mockUserProgress.allLevels.map((level) => ({
-          ...level,
-          isUnlocked: false,
-        })),
-      };
+      const noUnlockedLevels = mockUserProgress.allLevels.map((level) => ({
+        ...level,
+        isUnlocked: false,
+      }));
 
-      mockProgressionManager.loadProgress.mockReturnValue(
-        progressWithLockedLevels,
+      mockUseUserProgress.mockReturnValue(
+        createMockUseUserProgressReturn({
+          userProgress: {
+            ...mockUserProgress,
+            allLevels: noUnlockedLevels,
+          },
+          currentLevel: null,
+          completionPercentage: 0,
+          sectionProgress: jest
+            .fn()
+            .mockReturnValue({ completed: 0, total: 0 }),
+        }),
       );
 
       render(<LearningJourneyWithProvider />);

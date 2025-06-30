@@ -177,3 +177,8 @@ The sempoa implements authentic abacus behavior:
 
 - Never autocommit changes; wait for explicit request to commit
 - Never run `npm run dev`; assume it's already running or ask user to start it if needed
+
+## Development Tips
+
+- Prefer running `npm run lint:fix` directly, rather than just `npm run lint`
+```
