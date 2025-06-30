@@ -3,14 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { GameProvider } from '../../context/GameContext';
 import { useUserProgress } from '../../hooks/useUserProgress';
 import type { LevelProgress, UserProgress } from '../../types';
-import * as levelQuestionGenerator from '../../utils/levelQuestionGenerator';
 import * as questionGenerator from '../../utils/questionGenerator';
 import LearningJourney from '../LearningJourney';
 
 // Mock the hooks and utilities
 jest.mock('../../hooks/useUserProgress');
 jest.mock('../../utils/questionGenerator');
-jest.mock('../../utils/levelQuestionGenerator');
 const mockGameState = {
   currentQuestion: {
     operands: [5, 3],
@@ -126,15 +124,10 @@ describe('LearningJourney', () => {
     // Set up default mock implementation
     mockUseUserProgress.mockReturnValue(createMockUseUserProgressReturn());
 
-    // Mock question generator
+    // Mock question generator to return mock question
     (questionGenerator.generateQuestion as jest.Mock).mockReturnValue(
       mockQuestion,
     );
-
-    // Mock level question generator - returns null for null levels, question for valid levels
-    (
-      levelQuestionGenerator.generateQuestionForLevel as jest.Mock
-    ).mockImplementation((level) => (level ? mockQuestion : null));
   });
 
   describe('Rendering and Initial State', () => {
@@ -462,9 +455,12 @@ describe('LearningJourney', () => {
       // Wait for animation and async operations to complete
       await waitFor(() => {
         expect(mockProcessAnswer).toHaveBeenCalledWith(true);
-        expect(
-          levelQuestionGenerator.generateQuestionForLevel,
-        ).toHaveBeenCalledWith(mockLevelProgress);
+        expect(questionGenerator.generateQuestion).toHaveBeenCalledWith({
+          difficulty: mockLevelProgress.digitLevel,
+          operation: mockLevelProgress.operationType,
+          useSmallFriend: false,
+          useBigFriend: false,
+        });
       });
     });
 
@@ -500,9 +496,12 @@ describe('LearningJourney', () => {
       // Wait for animation and async operations to complete
       await waitFor(() => {
         expect(mockProcessAnswer).toHaveBeenCalledWith(false);
-        expect(
-          levelQuestionGenerator.generateQuestionForLevel,
-        ).toHaveBeenCalledWith(mockLevelProgress);
+        expect(questionGenerator.generateQuestion).toHaveBeenCalledWith({
+          difficulty: mockLevelProgress.digitLevel,
+          operation: mockLevelProgress.operationType,
+          useSmallFriend: false,
+          useBigFriend: false,
+        });
       });
     });
   });
