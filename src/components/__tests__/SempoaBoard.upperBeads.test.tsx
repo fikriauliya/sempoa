@@ -426,7 +426,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
       const totalUpperBeads = 2 * SEMPOA_CONFIG.COLUMNS;
 
       expect(requiredSectionHeight).toBe(60); // 3 * 20px
-      expect(totalUpperBeads).toBe(26); // 2 * 13 columns
+      expect(totalUpperBeads).toBe(18); // 2 * 9 columns
 
       // Verify current configuration matches expectations
       expect(SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT).toBe(
