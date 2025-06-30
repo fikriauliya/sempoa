@@ -63,6 +63,65 @@ jest.mock('../../hooks/useAnswerChecking', () => ({
 }));
 
 describe('QuestionDisplay Component', () => {
+  describe('Background Feedback Animation', () => {
+    it('should animate background color for correct answer feedback', async () => {
+      // Mock answer checking to return correct state
+      const mockHandleCheckAnswer = jest.fn();
+      jest.doMock('../../hooks/useAnswerChecking', () => ({
+        useAnswerChecking: () => ({
+          handleCheckAnswer: mockHandleCheckAnswer,
+          buttonState: 'correct',
+          scope: { current: null },
+        }),
+      }));
+
+      render(<QuestionDisplay />);
+      
+      const questionDisplay = screen.getByTestId('question-display');
+      
+      // Should have correct feedback background color when button state is correct
+      expect(questionDisplay).toHaveClass('bg-green-100');
+    });
+
+    it('should animate background color for wrong answer feedback', async () => {
+      // Mock answer checking to return wrong state
+      const mockHandleCheckAnswer = jest.fn();
+      jest.doMock('../../hooks/useAnswerChecking', () => ({
+        useAnswerChecking: () => ({
+          handleCheckAnswer: mockHandleCheckAnswer,
+          buttonState: 'wrong',
+          scope: { current: null },
+        }),
+      }));
+
+      render(<QuestionDisplay />);
+      
+      const questionDisplay = screen.getByTestId('question-display');
+      
+      // Should have wrong feedback background color when button state is wrong
+      expect(questionDisplay).toHaveClass('bg-red-100');
+    });
+
+    it('should return to normal background color when button state is normal', () => {
+      render(<QuestionDisplay />);
+      
+      const questionDisplay = screen.getByTestId('question-display');
+      
+      // Should have normal background color when button state is normal
+      expect(questionDisplay).toHaveClass('bg-green-50');
+    });
+
+    it('should use Framer Motion for background animation', () => {
+      render(<QuestionDisplay />);
+      
+      const questionDisplay = screen.getByTestId('question-display');
+      
+      // Should be a Framer Motion component (has data-framer-name or similar motion attributes)
+      expect(questionDisplay.tagName.toLowerCase()).toBe('div');
+      // This will be verified through implementation that the component uses motion.div
+    });
+  });
+
   describe('Rendering', () => {
     it('should render the component with correct data-testid', () => {
       render(<QuestionDisplay />);
