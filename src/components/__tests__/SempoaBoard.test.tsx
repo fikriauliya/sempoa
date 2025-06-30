@@ -300,12 +300,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
     test('should display correct place values', () => {
       render(<SempoaBoardWithProvider />);
 
-      // Verify column headers are present
+      // Verify column headers are present (9 columns: hundred millions to units)
       const expectedValues = [
-        '1T',
-        '100B',
-        '10B',
-        '1B',
         '100M',
         '10M',
         '1M',
