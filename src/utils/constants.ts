@@ -65,3 +65,16 @@ export const getComplementSectionLabel = (
   }
   return COMPLEMENT_LABELS[complement];
 };
+
+export const getOperationSymbol = (operation: Operation): string => {
+  switch (operation) {
+    case 'addition':
+      return '+';
+    case 'subtraction':
+      return '-';
+    case 'mixed':
+      return '?';
+    default:
+      return '?';
+  }
+};

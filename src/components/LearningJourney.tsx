@@ -1,7 +1,8 @@
 import { motion, useAnimate } from 'framer-motion';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
+import { useUserProgress } from '../hooks/useUserProgress';
 import type { GameState, LevelProgress, UserProgress } from '../types';
 import {
   getButtonStateClassName,
@@ -12,30 +13,31 @@ import {
   COMPLEMENTS,
   DIGIT_LABELS,
   getComplementSectionLabel,
+  getOperationSymbol,
   OPERATION_ICONS,
   OPERATIONS,
 } from '../utils/constants';
-import { ProgressionManager } from '../utils/progressionManager';
-import { generateQuestion } from '../utils/questionGenerator';
+import { generateQuestionForLevel } from '../utils/levelQuestionGenerator';
 import { CheckmarkIcon, CrossIcon } from './icons/SVGIcons';
 
+const BUTTON_FEEDBACK_DURATION = 0.3;
+const KEYBOARD_SHORTCUTS = ['Enter', ' '] as const;
+
 interface ProgressCardProps {
-  userProgress: UserProgress;
-  progressionManager: ProgressionManager;
+  completionPercentage: number;
+  totalScore: number;
 }
 
 const ProgressCard: React.FC<ProgressCardProps> = ({
-  userProgress,
-  progressionManager,
+  completionPercentage,
+  totalScore,
 }) => (
   <div className="bg-blue-50 p-4 rounded-lg">
     <h3 className="font-semibold text-blue-800 mb-2">Progress</h3>
     <div className="text-2xl font-mono text-blue-600">
-      {progressionManager.getCompletionPercentage(userProgress)}%
+      {completionPercentage}%
     </div>
-    <div className="text-sm text-blue-600">
-      Score: {userProgress.totalScore}
-    </div>
+    <div className="text-sm text-blue-600">Score: {totalScore}</div>
   </div>
 );
 
@@ -49,30 +51,31 @@ const LevelButton: React.FC<LevelButtonProps> = ({
   level,
   userProgress,
   onSelect,
-}) => (
-  <button
-    type="button"
-    key={`${level.operationType}-${level.complementType}-${level.digitLevel}`}
-    data-testid={`level-${level.operationType}-${level.complementType}-${level.digitLevel}`}
-    className={getLevelButtonClassName(level, userProgress)}
-    onClick={() => onSelect(level)}
-  >
-    <span>{DIGIT_LABELS[level.digitLevel]}</span>
-    {level.isCompleted && (
-      <span data-testid="checkmark-icon" className="text-green-600">
-        ✓
-      </span>
-    )}
-    {!level.isUnlocked && <span className="text-gray-400">🔒</span>}
-  </button>
-);
+}) => {
+  return (
+    <button
+      type="button"
+      data-testid={`level-${level.operationType}-${level.complementType}-${level.digitLevel}`}
+      className={getLevelButtonClassName(level, userProgress)}
+      onClick={() => onSelect(level)}
+    >
+      <span>{DIGIT_LABELS[level.digitLevel]}</span>
+      {level.isCompleted && (
+        <span data-testid="checkmark-icon" className="text-green-600">
+          ✓
+        </span>
+      )}
+      {!level.isUnlocked && <span className="text-gray-400">🔒</span>}
+    </button>
+  );
+};
 
 interface ComplementSectionProps {
   operation: 'addition' | 'subtraction' | 'mixed';
   complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both';
   complementLevels: LevelProgress[];
   userProgress: UserProgress;
-  progressionManager: ProgressionManager;
+  sectionProgress: { completed: number; total: number };
   expandedSections: Record<string, boolean>;
   onToggleSection: (section: string) => void;
   onSelectLevel: (level: LevelProgress) => void;
@@ -83,19 +86,13 @@ const ComplementSection: React.FC<ComplementSectionProps> = ({
   complement,
   complementLevels,
   userProgress,
-  progressionManager,
+  sectionProgress,
   expandedSections,
   onToggleSection,
   onSelectLevel,
 }) => {
-  const progress = progressionManager.getSectionProgress(
-    userProgress,
-    operation,
-    complement,
-  );
-
   return (
-    <div key={complement} className="space-y-1">
+    <div className="space-y-1">
       <button
         type="button"
         className="font-medium text-sm text-gray-700 cursor-pointer hover:text-gray-900 bg-transparent border-none p-0 text-left"
@@ -106,7 +103,7 @@ const ComplementSection: React.FC<ComplementSectionProps> = ({
           className="ml-2 text-xs text-gray-500"
           data-testid={`progress-${operation}-${complement}`}
         >
-          {progress.completed}/{progress.total}
+          {sectionProgress.completed}/{sectionProgress.total}
         </span>
       </button>
 
@@ -128,8 +125,12 @@ const ComplementSection: React.FC<ComplementSectionProps> = ({
 
 interface OperationSectionProps {
   operation: 'addition' | 'subtraction' | 'mixed';
+  operationLevels: LevelProgress[];
   userProgress: UserProgress;
-  progressionManager: ProgressionManager;
+  getSectionProgress: (
+    operation: 'addition' | 'subtraction' | 'mixed',
+    complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both',
+  ) => { completed: number; total: number };
   expandedSections: Record<string, boolean>;
   onToggleSection: (section: string) => void;
   onSelectLevel: (level: LevelProgress) => void;
@@ -137,19 +138,17 @@ interface OperationSectionProps {
 
 const OperationSection: React.FC<OperationSectionProps> = ({
   operation,
+  operationLevels,
   userProgress,
-  progressionManager,
+  getSectionProgress,
   expandedSections,
   onToggleSection,
   onSelectLevel,
 }) => {
-  const operationLevels = userProgress.allLevels.filter(
-    (level) => level.operationType === operation,
-  );
   const isOperationUnlocked = operationLevels.some((level) => level.isUnlocked);
 
   return (
-    <div key={operation} className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={() => onToggleSection(operation)}
@@ -162,15 +161,8 @@ const OperationSection: React.FC<OperationSectionProps> = ({
       >
         <div className="flex items-center gap-3">
           <span
-            className="text-3xl"
+            className="text-3xl w-11 h-11 flex items-center justify-center"
             data-testid={`icon-${operation}`}
-            style={{
-              width: '44px',
-              height: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
           >
             {OPERATION_ICONS[operation]}
           </span>
@@ -199,7 +191,7 @@ const OperationSection: React.FC<OperationSectionProps> = ({
                 complement={complement}
                 complementLevels={complementLevels}
                 userProgress={userProgress}
-                progressionManager={progressionManager}
+                sectionProgress={getSectionProgress(operation, complement)}
                 expandedSections={expandedSections}
                 onToggleSection={onToggleSection}
                 onSelectLevel={onSelectLevel}
@@ -224,11 +216,9 @@ const CurrentQuestion: React.FC<CurrentQuestionProps> = ({
   <div className="bg-green-50 p-4 rounded-lg" data-testid="current-question">
     <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
     <div className="text-lg font-mono text-green-700 mb-2">
-      {gameState.currentQuestion?.operation === 'addition'
-        ? gameState.currentQuestion.operands.join(' + ')
-        : gameState.currentQuestion?.operation === 'subtraction'
-          ? gameState.currentQuestion.operands.join(' - ')
-          : gameState.currentQuestion?.operands.join(' ? ')}{' '}
+      {gameState.currentQuestion?.operands.join(
+        ` ${getOperationSymbol(gameState.currentQuestion.operation)} `,
+      )}{' '}
       = ?
     </div>
     <div className="text-sm text-green-600">
@@ -263,60 +253,40 @@ const CheckAnswerButton: React.FC<CheckAnswerButtonProps> = ({
 
 const LearningJourney: React.FC = () => {
   const { gameState, setGameState, checkAnswer, setCurrentValue } = useGame();
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const {
+    userProgress,
+    selectLevel: selectUserLevel,
+    currentLevel,
+    completionPercentage,
+    sectionProgress,
+    processAnswer,
+  } = useUserProgress();
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({});
   const [buttonState, setButtonState] = useState<
     'normal' | 'correct' | 'wrong'
   >('normal');
-  const progressionManager = useMemo(
-    () => ProgressionManager.getInstance(),
-    [],
-  );
   const [scope, animate] = useAnimate();
 
-  const generateNewQuestion = useCallback(
-    (level: LevelProgress) => {
-      // Reset the sempoa board
+  const generateNewQuestion = useCallback(() => {
+    const question = generateQuestionForLevel(currentLevel);
+    if (question) {
       setCurrentValue(0);
-
-      const question = generateQuestion({
-        difficulty: level.digitLevel,
-        operation: level.operationType,
-        useSmallFriend:
-          level.complementType === 'smallFriend' ||
-          level.complementType === 'both',
-        useBigFriend:
-          level.complementType === 'bigFriend' ||
-          level.complementType === 'both',
-      });
-
-      setGameState((prev: GameState) => ({
+      setGameState((prev) => ({
         ...prev,
         currentQuestion: question,
       }));
-    },
-    [setCurrentValue, setGameState],
-  );
+    }
+  }, [currentLevel, setCurrentValue, setGameState]);
 
   useEffect(() => {
-    const progress = progressionManager.loadProgress();
-    setUserProgress(progress);
-
     // Generate initial question if there's a current level
-    const currentLevel = progressionManager.getCurrentLevel(progress);
-    if (currentLevel) {
-      generateNewQuestion(currentLevel);
-    }
-  }, [
-    generateNewQuestion,
-    progressionManager.getCurrentLevel,
-    progressionManager.loadProgress,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
+    generateNewQuestion();
+  }, [generateNewQuestion]);
 
   const handleCheckAnswer = useCallback(async () => {
-    if (!userProgress?.currentLevelId || !gameState.currentQuestion) return;
+    if (!userProgress.currentLevelId || !gameState.currentQuestion) return;
 
     const isCorrect = checkAnswer();
 
@@ -324,33 +294,33 @@ const LearningJourney: React.FC = () => {
     setButtonState(isCorrect ? 'correct' : 'wrong');
 
     // Animate button feedback, then reset state and move to next question
-    await animate(scope.current, { scale: [1, 1.05, 1] }, { duration: 0.3 });
+    await animate(
+      scope.current,
+      { scale: [1, 1.05, 1] },
+      { duration: BUTTON_FEEDBACK_DURATION },
+    );
     setButtonState('normal');
 
-    const updatedProgress = isCorrect
-      ? progressionManager.recordCorrectAnswer(userProgress)
-      : progressionManager.recordIncorrectAnswer(userProgress);
-
-    setUserProgress(updatedProgress);
-
-    // Generate new question after recording answer
-    const currentLevel = progressionManager.getCurrentLevel(updatedProgress);
-    if (currentLevel) {
-      generateNewQuestion(currentLevel);
-    }
+    // Process answer and generate new question
+    processAnswer(isCorrect);
+    generateNewQuestion();
   }, [
-    userProgress,
+    userProgress.currentLevelId,
     gameState.currentQuestion,
     checkAnswer,
     animate,
     scope,
+    processAnswer,
     generateNewQuestion,
-    progressionManager,
   ]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+      if (
+        KEYBOARD_SHORTCUTS.includes(
+          event.key as (typeof KEYBOARD_SHORTCUTS)[number],
+        )
+      ) {
         event.preventDefault();
         handleCheckAnswer();
       }
@@ -370,16 +340,11 @@ const LearningJourney: React.FC = () => {
   };
 
   const selectLevel = (level: LevelProgress) => {
-    if (!userProgress || !level.isUnlocked) return;
+    if (!level.isUnlocked) return;
 
-    const updatedProgress = progressionManager.selectLevel(userProgress, level);
-    setUserProgress(updatedProgress);
-    generateNewQuestion(level);
+    selectUserLevel(level);
+    generateNewQuestion();
   };
-
-  if (!userProgress) return null;
-
-  const currentLevel = progressionManager.getCurrentLevel(userProgress);
 
   return (
     <div
@@ -392,21 +357,28 @@ const LearningJourney: React.FC = () => {
 
       <div className="space-y-4 max-h-[600px] overflow-y-auto">
         <ProgressCard
-          userProgress={userProgress}
-          progressionManager={progressionManager}
+          completionPercentage={completionPercentage}
+          totalScore={userProgress.totalScore}
         />
 
-        {OPERATIONS.map((operation) => (
-          <OperationSection
-            key={operation}
-            operation={operation}
-            userProgress={userProgress}
-            progressionManager={progressionManager}
-            expandedSections={expandedSections}
-            onToggleSection={toggleSection}
-            onSelectLevel={selectLevel}
-          />
-        ))}
+        {OPERATIONS.map((operation) => {
+          const operationLevels = userProgress.allLevels.filter(
+            (level) => level.operationType === operation,
+          );
+
+          return (
+            <OperationSection
+              key={operation}
+              operation={operation}
+              operationLevels={operationLevels}
+              userProgress={userProgress}
+              getSectionProgress={sectionProgress}
+              expandedSections={expandedSections}
+              onToggleSection={toggleSection}
+              onSelectLevel={selectLevel}
+            />
+          );
+        })}
 
         {currentLevel && gameState.currentQuestion && (
           <CurrentQuestion currentLevel={currentLevel} gameState={gameState} />
