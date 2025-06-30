@@ -10,9 +10,8 @@ const mockGameState: GameState = {
     answer: 68,
   },
   score: 100,
+  level: 1,
   mistakes: 2,
-  sempoaValue: 0,
-  feedback: null,
 };
 
 const mockCurrentLevel: LevelProgress = {
