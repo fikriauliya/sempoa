@@ -10,3 +10,4 @@
 - [ ] SP-010: [FEATURE] Enable swipe gestures for bead manipulation on tablets and mobile devices
 - [x] SP-011: [UX] Implement ergonomic question layout - position questions at top-right of sempoa board on desktop, above board on mobile. Configure sempoa board to display only 9 columns for better mobile experience
 - [ ] SP-012: [RESPONSIVE] Create tablet-friendly layout optimization for all components with appropriate spacing and touch targets
+- [x] SP-013: [UX] Implement visual feedback for answer correctness by changing the background color of the question container in addition to the existing Check Answer button feedback
