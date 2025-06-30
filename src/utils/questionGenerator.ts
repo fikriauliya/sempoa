@@ -1,7 +1,8 @@
 import type { Question } from '../types';
+import { DIFFICULTY_RANGES, type DigitLevel } from './constants';
 
 interface QuestionConfig {
-  difficulty: 'single' | 'double' | 'triple' | 'four' | 'five';
+  difficulty: DigitLevel;
   operation: 'addition' | 'subtraction' | 'mixed';
   useSmallFriend: boolean;
   useBigFriend: boolean;
@@ -11,23 +12,9 @@ const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const generateNumber = (
-  difficulty: 'single' | 'double' | 'triple' | 'four' | 'five',
-): number => {
-  switch (difficulty) {
-    case 'single':
-      return getRandomInt(1, 9);
-    case 'double':
-      return getRandomInt(10, 99);
-    case 'triple':
-      return getRandomInt(100, 999);
-    case 'four':
-      return getRandomInt(1000, 9999);
-    case 'five':
-      return getRandomInt(10000, 99999);
-    default:
-      return getRandomInt(1, 9);
-  }
+const generateNumber = (difficulty: DigitLevel): number => {
+  const [min, max] = DIFFICULTY_RANGES[difficulty];
+  return getRandomInt(min, max);
 };
 
 const needsSmallFriend = (a: number, b: number): boolean => {
@@ -45,17 +32,7 @@ const generateAdditionQuestion = (config: QuestionConfig): Question => {
   let num2 = generateNumber(config.difficulty);
 
   if (config.useSmallFriend && !needsSmallFriend(num1, num2)) {
-    const digits =
-      config.difficulty === 'single'
-        ? 1
-        : config.difficulty === 'double'
-          ? 2
-          : config.difficulty === 'triple'
-            ? 3
-            : config.difficulty === 'four'
-              ? 4
-              : 5;
-    const maxForDigits = 10 ** digits - 1;
+    const maxForDigits = DIFFICULTY_RANGES[config.difficulty][1];
 
     while (!needsSmallFriend(num1, num2) && num1 + num2 <= maxForDigits) {
       num2 = generateNumber(config.difficulty);
@@ -102,24 +79,17 @@ const generateSubtractionQuestion = (config: QuestionConfig): Question => {
 
 export const generateQuestion = (config: QuestionConfig): Question => {
   if (config.operation === 'mixed') {
-    const operations: ('addition' | 'subtraction')[] = [
-      'addition',
-      'subtraction',
-    ];
+    const operations = ['addition', 'subtraction'] as const;
     const randomOperation =
       operations[Math.floor(Math.random() * operations.length)];
     const mixedConfig = { ...config, operation: randomOperation };
 
-    if (randomOperation === 'addition') {
-      return generateAdditionQuestion(mixedConfig);
-    } else {
-      return generateSubtractionQuestion(mixedConfig);
-    }
+    return randomOperation === 'addition'
+      ? generateAdditionQuestion(mixedConfig)
+      : generateSubtractionQuestion(mixedConfig);
   }
 
-  if (config.operation === 'addition') {
-    return generateAdditionQuestion(config);
-  } else {
-    return generateSubtractionQuestion(config);
-  }
+  return config.operation === 'addition'
+    ? generateAdditionQuestion(config)
+    : generateSubtractionQuestion(config);
 };

@@ -1,4 +1,5 @@
 import type { LevelProgress, UserProgress } from '../types';
+import { COMPLEMENTS, DIGIT_LEVELS, OPERATIONS } from './constants';
 
 const STORAGE_KEY = 'sempoa_user_progress';
 const QUESTIONS_TO_COMPLETE = 10;
@@ -46,24 +47,10 @@ export class ProgressionManager {
 
   private generateAllLevels(): LevelProgress[] {
     const levels: LevelProgress[] = [];
-    const operations: Array<'addition' | 'subtraction' | 'mixed'> = [
-      'addition',
-      'subtraction',
-      'mixed',
-    ];
-    const complements: Array<'simple' | 'smallFriend' | 'bigFriend' | 'both'> =
-      ['simple', 'smallFriend', 'bigFriend', 'both'];
-    const digits: Array<'single' | 'double' | 'triple' | 'four' | 'five'> = [
-      'single',
-      'double',
-      'triple',
-      'four',
-      'five',
-    ];
 
-    for (const operation of operations) {
-      for (const complement of complements) {
-        for (const digit of digits) {
+    for (const operation of OPERATIONS) {
+      for (const complement of COMPLEMENTS) {
+        for (const digit of DIGIT_LEVELS) {
           const level = {
             operationType: operation,
             complementType: complement,
