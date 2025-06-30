@@ -13,12 +13,10 @@ export interface Question {
   operands: number[]
   operation: 'addition' | 'subtraction' | 'mixed'
   answer: number
-  difficulty: 'single' | 'double' | 'triple' | 'four' | 'five'
-  useSmallFriend: boolean
-  useBigFriend: boolean
 }
 
 export interface LevelProgress {
+  id: string
   operationType: 'addition' | 'subtraction' | 'mixed'
   complementType: 'simple' | 'smallFriend' | 'bigFriend' | 'both'
   digitLevel: 'single' | 'double' | 'triple' | 'four' | 'five'
@@ -29,7 +27,7 @@ export interface LevelProgress {
 }
 
 export interface UserProgress {
-  currentLevel: LevelProgress | null
+  currentLevelId: string | null
   allLevels: LevelProgress[]
   totalScore: number
 }

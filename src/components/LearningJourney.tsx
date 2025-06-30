@@ -35,13 +35,14 @@ const LearningJourney: React.FC = () => {
     setUserProgress(progress)
     
     // Generate initial question if there's a current level
-    if (progress.currentLevel) {
-      generateNewQuestion(progress.currentLevel)
+    const currentLevel = progressionManager.getCurrentLevel(progress)
+    if (currentLevel) {
+      generateNewQuestion(currentLevel)
     }
   }, [generateNewQuestion]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckAnswer = useCallback(async () => {
-    if (!userProgress?.currentLevel || !gameState.currentQuestion) return
+    if (!userProgress?.currentLevelId || !gameState.currentQuestion) return
     
     const isCorrect = checkAnswer()
     
@@ -57,16 +58,18 @@ const LearningJourney: React.FC = () => {
       setUserProgress(updatedProgress)
       
       // Generate new question after animation
-      if (updatedProgress.currentLevel) {
-        generateNewQuestion(updatedProgress.currentLevel)
+      const currentLevel = progressionManager.getCurrentLevel(updatedProgress)
+      if (currentLevel) {
+        generateNewQuestion(currentLevel)
       }
     } else {
       const updatedProgress = progressionManager.recordIncorrectAnswer(userProgress)
       setUserProgress(updatedProgress)
       
       // Also generate new question when wrong
-      if (updatedProgress.currentLevel) {
-        generateNewQuestion(updatedProgress.currentLevel)
+      const currentLevel = progressionManager.getCurrentLevel(updatedProgress)
+      if (currentLevel) {
+        generateNewQuestion(currentLevel)
       }
     }
   }, [userProgress, gameState.currentQuestion, checkAnswer, animate, scope, generateNewQuestion, progressionManager])
@@ -228,10 +231,7 @@ const LearningJourney: React.FC = () => {
                         {expandedSections[`${operation}-${complement}`] && (
                           <div className="ml-4 space-y-1">
                             {complementLevels.map(level => {
-                              const isCurrentLevel = userProgress.currentLevel && 
-                                level.operationType === userProgress.currentLevel.operationType &&
-                                level.complementType === userProgress.currentLevel.complementType &&
-                                level.digitLevel === userProgress.currentLevel.digitLevel
+                              const isCurrentLevel = userProgress.currentLevelId === level.id
                               
                               return (
                                 <div
@@ -267,26 +267,29 @@ const LearningJourney: React.FC = () => {
           )
         })}
         
-        {userProgress.currentLevel && gameState.currentQuestion && (
-          <div className="bg-green-50 p-4 rounded-lg" data-testid="current-question">
-            <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
-            <div className="text-lg font-mono text-green-700 mb-2">
-              {gameState.currentQuestion.operation === 'addition' 
-                ? gameState.currentQuestion.operands.join(' + ')
-                : gameState.currentQuestion.operation === 'subtraction'
-                ? gameState.currentQuestion.operands.join(' - ')
-                : gameState.currentQuestion.operands.join(' ? ')
-              } = ?
+        {(() => {
+          const currentLevel = progressionManager.getCurrentLevel(userProgress)
+          return currentLevel && gameState.currentQuestion && (
+            <div className="bg-green-50 p-4 rounded-lg" data-testid="current-question">
+              <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
+              <div className="text-lg font-mono text-green-700 mb-2">
+                {gameState.currentQuestion.operation === 'addition' 
+                  ? gameState.currentQuestion.operands.join(' + ')
+                  : gameState.currentQuestion.operation === 'subtraction'
+                  ? gameState.currentQuestion.operands.join(' - ')
+                  : gameState.currentQuestion.operands.join(' ? ')
+                } = ?
+              </div>
+              <div className="text-sm text-green-600">
+                {getComplementLabel(currentLevel.complementType)} - {getDigitLabel(currentLevel.digitLevel)}
+              </div>
+              <div 
+                className="hidden" 
+                data-answer={gameState.currentQuestion.answer}
+              />
             </div>
-            <div className="text-sm text-green-600">
-              {getComplementLabel(userProgress.currentLevel.complementType)} - {getDigitLabel(userProgress.currentLevel.digitLevel)}
-            </div>
-            <div 
-              className="hidden" 
-              data-answer={gameState.currentQuestion.answer}
-            />
-          </div>
-        )}
+          )
+        })()}
         
         <motion.button
           ref={scope}

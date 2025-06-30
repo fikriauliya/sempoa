@@ -15,6 +15,10 @@ export class ProgressionManager {
     return ProgressionManager.instance
   }
   
+  private generateLevelId(level: Omit<LevelProgress, 'id'>): string {
+    return `${level.operationType}-${level.complementType}-${level.digitLevel}`
+  }
+  
   initializeProgress(): UserProgress {
     const allLevels = this.generateAllLevels()
     
@@ -22,7 +26,7 @@ export class ProgressionManager {
     allLevels[0].isUnlocked = true
     
     return {
-      currentLevel: allLevels[0],
+      currentLevelId: allLevels[0].id,
       allLevels,
       totalScore: 0
     }
@@ -49,7 +53,7 @@ export class ProgressionManager {
     for (const operation of operations) {
       for (const complement of complements) {
         for (const digit of digits) {
-          levels.push({
+          const level = {
             operationType: operation,
             complementType: complement,
             digitLevel: digit,
@@ -57,6 +61,10 @@ export class ProgressionManager {
             correctAnswers: 0,
             isUnlocked: false,
             isCompleted: false
+          }
+          levels.push({
+            id: this.generateLevelId(level),
+            ...level
           })
         }
       }
@@ -66,14 +74,11 @@ export class ProgressionManager {
   }
   
   recordCorrectAnswer(progress: UserProgress): UserProgress {
-    if (!progress.currentLevel) return progress
+    if (!progress.currentLevelId) return progress
     
     const updatedProgress = { ...progress }
     const currentLevel = updatedProgress.allLevels.find(
-      level => 
-        level.operationType === progress.currentLevel!.operationType &&
-        level.complementType === progress.currentLevel!.complementType &&
-        level.digitLevel === progress.currentLevel!.digitLevel
+      level => level.id === progress.currentLevelId
     )
     
     if (currentLevel) {
@@ -89,9 +94,9 @@ export class ProgressionManager {
         const nextLevel = this.getNextLevel(updatedProgress.allLevels, currentLevel)
         if (nextLevel) {
           nextLevel.isUnlocked = true
-          updatedProgress.currentLevel = nextLevel
+          updatedProgress.currentLevelId = nextLevel.id
         } else {
-          updatedProgress.currentLevel = null // All levels completed!
+          updatedProgress.currentLevelId = null // All levels completed!
         }
       }
     }
@@ -101,14 +106,11 @@ export class ProgressionManager {
   }
   
   recordIncorrectAnswer(progress: UserProgress): UserProgress {
-    if (!progress.currentLevel) return progress
+    if (!progress.currentLevelId) return progress
     
     const updatedProgress = { ...progress }
     const currentLevel = updatedProgress.allLevels.find(
-      level => 
-        level.operationType === progress.currentLevel!.operationType &&
-        level.complementType === progress.currentLevel!.complementType &&
-        level.digitLevel === progress.currentLevel!.digitLevel
+      level => level.id === progress.currentLevelId
     )
     
     if (currentLevel) {
@@ -120,12 +122,7 @@ export class ProgressionManager {
   }
   
   private getNextLevel(allLevels: LevelProgress[], currentLevel: LevelProgress): LevelProgress | null {
-    const currentIndex = allLevels.findIndex(
-      level => 
-        level.operationType === currentLevel.operationType &&
-        level.complementType === currentLevel.complementType &&
-        level.digitLevel === currentLevel.digitLevel
-    )
+    const currentIndex = allLevels.findIndex(level => level.id === currentLevel.id)
     
     if (currentIndex >= 0 && currentIndex < allLevels.length - 1) {
       return allLevels[currentIndex + 1]
@@ -138,7 +135,7 @@ export class ProgressionManager {
     if (!level.isUnlocked) return progress
     
     const updatedProgress = { ...progress }
-    updatedProgress.currentLevel = level
+    updatedProgress.currentLevelId = level.id
     
     this.saveProgress(updatedProgress)
     return updatedProgress
@@ -149,6 +146,11 @@ export class ProgressionManager {
     return Math.round((completedCount / progress.allLevels.length) * 100)
   }
   
+  getCurrentLevel(progress: UserProgress): LevelProgress | null {
+    if (!progress.currentLevelId) return null
+    return progress.allLevels.find(level => level.id === progress.currentLevelId) || null
+  }
+
   getSectionProgress(progress: UserProgress, operationType: 'addition' | 'subtraction' | 'mixed', complementType: 'simple' | 'smallFriend' | 'bigFriend' | 'both'): { completed: number, total: number } {
     const sectionLevels = progress.allLevels.filter(
       level => level.operationType === operationType && level.complementType === complementType

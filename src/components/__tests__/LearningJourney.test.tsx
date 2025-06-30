@@ -19,6 +19,7 @@ const LearningJourneyWithProvider = () => (
 
 // Mock data
 const mockLevelProgress: LevelProgress = {
+  id: 'addition-simple-single',
   operationType: 'addition',
   complementType: 'simple',
   digitLevel: 'single',
@@ -29,10 +30,11 @@ const mockLevelProgress: LevelProgress = {
 }
 
 const mockUserProgress: UserProgress = {
-  currentLevel: mockLevelProgress,
+  currentLevelId: mockLevelProgress.id,
   allLevels: [
     mockLevelProgress,
     {
+      id: 'addition-simple-double',
       operationType: 'addition',
       complementType: 'simple',
       digitLevel: 'double',
@@ -42,6 +44,7 @@ const mockUserProgress: UserProgress = {
       isCompleted: false
     },
     {
+      id: 'subtraction-simple-single',
       operationType: 'subtraction',
       complementType: 'simple',
       digitLevel: 'single',
@@ -57,10 +60,7 @@ const mockUserProgress: UserProgress = {
 const mockQuestion = {
   operands: [3, 5],
   operation: 'addition' as const,
-  answer: 8,
-  difficulty: 'single' as const,
-  useSmallFriend: false,
-  useBigFriend: false
+  answer: 8
 }
 
 describe('LearningJourney', () => {
@@ -74,6 +74,7 @@ describe('LearningJourney', () => {
     selectLevel: jest.Mock
     getCompletionPercentage: jest.Mock
     getSectionProgress: jest.Mock
+    getCurrentLevel: jest.Mock
   }
 
   beforeEach(() => {
@@ -89,6 +90,7 @@ describe('LearningJourney', () => {
       selectLevel: jest.fn(),
       getCompletionPercentage: jest.fn(),
       getSectionProgress: jest.fn(),
+      getCurrentLevel: jest.fn(),
     }
 
     ;(ProgressionManager.getInstance as jest.Mock).mockReturnValue(mockProgressionManager)
@@ -98,6 +100,7 @@ describe('LearningJourney', () => {
     mockProgressionManager.getCompletionPercentage.mockReturnValue(25)
     mockProgressionManager.getSectionProgress.mockReturnValue({ completed: 1, total: 4 })
     mockProgressionManager.recordCorrectAnswer.mockReturnValue(mockUserProgress)
+    mockProgressionManager.getCurrentLevel.mockReturnValue(mockLevelProgress)
     mockProgressionManager.recordIncorrectAnswer.mockReturnValue(mockUserProgress)
     mockProgressionManager.selectLevel.mockReturnValue(mockUserProgress)
     
@@ -132,7 +135,7 @@ describe('LearningJourney', () => {
 
     test('should render even with minimal progress data', () => {
       const minimalProgress = {
-        currentLevel: null,
+        currentLevelId: null,
         allLevels: [],
         totalScore: 0
       }
@@ -394,10 +397,11 @@ describe('LearningJourney', () => {
     test('should handle missing current level', () => {
       const progressWithoutCurrentLevel = {
         ...mockUserProgress,
-        currentLevel: null
+        currentLevelId: null
       }
       
       mockProgressionManager.loadProgress.mockReturnValue(progressWithoutCurrentLevel)
+      mockProgressionManager.getCurrentLevel.mockReturnValue(null)
       
       render(<LearningJourneyWithProvider />)
       

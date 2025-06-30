@@ -64,10 +64,7 @@ const generateAdditionQuestion = (config: QuestionConfig): Question => {
   return {
     operands: [num1, num2],
     operation: 'addition',
-    answer: num1 + num2,
-    difficulty: config.difficulty,
-    useSmallFriend: config.useSmallFriend,
-    useBigFriend: config.useBigFriend
+    answer: num1 + num2
   }
 }
 
@@ -91,10 +88,7 @@ const generateSubtractionQuestion = (config: QuestionConfig): Question => {
   return {
     operands: [num1, num2],
     operation: 'subtraction',
-    answer: num1 - num2,
-    difficulty: config.difficulty,
-    useSmallFriend: config.useSmallFriend,
-    useBigFriend: config.useBigFriend
+    answer: num1 - num2
   }
 }
 
