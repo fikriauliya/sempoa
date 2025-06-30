@@ -11,14 +11,14 @@ export const SEMPOA_CONFIG = {
 
   // Bead dimensions
   BEAD: {
-    WIDTH: 28, // px
+    WIDTH: 45, // px
     HEIGHT: 20, // px
     HOLE_SIZE: 4, // px
   },
 
   // Column dimensions
   COLUMN: {
-    WIDTH: 48, // px
+    WIDTH: 55, // px
   },
 
   // Section heights (dynamically calculated based on bead count)
@@ -32,7 +32,7 @@ export const SEMPOA_CONFIG = {
 
   // Rod dimensions
   ROD: {
-    WIDTH: 4, // px
+    WIDTH: 10, // px
   },
 
   // Horizontal separator
