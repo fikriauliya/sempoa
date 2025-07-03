@@ -22,7 +22,9 @@ jest.mock('../../components/LearningJourney', () => ({
 
 // Mock the GameContext to avoid state-related issues
 jest.mock('../../context/GameContext', () => ({
-  GameProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  GameProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useGame: () => ({
     currentQuestion: null,
     score: 0,
