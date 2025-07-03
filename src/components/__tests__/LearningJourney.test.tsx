@@ -84,13 +84,10 @@ const mockQuestion = {
 
 // Helper to create consistent mock return value
 const createMockUseUserProgressReturn = (
-  overrides: Record<string, unknown> = {},
+  overrides: Partial<ReturnType<typeof useUserProgress>> = {},
 ) => {
   const result = {
-    userProgress: {
-      ...mockUserProgress,
-      sectionProgress: jest.fn(() => ({ completed: 1, total: 3 })),
-    },
+    userProgress: mockUserProgress,
     selectLevel: jest.fn().mockReturnValue(mockUserProgress),
     currentLevel: mockLevelProgress,
     completionPercentage: 25,
@@ -99,14 +96,6 @@ const createMockUseUserProgressReturn = (
     processAnswer: jest.fn(),
     ...overrides,
   };
-
-  // Ensure userProgress always has sectionProgress method
-  if (overrides.userProgress && !overrides.userProgress.sectionProgress) {
-    result.userProgress = {
-      ...overrides.userProgress,
-      sectionProgress: jest.fn(() => ({ completed: 0, total: 0 })),
-    };
-  }
 
   return result;
 };
