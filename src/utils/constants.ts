@@ -4,10 +4,11 @@ export const OPERATIONS = ['addition', 'subtraction', 'mixed'] as const;
 export type Operation = (typeof OPERATIONS)[number];
 
 export const COMPLEMENTS = [
-  'simple',
+  'none',
   'smallFriend',
   'bigFriend',
-  'both',
+  'family',
+  'mixed',
 ] as const;
 export type Complement = (typeof COMPLEMENTS)[number];
 
@@ -27,10 +28,11 @@ export const OPERATION_ICONS: Record<Operation, string> = {
 };
 
 export const COMPLEMENT_LABELS: Record<Complement, string> = {
-  simple: 'Simple',
+  none: 'Simple',
   smallFriend: 'Small Friend',
   bigFriend: 'Big Friend',
-  both: 'Both Friends',
+  family: 'Family',
+  mixed: 'Mixed Friends',
 };
 
 export const DIGIT_LABELS: Record<DigitLevel, string> = {
@@ -49,11 +51,19 @@ export const DIFFICULTY_RANGES: Record<DigitLevel, [number, number]> = {
   five: [10000, 99999],
 };
 
+export const DIFFICULTY_DIGITS: Record<DigitLevel, number> = {
+  single: 1,
+  double: 2,
+  triple: 3,
+  four: 4,
+  five: 5,
+};
+
 export const getComplementSectionLabel = (
   complement: Complement,
   operation: Operation,
 ): string => {
-  if (complement === 'simple') {
+  if (complement === 'none') {
     switch (operation) {
       case 'addition':
         return 'Simple Addition';

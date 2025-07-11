@@ -12,12 +12,7 @@ export const useQuestionGeneration = (currentLevel: LevelProgress | null) => {
     const question = generateQuestion({
       difficulty: currentLevel.digitLevel,
       operation: currentLevel.operationType,
-      useSmallFriend:
-        currentLevel.complementType === 'smallFriend' ||
-        currentLevel.complementType === 'both',
-      useBigFriend:
-        currentLevel.complementType === 'bigFriend' ||
-        currentLevel.complementType === 'both',
+      friendType: currentLevel.complementType,
     });
 
     if (question) {

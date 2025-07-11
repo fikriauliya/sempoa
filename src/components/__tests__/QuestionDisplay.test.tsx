@@ -15,9 +15,9 @@ const mockGameState: GameState = {
 };
 
 const mockCurrentLevel: LevelProgress = {
-  id: 'addition-simple-double',
+  id: 'addition-none-double',
   operationType: 'addition',
-  complementType: 'simple',
+  complementType: 'none',
   digitLevel: 'double',
   questionsCompleted: 5,
   correctAnswers: 4,

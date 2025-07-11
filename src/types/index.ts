@@ -16,7 +16,12 @@ export interface Question {
 }
 
 export type OperationType = 'addition' | 'subtraction' | 'mixed';
-export type ComplementType = 'simple' | 'smallFriend' | 'bigFriend' | 'both';
+export type ComplementType =
+  | 'none'
+  | 'smallFriend'
+  | 'bigFriend'
+  | 'family'
+  | 'mixed';
 export type DigitLevel = 'single' | 'double' | 'triple' | 'four' | 'five';
 
 export interface LevelProgress {

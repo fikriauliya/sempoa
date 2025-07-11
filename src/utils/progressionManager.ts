@@ -150,7 +150,7 @@ export class ProgressionManager {
   getSectionProgress(
     progress: UserProgress,
     operationType: 'addition' | 'subtraction' | 'mixed',
-    complementType: 'simple' | 'smallFriend' | 'bigFriend' | 'both',
+    complementType: 'none' | 'smallFriend' | 'bigFriend' | 'family' | 'mixed',
   ): { completed: number; total: number } {
     const sectionLevels = progress.allLevels.filter(
       (level) =>

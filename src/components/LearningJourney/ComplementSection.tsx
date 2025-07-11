@@ -5,7 +5,7 @@ import LevelButton from './LevelButton';
 
 interface ComplementSectionProps {
   operation: 'addition' | 'subtraction' | 'mixed';
-  complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both';
+  complement: 'none' | 'smallFriend' | 'bigFriend' | 'family' | 'mixed';
   complementLevels: LevelProgress[];
   userProgress: UserProgress;
   sectionProgress: { completed: number; total: number };

@@ -9,7 +9,7 @@ interface OperationSectionProps {
   userProgress: UserProgress;
   getSectionProgress: (
     operation: 'addition' | 'subtraction' | 'mixed',
-    complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both',
+    complement: 'none' | 'smallFriend' | 'bigFriend' | 'family' | 'mixed',
   ) => { completed: number; total: number };
   expandedSections: Record<string, boolean>;
   onToggleSection: (section: string) => void;

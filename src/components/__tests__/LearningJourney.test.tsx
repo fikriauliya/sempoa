@@ -38,9 +38,9 @@ const LearningJourneyWithProvider = () => (
 
 // Mock data
 const mockLevelProgress: LevelProgress = {
-  id: 'addition-simple-single',
+  id: 'addition-none-single',
   operationType: 'addition',
-  complementType: 'simple',
+  complementType: 'none',
   digitLevel: 'single',
   questionsCompleted: 5,
   correctAnswers: 4,
@@ -53,9 +53,9 @@ const mockUserProgress: UserProgress = {
   allLevels: [
     mockLevelProgress,
     {
-      id: 'addition-simple-double',
+      id: 'addition-none-double',
       operationType: 'addition',
-      complementType: 'simple',
+      complementType: 'none',
       digitLevel: 'double',
       questionsCompleted: 0,
       correctAnswers: 0,
@@ -63,9 +63,9 @@ const mockUserProgress: UserProgress = {
       isCompleted: false,
     },
     {
-      id: 'subtraction-simple-single',
+      id: 'subtraction-none-single',
       operationType: 'subtraction',
-      complementType: 'simple',
+      complementType: 'none',
       digitLevel: 'single',
       questionsCompleted: 10,
       correctAnswers: 10,
@@ -193,7 +193,7 @@ describe('LearningJourney', () => {
       const additionButton = screen.getByRole('button', { name: /addition/i });
       await user.click(additionButton);
 
-      expect(screen.getByTestId('progress-addition-simple')).toHaveTextContent(
+      expect(screen.getByTestId('progress-addition-none')).toHaveTextContent(
         '1/4',
       );
     });
@@ -215,7 +215,7 @@ describe('LearningJourney', () => {
 
       // Should show level buttons
       expect(
-        screen.getByTestId('level-addition-simple-single'),
+        screen.getByTestId('level-addition-none-single'),
       ).toBeInTheDocument();
     });
 
@@ -229,9 +229,9 @@ describe('LearningJourney', () => {
             isCompleted: true,
           },
           {
-            id: 'addition-simple-double',
+            id: 'addition-none-double',
             operationType: 'addition',
-            complementType: 'simple',
+            complementType: 'none',
             digitLevel: 'double',
             questionsCompleted: 0,
             correctAnswers: 0,
@@ -260,7 +260,7 @@ describe('LearningJourney', () => {
       await user.click(simpleAdditionButton);
 
       // Check for checkmark on completed level
-      const completedLevel = screen.getByTestId('level-addition-simple-single');
+      const completedLevel = screen.getByTestId('level-addition-none-single');
       expect(completedLevel).toHaveTextContent('✓');
     });
   });
@@ -279,13 +279,13 @@ describe('LearningJourney', () => {
       await user.click(simpleAdditionButton);
 
       // Click on an unlocked level
-      const levelButton = screen.getByTestId('level-addition-simple-single');
+      const levelButton = screen.getByTestId('level-addition-none-single');
       await user.click(levelButton);
 
       const { selectLevel } = mockUseUserProgress.mock.results[0].value;
       expect(selectLevel).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: 'addition-simple-single',
+          id: 'addition-none-single',
         }),
       );
     });
@@ -303,7 +303,7 @@ describe('LearningJourney', () => {
       await user.click(simpleAdditionButton);
 
       const currentLevelButton = screen.getByTestId(
-        'level-addition-simple-single',
+        'level-addition-none-single',
       );
       expect(currentLevelButton).toHaveClass('in-progress');
     });
@@ -320,7 +320,7 @@ describe('LearningJourney', () => {
       });
       await user.click(simpleAdditionButton);
 
-      const lockedLevel = screen.getByTestId('level-addition-simple-double');
+      const lockedLevel = screen.getByTestId('level-addition-none-double');
       expect(lockedLevel).toHaveTextContent('🔒');
     });
   });
