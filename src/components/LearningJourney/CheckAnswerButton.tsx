@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import type React from 'react';
+import type { ButtonState } from '../../types';
 import { CheckmarkIcon, CrossIcon } from '../icons/SVGIcons';
 
 interface CheckAnswerButtonProps {
-  buttonState: 'normal' | 'correct' | 'wrong';
+  buttonState: ButtonState;
   onCheckAnswer: () => void;
   scope: React.RefObject<HTMLButtonElement>;
 }

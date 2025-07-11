@@ -2,7 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import { useGame } from '../context/GameContext';
-import type { BeadPosition } from '../types';
+import type { BeadHandlers, BeadPosition } from '../types';
 import DraggableBead from './DraggableBead';
 
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } =
@@ -89,12 +89,9 @@ const BeadRenderer: React.FC<BeadRendererProps> = ({
   </div>
 );
 
-interface BeadSectionProps {
+interface BeadSectionProps extends BeadHandlers {
   columnIndex: number;
   isUpper: boolean;
-  getBeadKey: (bead: BeadPosition) => string;
-  isBeadActive: (bead: BeadPosition) => boolean;
-  toggleBead: (bead: BeadPosition) => void;
 }
 
 const BeadSection: React.FC<BeadSectionProps> = ({
@@ -133,12 +130,9 @@ const BeadSection: React.FC<BeadSectionProps> = ({
   );
 };
 
-interface SempoaColumnProps {
+interface SempoaColumnProps extends BeadHandlers {
   columnIndex: number;
   placeValue: number;
-  getBeadKey: (bead: BeadPosition) => string;
-  isBeadActive: (bead: BeadPosition) => boolean;
-  toggleBead: (bead: BeadPosition) => void;
 }
 
 const SempoaColumn: React.FC<SempoaColumnProps> = ({
@@ -185,11 +179,7 @@ const SempoaColumn: React.FC<SempoaColumnProps> = ({
   </div>
 );
 
-interface SempoaFrameProps {
-  getBeadKey: (bead: BeadPosition) => string;
-  isBeadActive: (bead: BeadPosition) => boolean;
-  toggleBead: (bead: BeadPosition) => void;
-}
+interface SempoaFrameProps extends BeadHandlers {}
 
 const SempoaFrame: React.FC<SempoaFrameProps> = ({
   getBeadKey,

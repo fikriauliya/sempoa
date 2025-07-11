@@ -4,6 +4,12 @@ export interface BeadPosition {
   isUpper: boolean;
 }
 
+export interface BeadHandlers {
+  getBeadKey: (bead: BeadPosition) => string;
+  isBeadActive: (bead: BeadPosition) => boolean;
+  toggleBead: (bead: BeadPosition) => void;
+}
+
 export interface SempoaState {
   beads: BeadPosition[];
   currentValue: number;
@@ -15,7 +21,8 @@ export interface Question {
   answer: number;
 }
 
-export type OperationType = 'addition' | 'subtraction' | 'mixed';
+export type BaseOperationType = 'addition' | 'subtraction';
+export type OperationType = BaseOperationType | 'mixed';
 export type ComplementType =
   | 'none'
   | 'smallFriend'
@@ -23,6 +30,7 @@ export type ComplementType =
   | 'family'
   | 'mixed';
 export type DigitLevel = 'single' | 'double' | 'triple' | 'four' | 'five';
+export type ButtonState = 'normal' | 'correct' | 'wrong';
 
 export interface LevelProgress {
   id: string;

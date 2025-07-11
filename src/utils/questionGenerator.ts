@@ -1,14 +1,22 @@
-import type { Question } from '../types';
-import { DIFFICULTY_DIGITS, type DigitLevel } from './constants';
+import type {
+  BaseOperationType,
+  ComplementType,
+  OperationType,
+  Question,
+} from '../types';
+import {
+  BASE_COMPLEMENTS,
+  DIFFICULTY_DIGITS,
+  type DigitLevel,
+} from './constants';
 
 interface QuestionConfig {
   difficulty: DigitLevel;
-  operation: 'addition' | 'subtraction' | 'mixed';
-  friendType: FriendType;
+  operation: OperationType;
+  friendType: ComplementType;
 }
 
-type FriendType = 'none' | 'smallFriend' | 'family' | 'bigFriend' | 'mixed';
-type OperationMatrix = FriendType[][];
+type OperationMatrix = ComplementType[][];
 
 interface FriendMatrices {
   addition: OperationMatrix;
@@ -57,7 +65,7 @@ export class QuestionGenerator {
 
     for (let digitA = 0; digitA < 10; digitA++) {
       for (let digitB = 0; digitB < 10; digitB++) {
-        let category: FriendType = 'none';
+        let category: ComplementType = 'none';
         if (digitA < 5 && digitB < 5 && digitA + digitB >= 5) {
           category = 'smallFriend';
         } else if (digitA >= 5 && digitB > 5 && digitA + digitB < 15) {
@@ -71,7 +79,7 @@ export class QuestionGenerator {
 
     for (let digitA = 0; digitA < 10; digitA++) {
       for (let digitB = 0; digitB < 10; digitB++) {
-        let category: FriendType = 'none';
+        let category: ComplementType = 'none';
         if (digitA >= 5 && digitB < 5 && digitA - digitB < 5) {
           category = 'smallFriend';
         } else if (digitA < 5 && digitB > 5 && digitA - digitB >= -5) {
@@ -93,17 +101,12 @@ export class QuestionGenerator {
 
   getFriends(
     number: number,
-    operation: 'addition' | 'subtraction',
-    friendType: FriendType,
+    operation: BaseOperationType,
+    friendType: ComplementType,
   ): number[] {
     // Handle mixed friendType by randomly selecting a concrete type
     if (friendType === 'mixed') {
-      const friendTypes = [
-        'none',
-        'smallFriend',
-        'bigFriend',
-        'family',
-      ] as const;
+      const friendTypes = BASE_COMPLEMENTS;
       friendType = friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
     }
 
@@ -120,17 +123,12 @@ export class QuestionGenerator {
   }
 
   getFirstDigits(
-    operation: 'addition' | 'subtraction',
-    friendType: FriendType,
+    operation: BaseOperationType,
+    friendType: ComplementType,
   ): number[] {
     // Handle mixed friendType by randomly selecting a concrete type
     if (friendType === 'mixed') {
-      const friendTypes = [
-        'none',
-        'smallFriend',
-        'bigFriend',
-        'family',
-      ] as const;
+      const friendTypes = BASE_COMPLEMENTS;
       friendType = friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
     }
 
@@ -220,12 +218,7 @@ export class QuestionGenerator {
 
     if (config.friendType === 'mixed') {
       // For mixed friend type, randomly choose from all friend types
-      const friendTypes = [
-        'none',
-        'smallFriend',
-        'bigFriend',
-        'family',
-      ] as const;
+      const friendTypes = BASE_COMPLEMENTS;
       const randomFriendType =
         friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
       const mixedConfig = { ...config, friendType: randomFriendType };

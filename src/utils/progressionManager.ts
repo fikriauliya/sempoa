@@ -1,4 +1,9 @@
-import type { LevelProgress, UserProgress } from '../types';
+import type {
+  ComplementType,
+  LevelProgress,
+  OperationType,
+  UserProgress,
+} from '../types';
 import { COMPLEMENTS, DIGIT_LEVELS, OPERATIONS } from './constants';
 
 const QUESTIONS_TO_COMPLETE = 10;
@@ -149,8 +154,8 @@ export class ProgressionManager {
 
   getSectionProgress(
     progress: UserProgress,
-    operationType: 'addition' | 'subtraction' | 'mixed',
-    complementType: 'none' | 'smallFriend' | 'bigFriend' | 'family' | 'mixed',
+    operationType: OperationType,
+    complementType: ComplementType,
   ): { completed: number; total: number } {
     const sectionLevels = progress.allLevels.filter(
       (level) =>

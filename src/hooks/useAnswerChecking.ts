@@ -1,11 +1,9 @@
 import { useAnimate } from 'framer-motion';
 import { useCallback, useState } from 'react';
 import { useGame } from '../context/GameContext';
-import type { UserProgress } from '../types';
+import type { ButtonState, UserProgress } from '../types';
 
 const BUTTON_FEEDBACK_DURATION = 0.3;
-
-type ButtonState = 'normal' | 'correct' | 'wrong';
 
 export const useAnswerChecking = (
   userProgress: UserProgress,
