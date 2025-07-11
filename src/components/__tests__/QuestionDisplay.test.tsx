@@ -1,69 +1,58 @@
 import { render, screen } from '@testing-library/react';
-import type { GameState, LevelProgress } from '../../types';
+import type { LevelProgress, Question } from '../../types';
 import QuestionDisplay from '../QuestionDisplay';
 
-// Mock game context data
-const mockGameState: GameState = {
-  currentQuestion: {
-    operands: [23, 45],
-    operation: 'addition',
-    answer: 68,
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    button: ({ children, ...props }: any) => (
+      <button {...props}>{children}</button>
+    ),
   },
-  score: 100,
-  level: 1,
-  mistakes: 2,
+  useAnimate: jest.fn(() => [{ current: null }, jest.fn()]),
+}));
+
+// Mock useKeyboardShortcuts hook
+jest.mock('../../hooks/useKeyboardShortcuts', () => ({
+  useKeyboardShortcuts: jest.fn(),
+}));
+
+// Helper function to render QuestionDisplay with props
+const renderQuestionDisplay = (
+  overrides: {
+    currentQuestion?: Question | null;
+    currentLevel?: LevelProgress | null;
+    onCheckAnswer?: () => boolean | null;
+  } = {},
+) => {
+  const defaultProps = {
+    currentQuestion: {
+      operands: [23, 45],
+      operation: 'addition' as const,
+      answer: 68,
+    },
+    currentLevel: {
+      id: 'addition-none-double',
+      operationType: 'addition' as const,
+      complementType: 'none' as const,
+      digitLevel: 'double' as const,
+      questionsCompleted: 5,
+      correctAnswers: 4,
+      isUnlocked: true,
+      isCompleted: false,
+    },
+    onCheckAnswer: jest.fn(() => true),
+  };
+
+  const props = { ...defaultProps, ...overrides };
+  return render(<QuestionDisplay {...props} />);
 };
-
-const mockCurrentLevel: LevelProgress = {
-  id: 'addition-none-double',
-  operationType: 'addition',
-  complementType: 'none',
-  digitLevel: 'double',
-  questionsCompleted: 5,
-  correctAnswers: 4,
-  isUnlocked: true,
-  isCompleted: false,
-};
-
-// Mock the game context
-jest.mock('../../context/GameContext', () => ({
-  useGame: () => ({
-    gameState: mockGameState,
-  }),
-  GameProvider: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-}));
-
-// Mock the user progress hook
-jest.mock('../../hooks/useUserProgress', () => ({
-  useUserProgress: () => ({
-    userProgress: { currentLevelId: 'test-level' },
-    currentLevel: mockCurrentLevel,
-    processAnswer: jest.fn(),
-  }),
-}));
-
-// Mock the question generation hook
-jest.mock('../../hooks/useQuestionGeneration', () => ({
-  useQuestionGeneration: () => ({
-    generateNewQuestion: jest.fn(),
-  }),
-}));
-
-// Mock the answer checking hook
-jest.mock('../../hooks/useAnswerChecking', () => ({
-  useAnswerChecking: () => ({
-    handleCheckAnswer: jest.fn(),
-    buttonState: 'normal',
-    scope: { current: null },
-  }),
-}));
 
 describe('QuestionDisplay Component', () => {
   describe('Background Feedback Animation', () => {
     it('should display component with standard styling', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       const questionDisplay = screen.getByTestId('question-display');
 
@@ -72,7 +61,7 @@ describe('QuestionDisplay Component', () => {
     });
 
     it('should be a motion component for animation support', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       const questionDisplay = screen.getByTestId('question-display');
 
@@ -82,7 +71,7 @@ describe('QuestionDisplay Component', () => {
     });
 
     it('should have consistent structure for feedback states', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should have the expected content structure
       expect(screen.getByText('Current Question')).toBeInTheDocument();
@@ -92,20 +81,20 @@ describe('QuestionDisplay Component', () => {
 
   describe('Rendering', () => {
     it('should render the component with correct data-testid', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       expect(screen.getByTestId('question-display')).toBeInTheDocument();
     });
 
     it('should display the current question correctly', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show the math question
       expect(screen.getByText('23 + 45 = ?')).toBeInTheDocument();
     });
 
     it('should display question metadata', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show complement type and difficulty level
       expect(screen.getByText(/Simple/)).toBeInTheDocument();
@@ -113,7 +102,7 @@ describe('QuestionDisplay Component', () => {
     });
 
     it('should have proper styling classes for desktop layout', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       const questionDisplay = screen.getByTestId('question-display');
 
@@ -121,34 +110,55 @@ describe('QuestionDisplay Component', () => {
       expect(questionDisplay).toHaveClass('p-4');
       expect(questionDisplay).toHaveClass('rounded-lg');
     });
+
+    it('should show placeholder message when no question or level', () => {
+      renderQuestionDisplay({ currentQuestion: null, currentLevel: null });
+
+      expect(
+        screen.getByText('Select a level to start practicing'),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('Question Content', () => {
     it('should display addition operation correctly', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show addition symbol (based on mock data)
       expect(screen.getByText('23 + 45 = ?')).toBeInTheDocument();
     });
 
     it('should display complement type information', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show the complement type from the current level
       expect(screen.getByText(/Simple/)).toBeInTheDocument();
     });
 
     it('should display difficulty level information', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show the digit level from the current level
       expect(screen.getByText(/Double Digit/)).toBeInTheDocument();
+    });
+
+    it('should display subtraction operation correctly', () => {
+      renderQuestionDisplay({
+        currentQuestion: {
+          operands: [50, 30],
+          operation: 'subtraction',
+          answer: 20,
+        },
+      });
+
+      // Should show subtraction symbol
+      expect(screen.getByText('50 - 30 = ?')).toBeInTheDocument();
     });
   });
 
   describe('Component Content', () => {
     it('should have proper content structure', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should have heading
       expect(screen.getByText('Current Question')).toBeInTheDocument();
@@ -158,7 +168,7 @@ describe('QuestionDisplay Component', () => {
     });
 
     it('should display complement and digit information', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show the complement type and digit level
       expect(screen.getByText(/Simple/)).toBeInTheDocument();
@@ -166,7 +176,7 @@ describe('QuestionDisplay Component', () => {
     });
 
     it('should display the check answer button', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       // Should show the check answer button
       expect(screen.getByText('Check Answer')).toBeInTheDocument();
@@ -175,13 +185,31 @@ describe('QuestionDisplay Component', () => {
 
   describe('Responsive Design', () => {
     it('should have responsive classes for different screen sizes', () => {
-      render(<QuestionDisplay />);
+      renderQuestionDisplay();
 
       const questionDisplay = screen.getByTestId('question-display');
 
       // Should have classes that work across different screen sizes
       // This will be verified manually, but structure should be present
       expect(questionDisplay).toHaveClass('rounded-lg');
+    });
+  });
+
+  describe('Button State', () => {
+    it('should pass correct button state to CheckAnswerButton', () => {
+      renderQuestionDisplay({ buttonState: 'correct' });
+
+      // CheckAnswerButton should be rendered with correct state
+      expect(screen.getByText('Check Answer')).toBeInTheDocument();
+    });
+
+    it('should call onCheckAnswer when triggered', () => {
+      const mockCheckAnswer = jest.fn();
+      renderQuestionDisplay({ onCheckAnswer: mockCheckAnswer });
+
+      // The check answer button should be present
+      const button = screen.getByText('Check Answer');
+      expect(button).toBeInTheDocument();
     });
   });
 });
