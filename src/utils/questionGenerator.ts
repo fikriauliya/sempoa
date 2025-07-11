@@ -22,6 +22,7 @@ interface FriendMatrices {
   addition: OperationMatrix;
   subtraction: OperationMatrix;
 }
+
 // Seeded random number generator
 class SeededRandom {
   private seed: number;
@@ -39,8 +40,8 @@ class SeededRandom {
     return Math.floor(this.next() * (max - min + 1)) + min;
   }
 
-  nextBoolean(): boolean {
-    return this.next() < 0.5;
+  pickRandom<T>(array: readonly T[]): T {
+    return array[this.nextInt(0, array.length - 1)];
   }
 }
 
@@ -56,47 +57,69 @@ export class QuestionGenerator {
   static buildMatrix(): FriendMatrices {
     if (QuestionGenerator.cachedMatrix) return QuestionGenerator.cachedMatrix;
 
-    const additionMatrix: OperationMatrix = Array(10)
-      .fill(null)
-      .map(() => Array(10).fill('none'));
-    const subtractionMatrix: OperationMatrix = Array(10)
-      .fill(null)
-      .map(() => Array(10).fill('none'));
-
-    for (let digitA = 0; digitA < 10; digitA++) {
-      for (let digitB = 0; digitB < 10; digitB++) {
-        let category: ComplementType = 'none';
-        if (digitA < 5 && digitB < 5 && digitA + digitB >= 5) {
-          category = 'smallFriend';
-        } else if (digitA >= 5 && digitB > 5 && digitA + digitB < 15) {
-          category = 'family';
-        } else if (digitA + digitB >= 10) {
-          category = 'bigFriend';
-        }
-        additionMatrix[digitA][digitB] = category;
-      }
-    }
-
-    for (let digitA = 0; digitA < 10; digitA++) {
-      for (let digitB = 0; digitB < 10; digitB++) {
-        let category: ComplementType = 'none';
-        if (digitA >= 5 && digitB < 5 && digitA - digitB < 5) {
-          category = 'smallFriend';
-        } else if (digitA < 5 && digitB > 5 && digitA - digitB >= -5) {
-          category = 'family';
-        } else if (digitA - digitB < 0 && digitA > 0) {
-          category = 'bigFriend';
-        }
-        subtractionMatrix[digitA][digitB] = category;
-      }
-    }
-
-    QuestionGenerator.cachedMatrix = {
-      addition: additionMatrix,
-      subtraction: subtractionMatrix,
+    const matrices = {
+      addition: QuestionGenerator.buildAdditionMatrix(),
+      subtraction: QuestionGenerator.buildSubtractionMatrix(),
     };
 
-    return QuestionGenerator.cachedMatrix;
+    QuestionGenerator.cachedMatrix = matrices;
+    return matrices;
+  }
+
+  private static buildAdditionMatrix(): OperationMatrix {
+    const matrix: OperationMatrix = Array(10)
+      .fill(null)
+      .map(() => Array(10).fill('none'));
+
+    for (let digitA = 0; digitA < 10; digitA++) {
+      for (let digitB = 0; digitB < 10; digitB++) {
+        const sum = digitA + digitB;
+        let category: ComplementType = 'none';
+
+        if (digitA < 5 && digitB < 5 && sum >= 5) {
+          category = 'smallFriend';
+        } else if (digitA >= 5 && digitB > 5 && sum < 15) {
+          category = 'family';
+        } else if (sum >= 10) {
+          category = 'bigFriend';
+        }
+
+        matrix[digitA][digitB] = category;
+      }
+    }
+
+    return matrix;
+  }
+
+  private static buildSubtractionMatrix(): OperationMatrix {
+    const matrix: OperationMatrix = Array(10)
+      .fill(null)
+      .map(() => Array(10).fill('none'));
+
+    for (let digitA = 0; digitA < 10; digitA++) {
+      for (let digitB = 0; digitB < 10; digitB++) {
+        const diff = digitA - digitB;
+        let category: ComplementType = 'none';
+
+        if (digitA >= 5 && digitB < 5 && diff < 5) {
+          category = 'smallFriend';
+        } else if (digitA < 5 && digitB > 5 && diff >= -5) {
+          category = 'family';
+        } else if (diff < 0 && digitA > 0) {
+          category = 'bigFriend';
+        }
+
+        matrix[digitA][digitB] = category;
+      }
+    }
+
+    return matrix;
+  }
+
+  private resolveComplementType(friendType: ComplementType): ComplementType {
+    return friendType === 'mixed'
+      ? this.random.pickRandom(BASE_COMPLEMENTS)
+      : friendType;
   }
 
   getFriends(
@@ -104,133 +127,78 @@ export class QuestionGenerator {
     operation: BaseOperationType,
     friendType: ComplementType,
   ): number[] {
-    // Handle mixed friendType by randomly selecting a concrete type
-    if (friendType === 'mixed') {
-      const friendTypes = BASE_COMPLEMENTS;
-      friendType = friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
-    }
+    const resolvedType = this.resolveComplementType(friendType);
+    const matrix = QuestionGenerator.buildMatrix()[operation];
 
-    const pairs: number[] = [];
-    const rows = QuestionGenerator.buildMatrix()[operation];
-
-    for (let i = 0; i < 10; i++) {
-      if (rows[number][i] === friendType) {
-        pairs.push(i);
-      }
-    }
-
-    return pairs;
+    return matrix[number]
+      .map((category, index) => (category === resolvedType ? index : -1))
+      .filter((index) => index !== -1);
   }
 
   getFirstDigits(
     operation: BaseOperationType,
     friendType: ComplementType,
   ): number[] {
-    // Handle mixed friendType by randomly selecting a concrete type
-    if (friendType === 'mixed') {
-      const friendTypes = BASE_COMPLEMENTS;
-      friendType = friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
-    }
+    const resolvedType = this.resolveComplementType(friendType);
+    const matrix = QuestionGenerator.buildMatrix()[operation];
 
-    const results: number[] = [];
-    const rows = QuestionGenerator.buildMatrix()[operation];
-
-    for (let i = 0; i < 10; i++) {
-      if (rows[i].filter((x) => x === friendType).length > 0) {
-        results.push(i);
-      }
-    }
-
-    return results;
+    return matrix
+      .map((row, index) => (row.includes(resolvedType) ? index : -1))
+      .filter((index) => index !== -1);
   }
 
-  generateAdditionQuestion(config: QuestionConfig): Question {
-    config.difficulty;
-
+  private generateOperands(
+    operation: BaseOperationType,
+    friendType: ComplementType,
+    difficulty: DigitLevel,
+  ): [number, number] {
     const operands: [number, number] = [0, 0];
+    const digitCount = DIFFICULTY_DIGITS[difficulty];
 
-    for (let i = 0; i < DIFFICULTY_DIGITS[config.difficulty]; i++) {
-      // Generate numbers for each digit place
-      const firstDigits = this.getFirstDigits('addition', config.friendType);
-      //take randomly from firstDigits
-      const digitA =
-        firstDigits[this.random.nextInt(0, firstDigits.length - 1)];
+    for (let i = 0; i < digitCount; i++) {
+      const firstDigits = this.getFirstDigits(operation, friendType);
+      const digitA = this.random.pickRandom(firstDigits);
 
-      const secondDigits = this.getFriends(
-        digitA,
-        'addition',
-        config.friendType,
-      );
-      //take randomly from secondDigits
-      const digitB =
-        secondDigits[this.random.nextInt(0, secondDigits.length - 1)];
+      const secondDigits = this.getFriends(digitA, operation, friendType);
+      const digitB = this.random.pickRandom(secondDigits);
 
-      operands[0] += digitA * 10 ** i;
-      operands[1] += digitB * 10 ** i;
+      const placeValue = 10 ** i;
+      operands[0] += digitA * placeValue;
+      operands[1] += digitB * placeValue;
     }
 
-    return {
-      operands,
-      operation: 'addition',
-      answer: operands[0] + operands[1],
-    };
+    return operands;
   }
 
-  generateSubtractionQuestion(config: QuestionConfig): Question {
-    const operands: [number, number] = [0, 0];
+  private generateQuestionForOperation(
+    operation: BaseOperationType,
+    config: QuestionConfig,
+  ): Question {
+    const operands = this.generateOperands(
+      operation,
+      config.friendType,
+      config.difficulty,
+    );
+    const answer =
+      operation === 'addition'
+        ? operands[0] + operands[1]
+        : operands[0] - operands[1];
 
-    for (let i = 0; i < DIFFICULTY_DIGITS[config.difficulty]; i++) {
-      const firstDigits = this.getFirstDigits('subtraction', config.friendType);
-      const digitA =
-        firstDigits[this.random.nextInt(0, firstDigits.length - 1)];
-
-      const secondDigits = this.getFriends(
-        digitA,
-        'subtraction',
-        config.friendType,
-      );
-      const digitB =
-        secondDigits[this.random.nextInt(0, secondDigits.length - 1)];
-
-      operands[0] += digitA * 10 ** i;
-      operands[1] += digitB * 10 ** i;
-    }
-
-    return {
-      operands,
-      operation: 'subtraction',
-      answer: operands[0] - operands[1],
-    };
+    return { operands, operation, answer };
   }
 
   generateQuestion(config: QuestionConfig): Question {
-    if (config.operation === 'mixed') {
-      const operations = ['addition', 'subtraction'] as const;
-      const randomOperation = this.random.nextBoolean()
-        ? operations[0]
-        : operations[1];
-      const mixedConfig = { ...config, operation: randomOperation };
+    // Resolve mixed operation type
+    const operation =
+      config.operation === 'mixed'
+        ? this.random.pickRandom(['addition', 'subtraction'] as const)
+        : config.operation;
 
-      return randomOperation === 'addition'
-        ? this.generateAdditionQuestion(mixedConfig)
-        : this.generateSubtractionQuestion(mixedConfig);
-    }
+    // Resolve mixed friend type
+    const friendType = this.resolveComplementType(config.friendType);
 
-    if (config.friendType === 'mixed') {
-      // For mixed friend type, randomly choose from all friend types
-      const friendTypes = BASE_COMPLEMENTS;
-      const randomFriendType =
-        friendTypes[this.random.nextInt(0, friendTypes.length - 1)];
-      const mixedConfig = { ...config, friendType: randomFriendType };
-
-      return config.operation === 'addition'
-        ? this.generateAdditionQuestion(mixedConfig)
-        : this.generateSubtractionQuestion(mixedConfig);
-    }
-
-    return config.operation === 'addition'
-      ? this.generateAdditionQuestion(config)
-      : this.generateSubtractionQuestion(config);
+    const resolvedConfig = { ...config, operation, friendType };
+    return this.generateQuestionForOperation(operation, resolvedConfig);
   }
 }
 
