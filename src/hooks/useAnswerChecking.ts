@@ -1,6 +1,10 @@
 import { useCallback } from 'react';
 import { useGame } from '../context/GameContext';
 import type { UserProgress } from '../types';
+import {
+  playCorrectAnswerSound,
+  playIncorrectAnswerSound,
+} from '../utils/audioFeedback';
 
 export const useAnswerChecking = (
   userProgress: UserProgress,
@@ -13,6 +17,13 @@ export const useAnswerChecking = (
     if (!userProgress.currentLevelId || !gameState.currentQuestion) return null;
 
     const isCorrect = checkAnswer();
+
+    // Play audio feedback based on answer correctness
+    if (isCorrect) {
+      playCorrectAnswerSound();
+    } else {
+      playIncorrectAnswerSound();
+    }
 
     // Process answer and generate new question
     processAnswer(isCorrect);
