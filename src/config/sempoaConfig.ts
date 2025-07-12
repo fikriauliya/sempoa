@@ -63,6 +63,15 @@ export const SEMPOA_CONFIG = {
     ROD: 1,
     BEAD: 20,
   },
+
+  // Audio feedback settings
+  AUDIO: {
+    ENABLED: true,
+    VOLUME: 0.3, // 0.0 to 1.0
+    UPPER_BEAD_FREQUENCY: 800, // Hz - Higher pitch for upper beads
+    LOWER_BEAD_FREQUENCY: 600, // Hz - Lower pitch for lower beads
+    CLICK_DURATION: 80, // milliseconds
+  },
 } as const;
 
 // Derived values (computed from base config)

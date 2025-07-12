@@ -14,5 +14,5 @@
 - [x] SP-014: [INPUT] Implement keyboard input for answers with automatic sempoa bead positioning to match typed numbers
 - [ ] SP-015: [UI] Add visual progress indicators showing completion percentage in both Progress section and Learning Journey sidebar
 - [ ] SP-016: [ALGORITHM] Improve question generation algorithm to avoid zero values in operands unless no other valid options exist
-- [ ] SP-017: [AUDIO] Add voice feedback when beads are moved to provide auditory confirmation of bead interactions
+- [x] SP-017: [AUDIO] Add voice feedback when beads are moved to provide auditory confirmation of bead interactions
 - [ ] SP-018: [AUDIO] Add voice feedback for answer correctness to announce "correct" or "incorrect" responses
