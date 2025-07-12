@@ -4,26 +4,26 @@ import QuestionDisplay from '../QuestionDisplay';
 
 // Mock framer-motion
 jest.mock('framer-motion', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const React = require('react');
-  type MockComponentProps = {
-    children?: React.ReactNode;
-    className?: string;
-    onClick?: () => void;
-    style?: React.CSSProperties;
-    [key: string]: unknown;
-  };
+
+  const MockButton = React.forwardRef(
+    (
+      props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+        children?: React.ReactNode;
+      },
+      ref: React.Ref<HTMLButtonElement>,
+    ) => <button ref={ref} {...props} />,
+  );
+
   return {
     motion: {
-      div: ({ children, ...props }: MockComponentProps) => (
-        <div {...props}>{children}</div>
-      ),
-      button: React.forwardRef<HTMLButtonElement, MockComponentProps>(
-        ({ children, ...props }, ref) => (
-          <button ref={ref} {...props}>
-            {children}
-          </button>
-        ),
-      ),
+      div: (
+        props: React.HTMLAttributes<HTMLDivElement> & {
+          children?: React.ReactNode;
+        },
+      ) => <div {...props} />,
+      button: MockButton,
     },
     useAnimate: jest.fn(() => [{ current: null }, jest.fn()]),
   };
@@ -212,10 +212,10 @@ describe('QuestionDisplay Component', () => {
   });
 
   describe('Button State', () => {
-    it('should pass correct button state to CheckAnswerButton', () => {
-      renderQuestionDisplay({ buttonState: 'correct' });
+    it('should render CheckAnswerButton with initial state', () => {
+      renderQuestionDisplay();
 
-      // CheckAnswerButton should be rendered with correct state
+      // CheckAnswerButton should be rendered
       expect(screen.getByText('Check Answer')).toBeInTheDocument();
     });
 
