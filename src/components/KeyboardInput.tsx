@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { canRepresentValue, valueToBeadKeys } from '../utils/beadPositioning';
 
 interface KeyboardInputProps {
@@ -15,6 +15,14 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(currentValue.toString());
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus the input on mount
+  useEffect(() => {
+    if (inputRef.current && !disabled) {
+      inputRef.current.focus();
+    }
+  }, [disabled]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,6 +112,7 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
           Type number:
         </label>
         <input
+          ref={inputRef}
           id="keyboard-input"
           type="text"
           inputMode="numeric"

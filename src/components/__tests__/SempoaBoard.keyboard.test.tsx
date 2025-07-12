@@ -55,6 +55,13 @@ describe('SempoaBoard Keyboard Input', () => {
       const inputField = screen.getByTestId('keyboard-input-field');
       expect(inputField).toHaveValue('123');
     });
+
+    it('should auto-focus the input field on mount', () => {
+      renderSempoaBoard();
+
+      const inputField = screen.getByTestId('keyboard-input-field');
+      expect(inputField).toHaveFocus();
+    });
   });
 
   describe('Input Validation', () => {
