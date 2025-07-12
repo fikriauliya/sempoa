@@ -154,6 +154,15 @@ describe('LearningJourney', () => {
       expect(screen.getByText('Score: 450')).toBeInTheDocument();
     });
 
+    test('should display visual progress bar in ProgressCard', () => {
+      render(<LearningJourneyWithProvider />);
+
+      const progressBar = screen.getByTestId('progress-bar');
+      expect(progressBar).toBeInTheDocument();
+      expect(progressBar).toHaveStyle('width: 25%');
+      expect(progressBar).toHaveAttribute('aria-label', 'Progress: 25%');
+    });
+
     test('should load user progress on mount', () => {
       render(<LearningJourneyWithProvider />);
 
@@ -212,6 +221,43 @@ describe('LearningJourney', () => {
       expect(screen.getByTestId('progress-addition-none')).toHaveTextContent(
         '1/4',
       );
+    });
+
+    test('should display operation-level progress bar', () => {
+      render(<LearningJourneyWithProvider />);
+
+      const operationProgressBar = screen.getByTestId(
+        'operation-progress-addition',
+      );
+      expect(operationProgressBar).toBeInTheDocument();
+      // With 0 completed levels out of 2 total (from mockUserProgress)
+      expect(operationProgressBar).toHaveStyle('width: 0%');
+      expect(operationProgressBar).toHaveAttribute(
+        'aria-label',
+        'addition progress: 0%',
+      );
+    });
+
+    test('should show operation levels count', () => {
+      render(<LearningJourneyWithProvider />);
+
+      // Should show "0/2 levels" for addition operation (0 completed out of 2 total)
+      expect(screen.getByText('0/2 levels')).toBeInTheDocument();
+    });
+
+    test('should display correct progress for completed operations', () => {
+      render(<LearningJourneyWithProvider />);
+
+      // Check subtraction which has 1 completed level
+      const subtractionProgressBar = screen.getByTestId(
+        'operation-progress-subtraction',
+      );
+      expect(subtractionProgressBar).toHaveStyle('width: 100%');
+      expect(subtractionProgressBar).toHaveAttribute(
+        'aria-label',
+        'subtraction progress: 100%',
+      );
+      expect(screen.getByText('1/1 levels')).toBeInTheDocument();
     });
   });
 
@@ -278,6 +324,26 @@ describe('LearningJourney', () => {
       // Check for checkmark on completed level
       const completedLevel = screen.getByTestId('level-addition-none-single');
       expect(completedLevel).toHaveTextContent('✓');
+    });
+
+    test('should display complement-level progress bar', async () => {
+      render(<LearningJourneyWithProvider />);
+
+      // Expand to show complement section
+      const additionButton = screen.getByRole('button', { name: /addition/i });
+      await user.click(additionButton);
+
+      // Check for complement progress bar
+      const complementProgressBar = screen.getByTestId(
+        'complement-progress-addition-none',
+      );
+      expect(complementProgressBar).toBeInTheDocument();
+      // With 1 completed out of 4 total (from sectionProgress mock)
+      expect(complementProgressBar).toHaveStyle('width: 25%');
+      expect(complementProgressBar).toHaveAttribute(
+        'aria-label',
+        'Simple Addition progress: 25%',
+      );
     });
   });
 

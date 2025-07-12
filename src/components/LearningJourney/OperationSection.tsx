@@ -32,6 +32,14 @@ const OperationSection: React.FC<OperationSectionProps> = ({
 }) => {
   const isOperationUnlocked = operationLevels.some((level) => level.isUnlocked);
 
+  // Calculate overall operation progress
+  const completedLevels = operationLevels.filter(
+    (level) => level.isCompleted,
+  ).length;
+  const totalLevels = operationLevels.length;
+  const operationProgressPercentage =
+    totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <button
@@ -44,18 +52,35 @@ const OperationSection: React.FC<OperationSectionProps> = ({
         }`}
         disabled={!isOperationUnlocked}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <span
             className="text-3xl w-11 h-11 flex items-center justify-center"
             data-testid={`icon-${operation}`}
           >
             {OPERATION_ICONS[operation]}
           </span>
-          <span className="font-medium">
-            {operation === 'mixed'
-              ? 'Mixed Operations'
-              : operation.charAt(0).toUpperCase() + operation.slice(1)}
-          </span>
+          <div className="flex-1">
+            <div className="font-medium">
+              {operation === 'mixed'
+                ? 'Mixed Operations'
+                : operation.charAt(0).toUpperCase() + operation.slice(1)}
+            </div>
+            <div className="w-full bg-gray-300 rounded-full h-1.5 mt-1">
+              <div
+                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${operationProgressPercentage}%` }}
+                data-testid={`operation-progress-${operation}`}
+                role="progressbar"
+                aria-valuenow={operationProgressPercentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${operation} progress: ${operationProgressPercentage}%`}
+              />
+            </div>
+            <div className="text-xs text-gray-500 mt-0.5">
+              {completedLevels}/{totalLevels} levels
+            </div>
+          </div>
         </div>
         <span className="text-gray-500">
           {expandedSections[operation] ? '▼' : '▶'}
