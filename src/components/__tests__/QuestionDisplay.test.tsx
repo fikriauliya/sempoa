@@ -3,15 +3,22 @@ import type { LevelProgress, Question } from '../../types';
 import QuestionDisplay from '../QuestionDisplay';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => (
-      <button {...props}>{children}</button>
-    ),
-  },
-  useAnimate: jest.fn(() => [{ current: null }, jest.fn()]),
-}));
+jest.mock('framer-motion', () => {
+  const React = require('react');
+  return {
+    motion: {
+      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+      button: React.forwardRef<HTMLButtonElement, any>(
+        ({ children, ...props }, ref) => (
+          <button ref={ref} {...props}>
+            {children}
+          </button>
+        ),
+      ),
+    },
+    useAnimate: jest.fn(() => [{ current: null }, jest.fn()]),
+  };
+});
 
 // Mock useKeyboardShortcuts hook
 jest.mock('../../hooks/useKeyboardShortcuts', () => ({

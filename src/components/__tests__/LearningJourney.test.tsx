@@ -30,11 +30,27 @@ jest.mock('../../context/GameContext', () => ({
 }));
 
 // Test wrapper with GameProvider
-const LearningJourneyWithProvider = () => (
-  <GameProvider>
-    <LearningJourney />
-  </GameProvider>
-);
+const LearningJourneyWithProvider = () => {
+  const {
+    userProgress,
+    selectLevel,
+    currentLevel,
+    completionPercentage,
+    sectionProgress,
+  } = useUserProgress();
+
+  return (
+    <GameProvider>
+      <LearningJourney
+        userProgress={userProgress}
+        selectLevel={selectLevel}
+        currentLevel={currentLevel}
+        completionPercentage={completionPercentage}
+        sectionProgress={sectionProgress}
+      />
+    </GameProvider>
+  );
+};
 
 // Mock data
 const mockLevelProgress: LevelProgress = {
@@ -332,6 +348,7 @@ describe('LearningJourney', () => {
           userProgress: {
             ...mockUserProgress,
             allLevels: [],
+            totalScore: 0,
           },
           currentLevel: null,
           completionPercentage: 0,
@@ -358,6 +375,7 @@ describe('LearningJourney', () => {
           userProgress: {
             ...mockUserProgress,
             allLevels: noUnlockedLevels,
+            totalScore: 0,
           },
           currentLevel: null,
           completionPercentage: 0,
