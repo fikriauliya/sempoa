@@ -125,7 +125,6 @@ class AudioFeedbackManager {
       console.warn('Failed to create melody sound:', error);
     }
   }
-
   private createClickSound(frequency: number): void {
     if (!this.audioContext || !this.config.enabled) {
       return;
@@ -211,7 +210,6 @@ class AudioFeedbackManager {
       );
     }
   }
-
   setConfig(newConfig: Partial<AudioConfig>): void {
     this.config = { ...this.config, ...newConfig };
   }
