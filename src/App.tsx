@@ -1,3 +1,4 @@
+import { useDebugValue } from 'react';
 import LearningJourney from './components/LearningJourney';
 import QuestionDisplay from './components/QuestionDisplay';
 import SempoaBoard from './components/SempoaBoard';
@@ -8,7 +9,14 @@ import { useUserProgress } from './hooks/useUserProgress';
 
 function AppContent() {
   const { gameState } = useGame();
-  const { userProgress, currentLevel, processAnswer } = useUserProgress();
+  const {
+    userProgress,
+    currentLevel,
+    processAnswer,
+    selectLevel,
+    completionPercentage,
+    sectionProgress,
+  } = useUserProgress();
   const { generateNewQuestion } = useQuestionGeneration(currentLevel);
   const { handleCheckAnswer } = useAnswerChecking(
     userProgress,
@@ -46,7 +54,13 @@ function AppContent() {
             </div>
 
             {/* Learning Journey - Below questions */}
-            <LearningJourney />
+            <LearningJourney
+              userProgress={userProgress}
+              selectLevel={selectLevel}
+              currentLevel={currentLevel}
+              completionPercentage={completionPercentage}
+              sectionProgress={sectionProgress}
+            />
           </div>
         </div>
       </main>
