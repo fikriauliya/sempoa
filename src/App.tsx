@@ -1,4 +1,3 @@
-import { useDebugValue } from 'react';
 import LearningJourney from './components/LearningJourney';
 import QuestionDisplay from './components/QuestionDisplay';
 import SempoaBoard from './components/SempoaBoard';

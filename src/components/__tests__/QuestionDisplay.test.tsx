@@ -5,10 +5,19 @@ import QuestionDisplay from '../QuestionDisplay';
 // Mock framer-motion
 jest.mock('framer-motion', () => {
   const React = require('react');
+  type MockComponentProps = {
+    children?: React.ReactNode;
+    className?: string;
+    onClick?: () => void;
+    style?: React.CSSProperties;
+    [key: string]: unknown;
+  };
   return {
     motion: {
-      div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-      button: React.forwardRef<HTMLButtonElement, any>(
+      div: ({ children, ...props }: MockComponentProps) => (
+        <div {...props}>{children}</div>
+      ),
+      button: React.forwardRef<HTMLButtonElement, MockComponentProps>(
         ({ children, ...props }, ref) => (
           <button ref={ref} {...props}>
             {children}

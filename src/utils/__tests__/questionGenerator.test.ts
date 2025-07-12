@@ -209,7 +209,7 @@ describe('questionGenerator', () => {
         // Mock Array constructor to detect if new arrays are created
         const originalArray = Array;
         let arrayConstructorCalled = false;
-        (global as any).Array = new Proxy(originalArray, {
+        (global as { Array: typeof Array }).Array = new Proxy(originalArray, {
           construct(target, args) {
             arrayConstructorCalled = true;
             return Reflect.construct(target, args);
@@ -220,7 +220,7 @@ describe('questionGenerator', () => {
         const secondMatrix = freshBuildMatrix();
 
         // Restore Array
-        (global as any).Array = originalArray;
+        (global as { Array: typeof Array }).Array = originalArray;
 
         // No new arrays should be created
         expect(arrayConstructorCalled).toBe(false);
