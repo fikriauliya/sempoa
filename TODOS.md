@@ -11,3 +11,8 @@
 - [x] SP-011: [UX] Implement ergonomic question layout - position questions at top-right of sempoa board on desktop, above board on mobile. Configure sempoa board to display only 9 columns for better mobile experience
 - [ ] SP-012: [RESPONSIVE] Create tablet-friendly layout optimization for all components with appropriate spacing and touch targets
 - [x] SP-013: [UX] Implement visual feedback for answer correctness by changing the background color of the question container in addition to the existing Check Answer button feedback
+- [x] SP-014: [INPUT] Implement keyboard input for answers with automatic sempoa bead positioning to match typed numbers
+- [ ] SP-015: [UI] Add visual progress indicators showing completion percentage in both Progress section and Learning Journey sidebar
+- [ ] SP-016: [ALGORITHM] Improve question generation algorithm to avoid zero values in operands unless no other valid options exist
+- [ ] SP-017: [AUDIO] Add voice feedback when beads are moved to provide auditory confirmation of bead interactions
+- [ ] SP-018: [AUDIO] Add voice feedback for answer correctness to announce "correct" or "incorrect" responses

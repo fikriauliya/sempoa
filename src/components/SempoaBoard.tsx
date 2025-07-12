@@ -4,6 +4,7 @@ import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import { useGame } from '../context/GameContext';
 import type { BeadHandlers, BeadPosition } from '../types';
 import DraggableBead from './DraggableBead';
+import KeyboardInput from './KeyboardInput';
 
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } =
   SEMPOA_CONFIG;
@@ -296,6 +297,14 @@ const SempoaBoard: React.FC = () => {
     [activeBeads, setCurrentValue, getBeadKey],
   );
 
+  const handleKeyboardValueChange = useCallback(
+    (value: number, newActiveBeads: Set<string>) => {
+      setActiveBeads(newActiveBeads);
+      setCurrentValue(value);
+    },
+    [setCurrentValue],
+  );
+
   const reset = useCallback(() => {
     setActiveBeads(new Set());
     setCurrentValue(0);
@@ -317,6 +326,14 @@ const SempoaBoard: React.FC = () => {
             Reset
           </button>
         </div>
+      </div>
+
+      {/* Keyboard Input Section */}
+      <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <KeyboardInput
+          currentValue={currentValue}
+          onValueChange={handleKeyboardValueChange}
+        />
       </div>
 
       <SempoaFrame
