@@ -12,6 +12,6 @@
   - Implement the code to make the test pass
 - If no test cases are needed:
   - Implement the code directly
-- Mark the task as complete in @TODOS.md.
+- Mark the task as complete in @TODOS.md. Update the task description to reflect the latest context.
 - Request approval to commit changes with clear, descriptive commit messages.
 - Create a pull request for the changes.
