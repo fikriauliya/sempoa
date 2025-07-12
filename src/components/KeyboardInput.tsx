@@ -103,13 +103,13 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
         <label
           htmlFor="keyboard-input"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-gray-600 whitespace-nowrap"
         >
-          Type number:
+          Value:
         </label>
         <input
           ref={inputRef}
@@ -120,22 +120,22 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           disabled={disabled}
-          placeholder="Enter a number"
-          className={`px-3 py-2 border rounded-md text-center font-mono min-w-32 ${
+          placeholder="0"
+          className={`px-2 py-1 border rounded text-center font-mono w-24 text-sm ${
             error
               ? 'border-red-500 bg-red-50 text-red-900'
               : 'border-gray-300 bg-white text-gray-900'
           } ${
             disabled
               ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-              : 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              : 'focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500'
           }`}
           data-testid="keyboard-input-field"
         />
       </div>
       {error && (
         <div
-          className="text-sm text-red-600"
+          className="text-xs text-red-600 max-w-40"
           data-testid="keyboard-input-error"
         >
           {error}

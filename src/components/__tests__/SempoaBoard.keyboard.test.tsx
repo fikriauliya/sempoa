@@ -46,7 +46,7 @@ describe('SempoaBoard Keyboard Input', () => {
       renderSempoaBoard();
 
       const inputField = screen.getByTestId('keyboard-input-field');
-      expect(inputField).toHaveAttribute('placeholder', 'Enter a number');
+      expect(inputField).toHaveAttribute('placeholder', '0');
     });
 
     it('should display current value in input field', () => {
