@@ -46,13 +46,13 @@ export const valueToBeadKeys = (value: number): Set<string> => {
 
       // Activate lower beads (1s)
       if (ones > 0) {
-        // For lower beads, we activate from the bottom up (highest row numbers first)
+        // For lower beads, we activate from the top down (lowest row numbers first)
         // This matches the abacus behavior where beads are pushed up against the crossbar
-        for (
-          let row = LOWER_BEADS_PER_COLUMN - ones;
-          row < LOWER_BEADS_PER_COLUMN;
-          row++
-        ) {
+        // For 1: activate row 0 (top bead)
+        // For 2: activate rows 0,1 (top two beads)
+        // For 3: activate rows 0,1,2 (top three beads)
+        // For 4: activate rows 0,1,2,3 (all four beads)
+        for (let row = 0; row < ones; row++) {
           activeBeads.add(`${column}-lower-${row}`);
         }
       }

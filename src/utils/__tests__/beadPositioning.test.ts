@@ -14,9 +14,9 @@ describe('beadPositioning utilities', () => {
     });
 
     it('should handle single digit numbers correctly', () => {
-      // Test 1: should activate lowest row of rightmost column
+      // Test 1: should activate top row of rightmost column
       const result1 = valueToBeadKeys(1);
-      expect(result1).toContain('8-lower-3'); // column 8 (rightmost), lower bead row 3
+      expect(result1).toContain('8-lower-0'); // column 8 (rightmost), lower bead row 0 (top)
       expect(result1.size).toBe(1);
 
       // Test 5: should activate upper bead of rightmost column
@@ -27,21 +27,21 @@ describe('beadPositioning utilities', () => {
       // Test 7: should activate upper bead + 2 lower beads
       const result7 = valueToBeadKeys(7);
       expect(result7).toContain('8-upper-0'); // 5
-      expect(result7).toContain('8-lower-2'); // 1
-      expect(result7).toContain('8-lower-3'); // 1
+      expect(result7).toContain('8-lower-0'); // 1
+      expect(result7).toContain('8-lower-1'); // 1
       expect(result7.size).toBe(3);
     });
 
     it('should handle multi-digit numbers correctly', () => {
       // Test 23: 2 in tens place, 3 in ones place
       const result23 = valueToBeadKeys(23);
-      // Tens place (column 7): 2 lower beads
-      expect(result23).toContain('7-lower-2');
-      expect(result23).toContain('7-lower-3');
-      // Ones place (column 8): 3 lower beads
+      // Tens place (column 7): 2 lower beads (top two)
+      expect(result23).toContain('7-lower-0');
+      expect(result23).toContain('7-lower-1');
+      // Ones place (column 8): 3 lower beads (top three)
+      expect(result23).toContain('8-lower-0');
       expect(result23).toContain('8-lower-1');
       expect(result23).toContain('8-lower-2');
-      expect(result23).toContain('8-lower-3');
       expect(result23.size).toBe(5);
     });
 
@@ -55,18 +55,18 @@ describe('beadPositioning utilities', () => {
       const result56 = valueToBeadKeys(56);
       expect(result56).toContain('7-upper-0'); // 5 in tens place
       expect(result56).toContain('8-upper-0'); // 5 in ones place
-      expect(result56).toContain('8-lower-3'); // 1 in ones place
+      expect(result56).toContain('8-lower-0'); // 1 in ones place (top bead)
       expect(result56.size).toBe(3);
     });
 
     it('should handle maximum digit value (9)', () => {
-      // Test 9: should activate upper bead + 4 lower beads
+      // Test 9: should activate upper bead + 4 lower beads (all beads in ones column)
       const result9 = valueToBeadKeys(9);
       expect(result9).toContain('8-upper-0'); // 5
-      expect(result9).toContain('8-lower-0'); // 1
+      expect(result9).toContain('8-lower-0'); // 1 (top bead)
       expect(result9).toContain('8-lower-1'); // 1
       expect(result9).toContain('8-lower-2'); // 1
-      expect(result9).toContain('8-lower-3'); // 1
+      expect(result9).toContain('8-lower-3'); // 1 (bottom bead)
       expect(result9.size).toBe(5);
     });
 
@@ -95,16 +95,16 @@ describe('beadPositioning utilities', () => {
     });
 
     it('should calculate value correctly for single beads', () => {
-      // Test ones place lower bead
-      const result1 = beadKeysToValue(new Set(['8-lower-3']));
+      // Test ones place lower bead (top bead)
+      const result1 = beadKeysToValue(new Set(['8-lower-0']));
       expect(result1).toBe(1);
 
       // Test ones place upper bead
       const result5 = beadKeysToValue(new Set(['8-upper-0']));
       expect(result5).toBe(5);
 
-      // Test tens place lower bead
-      const result10 = beadKeysToValue(new Set(['7-lower-3']));
+      // Test tens place lower bead (top bead)
+      const result10 = beadKeysToValue(new Set(['7-lower-0']));
       expect(result10).toBe(10);
 
       // Test tens place upper bead
@@ -117,8 +117,8 @@ describe('beadPositioning utilities', () => {
       const result7 = beadKeysToValue(
         new Set([
           '8-upper-0', // 5
-          '8-lower-2', // 1
-          '8-lower-3', // 1
+          '8-lower-0', // 1 (top bead)
+          '8-lower-1', // 1 (second bead)
         ]),
       );
       expect(result7).toBe(7);
@@ -126,11 +126,11 @@ describe('beadPositioning utilities', () => {
       // Test 23
       const result23 = beadKeysToValue(
         new Set([
-          '7-lower-2', // 10
-          '7-lower-3', // 10
-          '8-lower-1', // 1
-          '8-lower-2', // 1
-          '8-lower-3', // 1
+          '7-lower-0', // 10 (top bead in tens)
+          '7-lower-1', // 10 (second bead in tens)
+          '8-lower-0', // 1 (top bead in ones)
+          '8-lower-1', // 1 (second bead in ones)
+          '8-lower-2', // 1 (third bead in ones)
         ]),
       );
       expect(result23).toBe(23);
