@@ -48,10 +48,10 @@ describe('SempoaBoard - Abacus Behavior', () => {
       const thirdBead = lowerBeads[2] as HTMLElement;
       await user.click(thirdBead);
 
-      // Check that the value display shows 3000000 (3 beads × 1,000,000)
+      // Check that the input field shows 300000000 (3 beads × 100,000,000)
       await waitFor(() => {
-        const valueDisplay = screen.getByText(/value: 3000000/i);
-        expect(valueDisplay).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('300000000');
       });
 
       // Verify that beads 0, 1, and 2 are in active positions by checking their computed styles
@@ -98,7 +98,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Verify all 4 beads are active (value should be 4000000)
       await waitFor(() => {
-        expect(screen.getByText(/value: 4000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('400000000');
       });
 
       // Now click on the 2nd bead (index 1) - this should deactivate beads 1, 2, 3
@@ -107,7 +108,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Value should now be 1000000 (only first bead active)
       await waitFor(() => {
-        expect(screen.getByText(/value: 1000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('100000000');
       });
 
       // Verify positions
@@ -157,7 +159,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Should show 5000000 (5 * 10^6)
       await waitFor(() => {
-        expect(screen.getByText(/value: 5000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('500000000');
       });
 
       // Verify upper bead moved to active position
@@ -172,7 +175,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Should be back to 0
       await waitFor(() => {
-        expect(screen.getByText(/value: 0/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('0');
       });
 
       // Should be back to inactive position
@@ -211,7 +215,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Total should be 7000000
       await waitFor(() => {
-        expect(screen.getByText(/value: 7000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('700000000');
       });
 
       // Deactivate upper bead
@@ -219,7 +224,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Should be 2000000 (only lower beads)
       await waitFor(() => {
-        expect(screen.getByText(/value: 2000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('200000000');
       });
     });
   });
@@ -243,7 +249,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
       ).toBeInTheDocument();
 
       // Verify value display exists
-      expect(screen.getByText(/value:/i)).toBeInTheDocument();
+      const inputField = screen.getByTestId('keyboard-input-field');
+      expect(inputField).toBeInTheDocument();
     });
 
     test('should have correct number of columns and beads', () => {
@@ -282,7 +289,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Verify value is not 0
       await waitFor(() => {
-        expect(screen.getByText(/value: 2000000/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('200000000');
       });
 
       // Click reset
@@ -291,7 +299,8 @@ describe('SempoaBoard - Abacus Behavior', () => {
 
       // Verify value is back to 0
       await waitFor(() => {
-        expect(screen.getByText(/value: 0/i)).toBeInTheDocument();
+        const inputField = screen.getByTestId('keyboard-input-field');
+        expect(inputField).toHaveValue('0');
       });
     });
   });

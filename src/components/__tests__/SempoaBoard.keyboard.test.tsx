@@ -280,11 +280,14 @@ describe('SempoaBoard Keyboard Input', () => {
       expect(resetButton).toBeInTheDocument();
     });
 
-    it('should display current value in header', () => {
+    it('should display current value in input field only', () => {
       renderSempoaBoard(42);
 
-      const valueDisplay = screen.getByText('Value: 42');
-      expect(valueDisplay).toBeInTheDocument();
+      const inputField = screen.getByTestId('keyboard-input-field');
+      expect(inputField).toHaveValue('42');
+
+      // Should not have duplicate value display in header
+      expect(screen.queryByText('Value: 42')).not.toBeInTheDocument();
     });
   });
 });

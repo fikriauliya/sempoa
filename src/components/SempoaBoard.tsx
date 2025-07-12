@@ -314,18 +314,13 @@ const SempoaBoard: React.FC = () => {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-800">Sempoa Board</h2>
-        <div className="flex gap-4 items-center">
-          <div className="text-lg font-mono bg-gray-100 px-3 py-1 rounded">
-            Value: {currentValue}
-          </div>
-          <button
-            type="button"
-            onClick={reset}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-          >
-            Reset
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={reset}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+        >
+          Reset
+        </button>
       </div>
 
       {/* Keyboard Input Section */}

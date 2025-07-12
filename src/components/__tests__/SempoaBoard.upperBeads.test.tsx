@@ -150,13 +150,15 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         // Click to activate
         await user.click(upperBead);
         await waitFor(() => {
-          expect(screen.getByText(/value: 5000000/i)).toBeInTheDocument();
+          const inputField = screen.getByTestId('keyboard-input-field');
+          expect(inputField).toHaveValue('500000000');
         });
 
         // Click to deactivate
         await user.click(upperBead);
         await waitFor(() => {
-          expect(screen.getByText(/value: 0/i)).toBeInTheDocument();
+          const inputField = screen.getByTestId('keyboard-input-field');
+          expect(inputField).toHaveValue('0');
         });
       } else {
         // Test each bead independently for multiple upper beads
