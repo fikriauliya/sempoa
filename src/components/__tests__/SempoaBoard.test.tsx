@@ -4,6 +4,22 @@ import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../../config/sempoaConfig';
 import { GameProvider } from '../../context/GameContext';
 import SempoaBoard from '../SempoaBoard';
 
+// Mock audio feedback functions
+jest.mock('../../utils/audioFeedback', () => ({
+  playUpperBeadClick: jest.fn(),
+  playLowerBeadClick: jest.fn(),
+  setAudioConfig: jest.fn(),
+  getAudioConfig: jest.fn(() => ({
+    enabled: true,
+    volume: 0.3,
+    upperBeadFrequency: 800,
+    lowerBeadFrequency: 600,
+    duration: 80,
+  })),
+  setAudioEnabled: jest.fn(),
+  isAudioSupported: jest.fn(() => true),
+}));
+
 // Test wrapper with GameProvider
 const SempoaBoardWithProvider = () => (
   <GameProvider>
@@ -326,6 +342,114 @@ describe('SempoaBoard - Abacus Behavior', () => {
         const header = screen.getByTestId(`column-header-${i}`);
         expect(header).toHaveTextContent(expectedValues[i]);
       }
+    });
+  });
+
+  describe('Audio Feedback', () => {
+    beforeEach(() => {
+      // Clear mock calls before each test
+      jest.clearAllMocks();
+    });
+
+    test('should play lower bead click sound when lower bead is clicked', async () => {
+      const { playLowerBeadClick } = require('../../utils/audioFeedback');
+      render(<SempoaBoardWithProvider />);
+
+      // Reset the board
+      const resetButton = screen.getByRole('button', { name: /reset/i });
+      await user.click(resetButton);
+
+      // Get first column lower beads
+      const sempoaBoard = screen.getByTestId('sempoa-board');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
+      const firstColumn = columns[0];
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
+
+      // Click on a lower bead
+      const firstLowerBead = lowerBeads[0] as HTMLElement;
+      await user.click(firstLowerBead);
+
+      expect(playLowerBeadClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('should play upper bead click sound when upper bead is clicked', async () => {
+      const { playUpperBeadClick } = require('../../utils/audioFeedback');
+      render(<SempoaBoardWithProvider />);
+
+      // Reset the board
+      const resetButton = screen.getByRole('button', { name: /reset/i });
+      await user.click(resetButton);
+
+      // Get first column upper bead
+      const sempoaBoard = screen.getByTestId('sempoa-board');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
+      const firstColumn = columns[0];
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
+
+      // Click on the upper bead
+      const upperBead = upperBeads[0] as HTMLElement;
+      await user.click(upperBead);
+
+      expect(playUpperBeadClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('should configure audio settings on component mount', () => {
+      const { setAudioConfig } = require('../../utils/audioFeedback');
+      render(<SempoaBoardWithProvider />);
+
+      expect(setAudioConfig).toHaveBeenCalledWith({
+        enabled: SEMPOA_CONFIG.AUDIO.ENABLED,
+        volume: SEMPOA_CONFIG.AUDIO.VOLUME,
+        upperBeadFrequency: SEMPOA_CONFIG.AUDIO.UPPER_BEAD_FREQUENCY,
+        lowerBeadFrequency: SEMPOA_CONFIG.AUDIO.LOWER_BEAD_FREQUENCY,
+        duration: SEMPOA_CONFIG.AUDIO.CLICK_DURATION,
+      });
+    });
+
+    test('should play audio for multiple bead interactions', async () => {
+      const {
+        playLowerBeadClick,
+        playUpperBeadClick,
+      } = require('../../utils/audioFeedback');
+      render(<SempoaBoardWithProvider />);
+
+      // Reset the board
+      const resetButton = screen.getByRole('button', { name: /reset/i });
+      await user.click(resetButton);
+
+      const sempoaBoard = screen.getByTestId('sempoa-board');
+      const columns = sempoaBoard.querySelectorAll(
+        '[data-testid^="column-"]:not([data-testid*="header"])',
+      );
+      const firstColumn = columns[0];
+      const upperBeads = firstColumn.querySelectorAll(
+        '.upper-section [draggable="true"]',
+      );
+      const lowerBeads = firstColumn.querySelectorAll(
+        '.lower-section [draggable="true"]',
+      );
+
+      // Click upper bead
+      const upperBead = upperBeads[0] as HTMLElement;
+      await user.click(upperBead);
+
+      // Click lower bead
+      const lowerBead = lowerBeads[0] as HTMLElement;
+      await user.click(lowerBead);
+
+      // Click upper bead again to deactivate
+      await user.click(upperBead);
+
+      expect(playUpperBeadClick).toHaveBeenCalledTimes(2);
+      expect(playLowerBeadClick).toHaveBeenCalledTimes(1);
     });
   });
 });

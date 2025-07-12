@@ -2,6 +2,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { SEMPOA_CONFIG } from '../config/sempoaConfig';
 import type { BeadPosition } from '../types';
+import { playLowerBeadClick, playUpperBeadClick } from '../utils/audioFeedback';
 
 interface DraggableBeadProps {
   bead: BeadPosition;
@@ -23,6 +24,12 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
 
   const handleDragEnd = () => {
     setIsDragging(false);
+    // Play audio feedback for drag interaction
+    if (bead.isUpper) {
+      playUpperBeadClick();
+    } else {
+      playLowerBeadClick();
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -33,6 +40,7 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
   const handleTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(false);
+    // Note: Audio feedback is handled in the onClick() call via SempoaBoard's toggleBead
     onClick();
   };
 

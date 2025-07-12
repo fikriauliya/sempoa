@@ -3,6 +3,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import { useGame } from '../context/GameContext';
 import type { BeadHandlers, BeadPosition } from '../types';
+import {
+  playLowerBeadClick,
+  playUpperBeadClick,
+  setAudioConfig,
+} from '../utils/audioFeedback';
 import DraggableBead from './DraggableBead';
 import KeyboardInput from './KeyboardInput';
 
@@ -249,6 +254,17 @@ const SempoaBoard: React.FC = () => {
   const { currentValue, setCurrentValue } = useGame();
   const [activeBeads, setActiveBeads] = useState<Set<string>>(new Set());
 
+  // Initialize audio configuration from sempoa config
+  useEffect(() => {
+    setAudioConfig({
+      enabled: SEMPOA_CONFIG.AUDIO.ENABLED,
+      volume: SEMPOA_CONFIG.AUDIO.VOLUME,
+      upperBeadFrequency: SEMPOA_CONFIG.AUDIO.UPPER_BEAD_FREQUENCY,
+      lowerBeadFrequency: SEMPOA_CONFIG.AUDIO.LOWER_BEAD_FREQUENCY,
+      duration: SEMPOA_CONFIG.AUDIO.CLICK_DURATION,
+    });
+  }, []);
+
   // Reset beads when currentValue is set to 0
   useEffect(() => {
     if (currentValue === 0) {
@@ -289,6 +305,13 @@ const SempoaBoard: React.FC = () => {
       for (let row = start; row < end; row++) {
         const beadKey = `${bead.column}-${type}-${row}`;
         isActive ? newActiveBeads.delete(beadKey) : newActiveBeads.add(beadKey);
+      }
+
+      // Play audio feedback for bead interaction
+      if (bead.isUpper) {
+        playUpperBeadClick();
+      } else {
+        playLowerBeadClick();
       }
 
       setActiveBeads(newActiveBeads);
