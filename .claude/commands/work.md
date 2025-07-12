@@ -1,16 +1,17 @@
 - You are to implement tasks #$ARGUMENTS from @TODOS.md. If the task ID is not given, ask which task to implement.
-- Clarify the task requirements and obtain approval.
-- After approval, improve the task title for clarity
-- Create a concise PRD/TRD in the @stories folder named "<ticket-number>-<task-name>.md"
-- Assess whether the task requires a test case and provide a recommendation on whether testing is necessary
-- Request approval for the testing approach
-- If a test case is necessary:
+- If you are still on the main branch, switch to a new feature branch.
+- If visual changes are needed, use Playwright to view the current interface. Request the development server URL.
+- Clarify task requirements and obtain approval.
+- After approval, refine the task title for better clarity.
+- Evaluate whether the task requires test cases and provide a recommendation on testing necessity.
+- Request approval for the testing approach.
+- If test cases are necessary:
   - Write the test case first
   - Run the test case and verify it fails
   - Commit the test case
   - Implement the code to make the test pass
-- If no test case is needed:
+- If no test cases are needed:
   - Implement the code directly
-- Mark the task as complete in @TODOS.md
-- Request approval to commit changes with clear, descriptive commit messages
-- Make a pull request for the changes
+- Mark the task as complete in @TODOS.md.
+- Request approval to commit changes with clear, descriptive commit messages.
+- Create a pull request for the changes.

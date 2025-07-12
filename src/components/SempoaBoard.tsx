@@ -4,6 +4,7 @@ import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import { useGame } from '../context/GameContext';
 import type { BeadHandlers, BeadPosition } from '../types';
 import DraggableBead from './DraggableBead';
+import KeyboardInput from './KeyboardInput';
 
 const { COLUMNS, UPPER_BEADS_PER_COLUMN, LOWER_BEADS_PER_COLUMN } =
   SEMPOA_CONFIG;
@@ -296,6 +297,14 @@ const SempoaBoard: React.FC = () => {
     [activeBeads, setCurrentValue, getBeadKey],
   );
 
+  const handleKeyboardValueChange = useCallback(
+    (value: number, newActiveBeads: Set<string>) => {
+      setActiveBeads(newActiveBeads);
+      setCurrentValue(value);
+    },
+    [setCurrentValue],
+  );
+
   const reset = useCallback(() => {
     setActiveBeads(new Set());
     setCurrentValue(0);
@@ -305,10 +314,11 @@ const SempoaBoard: React.FC = () => {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-800">Sempoa Board</h2>
-        <div className="flex gap-4 items-center">
-          <div className="text-lg font-mono bg-gray-100 px-3 py-1 rounded">
-            Value: {currentValue}
-          </div>
+        <div className="flex items-center gap-4">
+          <KeyboardInput
+            currentValue={currentValue}
+            onValueChange={handleKeyboardValueChange}
+          />
           <button
             type="button"
             onClick={reset}
