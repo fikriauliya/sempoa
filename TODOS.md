@@ -12,7 +12,7 @@
 - [ ] SP-012: [RESPONSIVE] Create tablet-friendly layout optimization for all components with appropriate spacing and touch targets
 - [x] SP-013: [UX] Implement visual feedback for answer correctness by changing the background color of the question container in addition to the existing Check Answer button feedback
 - [x] SP-014: [INPUT] Implement keyboard input for answers with automatic sempoa bead positioning to match typed numbers
-- [ ] SP-015: [UI] Add visual progress indicators showing completion percentage in both Progress section and Learning Journey sidebar
+- [x] SP-015: [UI] Add visual progress indicators showing completion percentage in both Progress section and Learning Journey sidebar - implemented blue progress bars for main progress and operations, green progress bars for complement sections with smooth animations and proper accessibility (role="progressbar", ARIA attributes)
 - [ ] SP-016: [ALGORITHM] Improve question generation algorithm to avoid zero values in operands unless no other valid options exist
 - [x] SP-017: [AUDIO] Add voice feedback when beads are moved to provide auditory confirmation of bead interactions
 - [x] SP-018: [AUDIO] Add audio feedback for answer correctness with happy/sad sounds - implemented ascending major chord melody for correct answers and descending minor sequence for incorrect answers, integrated with useAnswerChecking hook
