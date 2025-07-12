@@ -5,13 +5,11 @@ import { canRepresentValue, valueToBeadKeys } from '../utils/beadPositioning';
 interface KeyboardInputProps {
   currentValue: number;
   onValueChange: (value: number, activeBeads: Set<string>) => void;
-  disabled?: boolean;
 }
 
 const KeyboardInput: React.FC<KeyboardInputProps> = ({
   currentValue,
   onValueChange,
-  disabled = false,
 }) => {
   const [inputValue, setInputValue] = useState(currentValue.toString());
   const [error, setError] = useState<string | null>(null);
@@ -19,10 +17,10 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
 
   // Auto-focus the input on mount
   useEffect(() => {
-    if (inputRef.current && !disabled) {
+    if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [disabled]);
+  }, []);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,16 +117,11 @@ const KeyboardInput: React.FC<KeyboardInputProps> = ({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          disabled={disabled}
           placeholder="0"
-          className={`px-2 py-1 border rounded text-center font-mono w-24 text-sm ${
+          className={`px-2 py-1 border rounded text-center font-mono w-24 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
             error
               ? 'border-red-500 bg-red-50 text-red-900'
               : 'border-gray-300 bg-white text-gray-900'
-          } ${
-            disabled
-              ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-              : 'focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500'
           }`}
           data-testid="keyboard-input-field"
         />
