@@ -26,13 +26,38 @@ jest.mock('../../context/GameContext', () => ({
     <>{children}</>
   ),
   useGame: () => ({
-    currentQuestion: null,
-    score: 0,
-    mistakes: 0,
+    gameState: {
+      currentQuestion: null,
+      score: 0,
+      mistakes: 0,
+      level: 1,
+    },
     checkAnswer: jest.fn(),
     generateNewQuestion: jest.fn(),
     setCurrentValue: jest.fn(),
+    setGameState: jest.fn(),
     sempoaState: { beadPositions: [], currentValue: 0 },
+  }),
+}));
+
+// Mock the hooks used in AppContent
+jest.mock('../../hooks/useUserProgress', () => ({
+  useUserProgress: () => ({
+    userProgress: { currentLevelId: null },
+    currentLevel: null,
+    processAnswer: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useQuestionGeneration', () => ({
+  useQuestionGeneration: () => ({
+    generateNewQuestion: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useAnswerChecking', () => ({
+  useAnswerChecking: () => ({
+    handleCheckAnswer: jest.fn(),
   }),
 }));
 

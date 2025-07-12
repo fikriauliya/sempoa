@@ -1,11 +1,16 @@
 import type React from 'react';
-import type { LevelProgress, UserProgress } from '../../types';
+import type {
+  ComplementType,
+  LevelProgress,
+  OperationType,
+  UserProgress,
+} from '../../types';
 import { getComplementSectionLabel } from '../../utils/constants';
 import LevelButton from './LevelButton';
 
 interface ComplementSectionProps {
-  operation: 'addition' | 'subtraction' | 'mixed';
-  complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both';
+  operation: OperationType;
+  complement: ComplementType;
   complementLevels: LevelProgress[];
   userProgress: UserProgress;
   sectionProgress: { completed: number; total: number };

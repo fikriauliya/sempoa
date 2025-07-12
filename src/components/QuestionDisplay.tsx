@@ -1,28 +1,50 @@
-import { motion } from 'framer-motion';
+import { motion, useAnimate } from 'framer-motion';
 import type React from 'react';
-import { useEffect, useMemo } from 'react';
-import { useGame } from '../context/GameContext';
-import { useAnswerChecking } from '../hooks/useAnswerChecking';
-import { useQuestionGeneration } from '../hooks/useQuestionGeneration';
-import { useUserProgress } from '../hooks/useUserProgress';
+import { useMemo, useState } from 'react';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import type { ButtonState, LevelProgress, Question } from '../types';
 import {
   COMPLEMENT_LABELS,
   DIGIT_LABELS,
   getOperationSymbol,
 } from '../utils/constants';
 import CheckAnswerButton from './LearningJourney/CheckAnswerButton';
-import { KEYBOARD_SHORTCUTS } from './LearningJourney/constants';
 
-const QuestionDisplay: React.FC = () => {
-  const { gameState } = useGame();
-  const { userProgress, currentLevel, processAnswer } = useUserProgress();
-  const { generateNewQuestion } = useQuestionGeneration(currentLevel);
-  const { handleCheckAnswer, buttonState, scope } = useAnswerChecking(
-    userProgress,
-    processAnswer,
-    generateNewQuestion,
-  );
+interface QuestionDisplayProps {
+  currentQuestion: Question | null;
+  currentLevel: LevelProgress | null;
+  onCheckAnswer: () => boolean | null;
+}
 
+const BUTTON_FEEDBACK_DURATION = 0.5;
+
+const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
+  currentQuestion,
+  currentLevel,
+  onCheckAnswer,
+}) => {
+  const [buttonState, setButtonState] = useState<ButtonState>('normal');
+  const [scope, animate] = useAnimate();
+
+  const handleCheckAnswer = async () => {
+    const isCorrect = onCheckAnswer();
+    if (isCorrect !== null) {
+      // Show feedback on button
+      setButtonState(isCorrect ? 'correct' : 'wrong');
+
+      // Animate button feedback, then reset state
+      await animate(
+        scope.current,
+        { scale: [1, 1.05, 1] },
+        { duration: BUTTON_FEEDBACK_DURATION },
+      );
+      setButtonState('normal');
+    }
+  };
+
+  useKeyboardShortcuts({
+    onShortcut: handleCheckAnswer,
+  });
   // Get hex color values for Framer Motion animation
   const getBackgroundColor = useMemo(() => {
     switch (buttonState) {
@@ -35,26 +57,8 @@ const QuestionDisplay: React.FC = () => {
     }
   }, [buttonState]);
 
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (
-        KEYBOARD_SHORTCUTS.includes(
-          event.key as (typeof KEYBOARD_SHORTCUTS)[number],
-        )
-      ) {
-        event.preventDefault();
-        handleCheckAnswer();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [handleCheckAnswer]);
-
   // Don't render if no current question or level
-  if (!gameState.currentQuestion || !currentLevel) {
+  if (!currentQuestion || !currentLevel) {
     return (
       <motion.div
         className="p-4 rounded-lg"
@@ -79,8 +83,8 @@ const QuestionDisplay: React.FC = () => {
     >
       <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
       <div className="text-lg font-mono text-green-700 mb-2">
-        {gameState.currentQuestion.operands.join(
-          ` ${getOperationSymbol(gameState.currentQuestion.operation)} `,
+        {currentQuestion.operands.join(
+          ` ${getOperationSymbol(currentQuestion.operation)} `,
         )}{' '}
         = ?
       </div>
@@ -93,7 +97,7 @@ const QuestionDisplay: React.FC = () => {
         onCheckAnswer={handleCheckAnswer}
         scope={scope}
       />
-      <div className="hidden" data-answer={gameState.currentQuestion.answer} />
+      <div className="hidden" data-answer={currentQuestion.answer} />
     </motion.div>
   );
 };

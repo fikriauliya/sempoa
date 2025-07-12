@@ -35,13 +35,14 @@ export const useUserProgress = () => {
 
   const processAnswer = useCallback(
     (isCorrect: boolean) => {
-      const updated = isCorrect
-        ? manager.recordCorrectAnswer(userProgress)
-        : manager.recordIncorrectAnswer(userProgress);
-      setUserProgress(updated);
-      return updated;
+      setUserProgress((currentProgress) => {
+        const updated = isCorrect
+          ? manager.recordCorrectAnswer(currentProgress)
+          : manager.recordIncorrectAnswer(currentProgress);
+        return updated;
+      });
     },
-    [userProgress, setUserProgress],
+    [setUserProgress],
   );
 
   return {

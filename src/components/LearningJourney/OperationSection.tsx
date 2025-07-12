@@ -1,15 +1,20 @@
 import type React from 'react';
-import type { LevelProgress, UserProgress } from '../../types';
+import type {
+  ComplementType,
+  LevelProgress,
+  OperationType,
+  UserProgress,
+} from '../../types';
 import { COMPLEMENTS, OPERATION_ICONS } from '../../utils/constants';
 import ComplementSection from './ComplementSection';
 
 interface OperationSectionProps {
-  operation: 'addition' | 'subtraction' | 'mixed';
+  operation: OperationType;
   operationLevels: LevelProgress[];
   userProgress: UserProgress;
   getSectionProgress: (
-    operation: 'addition' | 'subtraction' | 'mixed',
-    complement: 'simple' | 'smallFriend' | 'bigFriend' | 'both',
+    operation: OperationType,
+    complement: ComplementType,
   ) => { completed: number; total: number };
   expandedSections: Record<string, boolean>;
   onToggleSection: (section: string) => void;

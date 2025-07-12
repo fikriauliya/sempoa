@@ -1,15 +1,16 @@
 // Shared constants for the Sempoa application
+import type { ComplementType, OperationType } from '../types';
 
 export const OPERATIONS = ['addition', 'subtraction', 'mixed'] as const;
-export type Operation = (typeof OPERATIONS)[number];
 
-export const COMPLEMENTS = [
-  'simple',
+export const BASE_COMPLEMENTS = [
+  'none',
   'smallFriend',
   'bigFriend',
-  'both',
+  'family',
 ] as const;
-export type Complement = (typeof COMPLEMENTS)[number];
+
+export const COMPLEMENTS = [...BASE_COMPLEMENTS, 'mixed'] as const;
 
 export const DIGIT_LEVELS = [
   'single',
@@ -20,17 +21,18 @@ export const DIGIT_LEVELS = [
 ] as const;
 export type DigitLevel = (typeof DIGIT_LEVELS)[number];
 
-export const OPERATION_ICONS: Record<Operation, string> = {
+export const OPERATION_ICONS: Record<OperationType, string> = {
   addition: '➕',
   subtraction: '➖',
   mixed: '🔄',
 };
 
-export const COMPLEMENT_LABELS: Record<Complement, string> = {
-  simple: 'Simple',
+export const COMPLEMENT_LABELS: Record<ComplementType, string> = {
+  none: 'Simple',
   smallFriend: 'Small Friend',
   bigFriend: 'Big Friend',
-  both: 'Both Friends',
+  family: 'Family',
+  mixed: 'Mixed Friends',
 };
 
 export const DIGIT_LABELS: Record<DigitLevel, string> = {
@@ -49,11 +51,19 @@ export const DIFFICULTY_RANGES: Record<DigitLevel, [number, number]> = {
   five: [10000, 99999],
 };
 
+export const DIFFICULTY_DIGITS: Record<DigitLevel, number> = {
+  single: 1,
+  double: 2,
+  triple: 3,
+  four: 4,
+  five: 5,
+};
+
 export const getComplementSectionLabel = (
-  complement: Complement,
-  operation: Operation,
+  complement: ComplementType,
+  operation: OperationType,
 ): string => {
-  if (complement === 'simple') {
+  if (complement === 'none') {
     switch (operation) {
       case 'addition':
         return 'Simple Addition';
@@ -66,7 +76,7 @@ export const getComplementSectionLabel = (
   return COMPLEMENT_LABELS[complement];
 };
 
-export const getOperationSymbol = (operation: Operation): string => {
+export const getOperationSymbol = (operation: OperationType): string => {
   switch (operation) {
     case 'addition':
       return '+';

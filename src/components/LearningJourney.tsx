@@ -1,20 +1,34 @@
 import type React from 'react';
 import { useExpandedSections } from '../hooks/useExpandedSections';
 import { useQuestionGeneration } from '../hooks/useQuestionGeneration';
-import { useUserProgress } from '../hooks/useUserProgress';
-import type { LevelProgress } from '../types';
+import type {
+  ComplementType,
+  LevelProgress,
+  OperationType,
+  UserProgress,
+} from '../types';
 import { OPERATIONS } from '../utils/constants';
 import OperationSection from './LearningJourney/OperationSection';
 import ProgressCard from './LearningJourney/ProgressCard';
 
-const LearningJourney: React.FC = () => {
-  const {
-    userProgress,
-    selectLevel: selectUserLevel,
-    currentLevel,
-    completionPercentage,
-    sectionProgress,
-  } = useUserProgress();
+interface LearningJourneyProps {
+  userProgress: UserProgress;
+  selectLevel: (level: LevelProgress) => UserProgress;
+  currentLevel: LevelProgress | null;
+  completionPercentage: number;
+  sectionProgress: (
+    operationType: OperationType,
+    complementType: ComplementType,
+  ) => { completed: number; total: number };
+}
+
+const LearningJourney: React.FC<LearningJourneyProps> = ({
+  userProgress,
+  selectLevel: selectUserLevel,
+  currentLevel,
+  completionPercentage,
+  sectionProgress,
+}) => {
   const { generateNewQuestion } = useQuestionGeneration(currentLevel);
   const { toggleSection, expandedSections } = useExpandedSections();
 
