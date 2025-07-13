@@ -1,15 +1,16 @@
 - You are to implement tasks #$ARGUMENTS from @TODOS.md. If the task ID is not given, ask which task to implement.
 - If you are still on the main branch, switch to a new feature branch.
 - If visual changes are needed, use Playwright to view the current interface. Request the development server URL.
-- Clarify task requirements and obtain approval.
+- Clarify task requirements and obtain approval. Think harder.
 - After approval, refine the task title for better clarity.
 - Evaluate whether the task requires test cases and provide a recommendation on testing necessity.
 - Request approval for the testing approach.
 - If test cases are necessary:
-  - Write the test case first
+  - Write the test case first (TDD). Don't mock, we will implement later.
   - Run the test case and verify it fails
   - Commit the test case
   - Implement the code to make the test pass
+- Please write a high quality, general purpose solution. Implement a solution that works correctly for all valid inputs, not just the test cases. Do not hard-code values or create solutions that only work for specific test inputs. Instead, implement the actual logic that solves the problem generally. Focus on understanding the problem requirements and implementing the correct algorithm. Tests are there to verify correctness, not to define the solution. Provide a principled implementation that follows best practices and software design principles. If the task is unreasonable or infeasible, or if any of the tests are incorrect, please tell me. The solution should be robust, maintainable, and extendable.
 - If no test cases are needed:
   - Implement the code directly
 - Mark the task as complete in @TODOS.md. Update the task description to reflect the latest context.
