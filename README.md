@@ -6,31 +6,43 @@ An interactive sempoa/abacus learning application built with React, TypeScript, 
 
 ## Features
 
-### Sempoa Board
-- Interactive 7-column sempoa board with authentic wooden bead appearance
-- Proper place value headers (1M, 100K, 10K, 1K, 100, 10, 1) aligned with columns
-- Click-to-toggle bead manipulation with authentic abacus behavior
-- Drag and drop support for desktop
-- Touch gesture support for mobile devices
+### Interactive Sempoa Board
+- 13-column sempoa board (displays 9 columns on mobile, 13 on desktop) with authentic wooden bead appearance
+- Proper place value headers from 100 billion down to 1, aligned with columns
+- Click-to-toggle bead manipulation with authentic abacus behavior:
+  - Lower beads: clicking activates that bead and all above it
+  - Upper beads: individual toggle behavior
+- Drag and drop support for desktop interactions
+- Touch gesture support optimized for mobile devices
+- Keyboard input support for automatic bead positioning
 - Real-time value calculation and display
-- Visual feedback for bead positions
+- Audio feedback for bead interactions with configurable settings
+- Visual feedback with smooth animations for bead positions
 
-### Learning System
-- Multiple difficulty levels: Single, Double, and Triple digit numbers
-- Addition operations with various complexity levels:
-  - Without complementary numbers
-  - Using small friend only
-  - Using big friend only
-  - Using both small and big friends
-- Subtraction operations with same structure as addition
-- Mixed operations combining addition and subtraction
-- Question generation system with appropriate difficulty progression
+### Progressive Learning System
+- **135 Total Levels**: Structured progression across 3 operations × 5 complement types × 9 digit levels
+- **Operation Types**:
+  - Addition with progressive complexity
+  - Subtraction with same difficulty structure
+  - Mixed operations combining addition and subtraction
+- **Complement Integration**:
+  - Simple operations (no complements)
+  - Small friend usage (complement to 5)
+  - Big friend usage (complement to 10)
+  - Combined small and big friend operations
+- **Difficulty Progression**: Single, double, and triple digit numbers with intelligent question generation
+- **Learning Journey**: Visual progress tracking with level unlocking and completion percentages
 
-### Game Features
-- Score tracking and mistake counting
-- Visual feedback for correct/incorrect answers
-- Configurable question types and difficulty settings
-- Interactive game controller with real-time settings
+### Progress & Feedback System
+- **Progress Tracking**: Persistent user progress with localStorage integration
+- **Scoring System**: Real-time score tracking and completion percentages
+- **Visual Feedback**: Immediate feedback for correct/incorrect answers with color-coded responses
+- **Audio Feedback**: Configurable sound effects for:
+  - Bead interactions (different frequencies for upper/lower beads)
+  - Answer correctness confirmation
+  - Click feedback for UI interactions
+- **Level Management**: Sequential level unlocking based on completion requirements
+- **Session Persistence**: Automatic saving of progress and current game state
 
 ## Getting Started
 
@@ -59,38 +71,58 @@ npm run dev
 npm run build
 ```
 
-## Usage
+## How to Use
 
-1. **Setup**: Configure your preferred difficulty level, operation type, and complement usage in the Game Control panel
-2. **Generate Question**: Click "New Question" to start practicing
-3. **Solve**: Use the sempoa board to calculate the answer by clicking/dragging beads
-4. **Submit**: Click "Submit Answer" to check your solution
-5. **Track Progress**: Monitor your score and mistakes in the Game Control panel
+1. **Start Learning**: Begin with the first level in the Addition section of the Learning Journey
+2. **Solve Questions**: Use the sempoa board to calculate answers:
+   - Click beads to position them (authentic abacus behavior)
+   - Use keyboard input for quick number entry
+   - Drag and drop beads on desktop
+3. **Submit Answers**: Click "Check Answer" to verify your solution
+4. **Progress Through Levels**: Complete levels to unlock new challenges
+5. **Track Achievement**: Monitor your progress, score, and completion percentages
+6. **Audio Experience**: Enable audio feedback for immersive learning with bead sounds
 
 ## Technology Stack
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety and better development experience
-- **Vite** - Fast build tool and development server
-- **Tailwind CSS** - Utility-first CSS framework
+- **React 18** - Modern UI framework with hooks and context
+- **TypeScript** - Type safety and enhanced development experience
+- **Vite** - Fast build tool and development server with HMR
+- **Tailwind CSS** - Utility-first CSS framework for responsive design
+- **Framer Motion** - Smooth animations for bead movements and UI transitions
+- **Web Audio API** - Browser-native audio generation for feedback sounds
+- **React Testing Library & Jest** - Comprehensive component testing
+- **Playwright** - End-to-end testing for visual validation
 
 ## Project Structure
 
 ```
 src/
 ├── components/              # React components
-│   ├── SempoaBoard.tsx     # Main sempoa board component
-│   ├── GameController.tsx  # Game control panel
-│   └── DraggableBead.tsx   # Individual bead component
+│   ├── SempoaBoard.tsx     # Main 13-column sempoa board
+│   ├── DraggableBead.tsx   # Individual bead with interaction support
+│   ├── QuestionDisplay.tsx # Question presentation and answer checking
+│   ├── LearningJourney.tsx # Progress tracking and level selection
+│   └── KeyboardInput.tsx   # Automatic bead positioning from keyboard
 ├── context/                # React context for state management
-│   └── GameContext.tsx     # Game state management
+│   └── GameContext.tsx     # Centralized game state and progress
+├── hooks/                  # Custom React hooks
+│   ├── useGame.tsx         # Game state access hook
+│   ├── useUserProgress.tsx # Progress management and persistence
+│   ├── useAnswerChecking.tsx # Answer validation workflow
+│   ├── useQuestionGeneration.tsx # Dynamic question creation
+│   └── useKeyboardShortcuts.tsx # Keyboard input handling
+├── utils/                  # Utility functions and managers
+│   ├── questionGenerator.ts # Question generation logic
+│   ├── audioFeedback.ts    # Audio feedback system
+│   └── progressionManager.ts # Learning progression logic
+├── config/                 # Configuration and constants
+│   └── sempoaConfig.ts     # Visual and mathematical configuration
 ├── types/                  # TypeScript type definitions
-│   └── index.ts            # Type definitions for the app
-├── utils/                  # Utility functions
-│   └── questionGenerator.ts # Question generation logic
+│   └── index.ts            # Comprehensive type system
 ├── App.tsx                 # Main application component
 ├── main.tsx                # Application entry point
-└── index.css               # Global styles and Tailwind imports
+└── test-utils/             # Testing utilities and helpers
 ```
 
 ## Contributing
