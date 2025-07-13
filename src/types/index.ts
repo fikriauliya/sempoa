@@ -49,9 +49,15 @@ export interface UserProgress {
   totalScore: number;
 }
 
+export interface SessionProgress {
+  current: number;
+  total: number;
+}
+
 export interface GameState {
   currentQuestion: Question | null;
   score: number;
   level: number;
   mistakes: number;
+  sessionProgress: SessionProgress;
 }

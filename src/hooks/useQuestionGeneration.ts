@@ -20,6 +20,11 @@ export const useQuestionGeneration = (currentLevel: LevelProgress | null) => {
       setGameState((prev) => ({
         ...prev,
         currentQuestion: question,
+        // Reset session progress if starting a new session (current >= total)
+        sessionProgress:
+          prev.sessionProgress.current >= prev.sessionProgress.total
+            ? { current: 0, total: prev.sessionProgress.total }
+            : prev.sessionProgress,
       }));
     }
   }, [currentLevel, setCurrentValue, setGameState]);

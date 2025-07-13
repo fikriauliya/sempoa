@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { GameProvider } from '../../context/GameContext';
 import type { LevelProgress, Question } from '../../types';
 import QuestionDisplay from '../QuestionDisplay';
 
@@ -62,7 +63,11 @@ const renderQuestionDisplay = (
   };
 
   const props = { ...defaultProps, ...overrides };
-  return render(<QuestionDisplay {...props} />);
+  return render(
+    <GameProvider>
+      <QuestionDisplay {...props} />
+    </GameProvider>,
+  );
 };
 
 describe('QuestionDisplay Component', () => {

@@ -27,6 +27,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     score: 0,
     level: 1,
     mistakes: 0,
+    sessionProgress: {
+      current: 0,
+      total: 10, // Default session size
+    },
   });
 
   const [currentValue, setCurrentValue] = useState(0);
@@ -41,6 +45,13 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       setGameState((prev: GameState) => ({
         ...prev,
         score: prev.score + 1,
+        sessionProgress: {
+          ...prev.sessionProgress,
+          current: Math.min(
+            prev.sessionProgress.current + 1,
+            prev.sessionProgress.total,
+          ),
+        },
       }));
     } else {
       setGameState((prev: GameState) => ({

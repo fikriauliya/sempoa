@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useGame } from '../context/GameContext';
 import { useExpandedSections } from '../hooks/useExpandedSections';
 import { useQuestionGeneration } from '../hooks/useQuestionGeneration';
 import type {
@@ -31,11 +32,17 @@ const LearningJourney: React.FC<LearningJourneyProps> = ({
 }) => {
   const { generateNewQuestion } = useQuestionGeneration(currentLevel);
   const { toggleSection, expandedSections } = useExpandedSections();
+  const { setGameState } = useGame();
 
   const selectLevel = (level: LevelProgress) => {
     if (!level.isUnlocked) return;
 
     selectUserLevel(level);
+    // Reset session progress when selecting a new level
+    setGameState((prev) => ({
+      ...prev,
+      sessionProgress: { current: 0, total: prev.sessionProgress.total },
+    }));
     generateNewQuestion();
   };
 

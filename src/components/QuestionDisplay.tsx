@@ -1,6 +1,7 @@
 import { motion, useAnimate } from 'framer-motion';
 import type React from 'react';
 import { useMemo, useState } from 'react';
+import { useGame } from '../context/GameContext';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import type { ButtonState, LevelProgress, Question } from '../types';
 import {
@@ -8,6 +9,7 @@ import {
   DIGIT_LABELS,
   getOperationSymbol,
 } from '../utils/constants';
+import ProgressBar from './common/ProgressBar';
 import CheckAnswerButton from './LearningJourney/CheckAnswerButton';
 
 interface QuestionDisplayProps {
@@ -25,6 +27,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
 }) => {
   const [buttonState, setButtonState] = useState<ButtonState>('normal');
   const [scope, animate] = useAnimate();
+  const { gameState } = useGame();
 
   const handleCheckAnswer = async () => {
     const isCorrect = onCheckAnswer();
@@ -82,7 +85,18 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
-      <div className="text-lg font-mono text-green-700 mb-2">
+      <ProgressBar
+        percentage={
+          (gameState.sessionProgress.current /
+            gameState.sessionProgress.total) *
+          100
+        }
+        label={`Question ${gameState.sessionProgress.current} of ${gameState.sessionProgress.total}`}
+        colorTheme="green"
+        height={6}
+        showText={false}
+      />
+      <div className="text-lg font-mono text-green-700 mb-2 mt-3">
         {currentQuestion.operands.join(
           ` ${getOperationSymbol(currentQuestion.operation)} `,
         )}{' '}
