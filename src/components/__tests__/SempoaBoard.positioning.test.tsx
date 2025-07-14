@@ -31,9 +31,7 @@ describe('SempoaBoard - Bead Positioning', () => {
 
       // Check first column upper beads
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       expect(upperBeads).toHaveLength(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
 
       // Each upper bead should be at its initial position
@@ -56,9 +54,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const lowerBeads = firstColumn.querySelectorAll(
-        '.lower-section [draggable="true"]',
-      );
+      const lowerBeads = firstColumn.querySelectorAll('.lower-section button');
       expect(lowerBeads).toHaveLength(SEMPOA_CONFIG.LOWER_BEADS_PER_COLUMN);
 
       // Each lower bead should be at its initial position
@@ -88,9 +84,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       const firstUpperBead = upperBeads[0] as HTMLElement;
 
       // Click to activate
@@ -120,9 +114,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const lowerBeads = firstColumn.querySelectorAll(
-        '.lower-section [draggable="true"]',
-      );
+      const lowerBeads = firstColumn.querySelectorAll('.lower-section button');
 
       // Click second bead to activate first two beads
       const secondBead = lowerBeads[1] as HTMLElement;
@@ -160,9 +152,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const lowerBeads = firstColumn.querySelectorAll(
-        '.lower-section [draggable="true"]',
-      );
+      const lowerBeads = firstColumn.querySelectorAll('.lower-section button');
 
       // Check spacing between adjacent beads in inactive state
       for (let i = 0; i < lowerBeads.length - 1; i++) {
@@ -187,7 +177,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const allBeads = firstColumn.querySelectorAll('[draggable="true"]');
+      const allBeads = firstColumn.querySelectorAll('button');
 
       allBeads.forEach((bead) => {
         const beadContainer = bead.parentElement as HTMLElement;
@@ -212,7 +202,7 @@ describe('SempoaBoard - Bead Positioning', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const allBeads = firstColumn.querySelectorAll('[draggable="true"]');
+      const allBeads = firstColumn.querySelectorAll('button');
 
       allBeads.forEach((bead) => {
         const beadContainer = bead.parentElement as HTMLElement;
