@@ -105,9 +105,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       const beadCount = upperBeads.length;
 
       expect(beadCount).toBe(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
@@ -139,9 +137,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       const beadCount = upperBeads.length;
 
       if (beadCount === 1) {
@@ -221,7 +217,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         );
         const firstColumn = columns[0];
         const upperBeads = firstColumn.querySelectorAll(
-          '.upper-section [draggable="true"]',
+          '.upper-section button',
         );
         expect(upperBeads).toHaveLength(1);
         return;
@@ -233,9 +229,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       expect(upperBeads).toHaveLength(currentConfig);
 
       const firstBead = upperBeads[0] as HTMLElement; // Top bead
@@ -272,9 +266,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       const beadCount = upperBeads.length;
 
       expect(beadCount).toBe(SEMPOA_CONFIG.UPPER_BEADS_PER_COLUMN);
@@ -324,9 +316,7 @@ describe('SempoaBoard - Upper Beads Positioning and Interaction', () => {
         '[data-testid^="column-"]:not([data-testid*="header"])',
       );
       const firstColumn = columns[0];
-      const upperBeads = firstColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
-      );
+      const upperBeads = firstColumn.querySelectorAll('.upper-section button');
       const firstUpperBead = upperBeads[0] as HTMLElement;
       const beadContainer = firstUpperBead.parentElement as HTMLElement;
 

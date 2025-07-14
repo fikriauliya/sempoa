@@ -94,12 +94,8 @@ describe('SempoaBoard - 9 Column Configuration', () => {
       // Each column should have 1 upper bead + 4 lower beads = 5 beads total
       let totalBeads = 0;
       columns.forEach((column) => {
-        const upperBeads = column.querySelectorAll(
-          '.upper-section [draggable="true"]',
-        );
-        const lowerBeads = column.querySelectorAll(
-          '.lower-section [draggable="true"]',
-        );
+        const upperBeads = column.querySelectorAll('.upper-section button');
+        const lowerBeads = column.querySelectorAll('.lower-section button');
         totalBeads += upperBeads.length + lowerBeads.length;
       });
 
@@ -115,14 +111,14 @@ describe('SempoaBoard - 9 Column Configuration', () => {
       // Check units column (rightmost, index 8)
       const unitsColumn = screen.getByTestId('column-8');
       const unitsUpperBeads = unitsColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
+        '.upper-section button',
       );
       expect(unitsUpperBeads).toHaveLength(1);
 
       // Check hundred millions column (leftmost, index 0)
       const hundredMillionsColumn = screen.getByTestId('column-0');
       const hundredMillionsUpperBeads = hundredMillionsColumn.querySelectorAll(
-        '.upper-section [draggable="true"]',
+        '.upper-section button',
       );
       expect(hundredMillionsUpperBeads).toHaveLength(1);
     });

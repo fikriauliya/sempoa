@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import { useGame } from '../context/GameContext';
+import { usePinchGesture } from '../hooks/usePinchGesture';
 import type { BeadHandlers, BeadPosition } from '../types';
 import {
   playLowerBeadClick,
@@ -74,12 +75,16 @@ interface BeadRendererProps {
   bead: BeadPosition;
   isActive: boolean;
   onClick: () => void;
+  onSwipeActivate: () => void;
+  onSwipeDeactivate: () => void;
 }
 
 const BeadRenderer: React.FC<BeadRendererProps> = ({
   bead,
   isActive,
   onClick,
+  onSwipeActivate,
+  onSwipeDeactivate,
 }) => (
   <div
     className="absolute"
@@ -91,7 +96,13 @@ const BeadRenderer: React.FC<BeadRendererProps> = ({
       zIndex: SEMPOA_CONFIG.Z_INDEX.BEAD,
     }}
   >
-    <DraggableBead bead={bead} isActive={isActive} onClick={onClick} />
+    <DraggableBead
+      bead={bead}
+      isActive={isActive}
+      onClick={onClick}
+      onSwipeActivate={onSwipeActivate}
+      onSwipeDeactivate={onSwipeDeactivate}
+    />
   </div>
 );
 
@@ -123,12 +134,29 @@ const BeadSection: React.FC<BeadSectionProps> = ({
           row: row,
           isUpper: isUpper,
         };
+        const isActive = isBeadActive(bead);
+
+        // Create swipe handlers that activate/deactivate appropriately
+        const handleSwipeActivate = () => {
+          if (!isActive) {
+            toggleBead(bead);
+          }
+        };
+
+        const handleSwipeDeactivate = () => {
+          if (isActive) {
+            toggleBead(bead);
+          }
+        };
+
         return (
           <BeadRenderer
             key={getBeadKey(bead)}
             bead={bead}
-            isActive={isBeadActive(bead)}
+            isActive={isActive}
             onClick={() => toggleBead(bead)}
+            onSwipeActivate={handleSwipeActivate}
+            onSwipeDeactivate={handleSwipeDeactivate}
           />
         );
       })}
@@ -139,6 +167,7 @@ const BeadSection: React.FC<BeadSectionProps> = ({
 interface SempoaColumnProps extends BeadHandlers {
   columnIndex: number;
   placeValue: number;
+  onColumnValueChange: (columnIndex: number, value: number) => void;
 }
 
 const SempoaColumn: React.FC<SempoaColumnProps> = ({
@@ -147,50 +176,79 @@ const SempoaColumn: React.FC<SempoaColumnProps> = ({
   getBeadKey,
   isBeadActive,
   toggleBead,
-}) => (
-  <div
-    key={`column-place-${placeValue}`}
-    className="relative flex flex-col items-center"
-    style={{ width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px` }}
-    data-testid={`column-${columnIndex}`}
-  >
-    {/* Vertical rod */}
-    <div
-      className="absolute bg-amber-900 rounded-full shadow-sm"
-      style={{
-        height: `${DERIVED_CONFIG.ROD_HEIGHT}px`,
-        width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
-        left: '50%',
-        top: '0px',
-        transform: 'translateX(-50%)',
-        zIndex: SEMPOA_CONFIG.Z_INDEX.ROD,
-      }}
-    />
-    {/* Upper beads */}
-    <BeadSection
-      columnIndex={columnIndex}
-      isUpper={true}
-      getBeadKey={getBeadKey}
-      isBeadActive={isBeadActive}
-      toggleBead={toggleBead}
-    />
-    {/* Lower beads */}
-    <BeadSection
-      columnIndex={columnIndex}
-      isUpper={false}
-      getBeadKey={getBeadKey}
-      isBeadActive={isBeadActive}
-      toggleBead={toggleBead}
-    />
-  </div>
-);
+  onColumnValueChange,
+}) => {
+  const handlePinch = useCallback(
+    (_scale: number, centerY: number) => {
+      // Map centerY position to value (0-9)
+      // Get the column container bounds to calculate relative position
+      const columnHeight = DERIVED_CONFIG.MAIN_CONTAINER_HEIGHT;
+      const relativeY = Math.max(0, Math.min(1, centerY / columnHeight));
 
-interface SempoaFrameProps extends BeadHandlers {}
+      // Invert Y because top = 0, bottom = 1, but we want top = 9, bottom = 0
+      const targetValue = Math.round((1 - relativeY) * 9);
+      onColumnValueChange(columnIndex, targetValue);
+    },
+    [columnIndex, onColumnValueChange],
+  );
+
+  const pinchHandlers = usePinchGesture({
+    onPinch: handlePinch,
+    preventDefaultOnPinch: true,
+  });
+
+  return (
+    <div
+      key={`column-place-${placeValue}`}
+      className="relative flex flex-col items-center"
+      style={{
+        width: `${SEMPOA_CONFIG.COLUMN.WIDTH}px`,
+        touchAction: 'none', // Prevent default touch behaviors
+      }}
+      data-testid={`column-${columnIndex}`}
+      {...pinchHandlers}
+    >
+      {/* Vertical rod */}
+      <div
+        className="absolute bg-amber-900 rounded-full shadow-sm"
+        style={{
+          height: `${DERIVED_CONFIG.ROD_HEIGHT}px`,
+          width: `${SEMPOA_CONFIG.ROD.WIDTH}px`,
+          left: '50%',
+          top: '0px',
+          transform: 'translateX(-50%)',
+          zIndex: SEMPOA_CONFIG.Z_INDEX.ROD,
+        }}
+      />
+      {/* Upper beads */}
+      <BeadSection
+        columnIndex={columnIndex}
+        isUpper={true}
+        getBeadKey={getBeadKey}
+        isBeadActive={isBeadActive}
+        toggleBead={toggleBead}
+      />
+      {/* Lower beads */}
+      <BeadSection
+        columnIndex={columnIndex}
+        isUpper={false}
+        getBeadKey={getBeadKey}
+        isBeadActive={isBeadActive}
+        toggleBead={toggleBead}
+      />
+    </div>
+  );
+};
+
+interface SempoaFrameProps extends BeadHandlers {
+  setColumnValue: (columnIndex: number, value: number) => void;
+}
 
 const SempoaFrame: React.FC<SempoaFrameProps> = ({
   getBeadKey,
   isBeadActive,
   toggleBead,
+  setColumnValue,
 }) => (
   <div className="sempoa-frame bg-black p-6 rounded-lg shadow-2xl">
     <div className="bg-amber-50 p-4 rounded relative">
@@ -241,6 +299,7 @@ const SempoaFrame: React.FC<SempoaFrameProps> = ({
                 getBeadKey={getBeadKey}
                 isBeadActive={isBeadActive}
                 toggleBead={toggleBead}
+                onColumnValueChange={setColumnValue}
               />
             );
           })}
@@ -320,6 +379,42 @@ const SempoaBoard: React.FC = () => {
     [activeBeads, setCurrentValue, getBeadKey],
   );
 
+  const setColumnValue = useCallback(
+    (columnIndex: number, value: number) => {
+      const newActiveBeads = new Set(activeBeads);
+
+      // Clear all beads in this column
+      for (let row = 0; row < UPPER_BEADS_PER_COLUMN; row++) {
+        newActiveBeads.delete(`${columnIndex}-upper-${row}`);
+      }
+      for (let row = 0; row < LOWER_BEADS_PER_COLUMN; row++) {
+        newActiveBeads.delete(`${columnIndex}-lower-${row}`);
+      }
+
+      // Set the appropriate beads based on value
+      const columnValue = Math.min(9, Math.max(0, value)); // Clamp between 0-9
+
+      if (columnValue >= 5) {
+        // Activate upper bead
+        newActiveBeads.add(`${columnIndex}-upper-0`);
+        // Activate lower beads for the remainder
+        const lowerCount = columnValue - 5;
+        for (let row = 0; row < lowerCount; row++) {
+          newActiveBeads.add(`${columnIndex}-lower-${row}`);
+        }
+      } else {
+        // Only activate lower beads
+        for (let row = 0; row < columnValue; row++) {
+          newActiveBeads.add(`${columnIndex}-lower-${row}`);
+        }
+      }
+
+      setActiveBeads(newActiveBeads);
+      setCurrentValue(calculateTotalValue(newActiveBeads));
+    },
+    [activeBeads, setCurrentValue],
+  );
+
   const handleKeyboardValueChange = useCallback(
     (value: number, newActiveBeads: Set<string>) => {
       setActiveBeads(newActiveBeads);
@@ -356,6 +451,7 @@ const SempoaBoard: React.FC = () => {
         getBeadKey={getBeadKey}
         isBeadActive={isBeadActive}
         toggleBead={toggleBead}
+        setColumnValue={setColumnValue}
       />
     </div>
   );
