@@ -1,7 +1,7 @@
 import { motion, type PanInfo } from 'framer-motion';
 import type React from 'react';
 import { useState } from 'react';
-import { SEMPOA_CONFIG } from '../config/sempoaConfig';
+import { DERIVED_CONFIG, SEMPOA_CONFIG } from '../config/sempoaConfig';
 import type { BeadPosition } from '../types';
 
 // Haptic feedback utility
@@ -26,47 +26,62 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  // Handle pan gesture end (swipe detection)
-  const handlePanEnd = (
+  // Calculate drag constraints and target positions for this bead
+  const dragConstraints = DERIVED_CONFIG.getDragConstraints(
+    bead.isUpper,
+    bead.row,
+    isActive,
+  );
+  const targetPositions = DERIVED_CONFIG.getTargetPositions(
+    bead.isUpper,
+    bead.row,
+  );
+
+  // Handle drag start
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  // Handle real-time drag movement
+  const handleDrag = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    _info: PanInfo,
+  ) => {
+    // Real-time position updates happen automatically via framer-motion
+    // The drag constraints ensure the bead stays within valid bounds
+  };
+
+  // Handle drag completion with smart snapping
+  const handleDragEnd = (
     _event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) => {
-    // Reset dragging state
     setIsDragging(false);
 
-    // Skip gesture handling if gestures are disabled (configurable)
-    if (!SEMPOA_CONFIG.GESTURES.ENABLED) return;
+    // Calculate drag progress based on offset distance and direction
+    const dragDistanceY = Math.abs(info.offset.y);
+    const travelDistance = Math.abs(
+      targetPositions.active - targetPositions.inactive,
+    );
+    const travelProgress = dragDistanceY / travelDistance;
 
-    // Get the vertical movement and velocity
-    const verticalOffset = Math.abs(info.offset.y);
-    const verticalVelocity = Math.abs(info.velocity.y);
+    // For beads, any significant drag (past snap threshold) should toggle the state
+    // This simulates the physical behavior where dragging a bead moves it to the opposite position
+    const shouldChangeState =
+      travelProgress >= SEMPOA_CONFIG.DRAG.SNAP_THRESHOLD;
 
-    // Check if movement meets threshold requirements
-    // Either sufficient distance OR sufficient velocity should trigger the gesture
-    const hasMinDistance =
-      verticalOffset >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD;
-    const hasMinVelocity =
-      verticalVelocity > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD;
-
-    // With extremely low thresholds, almost any movement will trigger
-    if (hasMinDistance || hasMinVelocity) {
-      // Trigger bead action for both up and down swipes
-      // The existing toggleBead logic will handle the specific behavior
+    // Trigger state change if drag distance is significant enough
+    if (shouldChangeState) {
       onClick();
-
-      // Trigger haptic feedback
       triggerHapticFeedback();
     }
-  };
-
-  const handlePanStart = () => {
-    setIsDragging(true);
   };
 
   const baseClasses = `cursor-pointer transition-all duration-300 hover:scale-105 shadow-md`;
   const activeClasses = isActive ? 'shadow-lg' : 'hover:shadow-lg';
 
-  const dragClasses = isDragging ? 'opacity-50' : '';
+  // Enhanced drag visual feedback
+  const dragClasses = isDragging ? 'opacity-80 scale-105' : '';
 
   const beadStyle = {
     width: `${SEMPOA_CONFIG.BEAD.WIDTH}px`,
@@ -91,13 +106,23 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
         touchAction: 'none', // Prevent default touch behaviors
       }}
       onClick={onClick}
-      onPanStart={handlePanStart}
-      onPanEnd={handlePanEnd}
-      drag // Enable drag for pan gesture detection
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Constrain to prevent actual movement
-      dragElastic={0} // No elastic movement
+      // Drag configuration for smooth movement
+      drag="y" // Only vertical dragging
+      dragConstraints={dragConstraints}
+      dragElastic={0} // No elastic movement beyond constraints
+      dragMomentum={false} // Immediate stop when released
+      // Drag event handlers
+      onDragStart={handleDragStart}
+      onDrag={handleDrag}
+      onDragEnd={handleDragEnd}
+      // Visual feedback
+      whileDrag={{
+        scale: SEMPOA_CONFIG.DRAG.VISUAL_FEEDBACK.DRAG_SCALE,
+        opacity: SEMPOA_CONFIG.DRAG.VISUAL_FEEDBACK.DRAG_OPACITY,
+      }}
       whileTap={{ scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      // Animation configuration
+      transition={SEMPOA_CONFIG.DRAG.SPRING_CONFIG}
     />
   );
 };
