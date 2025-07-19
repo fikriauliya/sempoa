@@ -192,7 +192,7 @@ const SempoaFrame: React.FC<SempoaFrameProps> = ({
   isBeadActive,
   toggleBead,
 }) => (
-  <div className="sempoa-frame bg-black p-6 rounded-lg shadow-2xl">
+  <div className="sempoa-frame bg-black p-6 rounded-lg shadow-2xl touch-none overscroll-none">
     <div className="bg-amber-50 p-4 rounded relative">
       {/* Column headers */}
       <div className="flex justify-center gap-2 mb-4">
@@ -210,7 +210,7 @@ const SempoaFrame: React.FC<SempoaFrameProps> = ({
 
       {/* Main board */}
       <div
-        className="relative bg-amber-100 rounded border-2 border-amber-800"
+        className="relative bg-amber-100 rounded border-2 border-amber-800 touch-none overscroll-none"
         data-testid="sempoa-board"
       >
         {/* Horizontal crossbar */}

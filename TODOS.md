@@ -7,7 +7,7 @@
 - [x] SP-007: [FEATURE] Create learning journey progression system with sidebar UI (medium-sized icons) following spec.md leveling structure, replacing current Game Control section
 - [ ] SP-008: [FEATURE] Add visual countdown timer with elapsed time tracking, store completion times per question in local storage for performance analytics
 - [ ] SP-009: [GAMIFICATION] Create interactive SVG cat mascot with connect-the-dots progressive reveal - each correct answer reveals next dot/line segment, supporting curved Bezier paths for smooth illustration
-- [ ] SP-010: [FEATURE] Enable touch swipe gestures for intuitive bead manipulation - vertical swipes to move beads up/down on tablets and mobile devices with haptic feedback
+- [x] SP-010: [FEATURE] Enable touch swipe gestures for intuitive bead manipulation - vertical swipes to move beads up/down on tablets and mobile devices with haptic feedback. Also enable multi-finger gestures to move multiple beads simultaneously across different columns using @use-gesture/react library.
 - [x] SP-011: [UX] Implement ergonomic question layout - position questions at top-right of sempoa board on desktop, above board on mobile. Configure sempoa board to display only 9 columns for better mobile experience
 - [ ] SP-012: [RESPONSIVE] Create tablet-friendly layout optimization for all components with appropriate spacing and touch targets
 - [x] SP-013: [UX] Implement visual feedback for answer correctness by changing the background color of the question container in addition to the existing Check Answer button feedback

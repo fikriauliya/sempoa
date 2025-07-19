@@ -72,7 +72,33 @@ export const SEMPOA_CONFIG = {
     LOWER_BEAD_FREQUENCY: 600, // Hz - Lower pitch for lower beads
     CLICK_DURATION: 80, // milliseconds
   },
-} as const;
+
+  // Gesture settings
+  GESTURES: {
+    ENABLED: true,
+    SWIPE_THRESHOLD: 2, // Extremely low - just a tiny movement triggers
+    VELOCITY_THRESHOLD: 0.001, // Almost any movement velocity triggers
+    HAPTIC_FEEDBACK: {
+      ENABLED: true,
+      DURATION: 50, // milliseconds
+    },
+  },
+
+  // Drag settings for smooth bead movement
+  DRAG: {
+    ENABLED: true,
+    SNAP_THRESHOLD: 0.5, // Fraction of travel distance to trigger state change (0.5 = halfway)
+    SPRING_CONFIG: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 30,
+    },
+    VISUAL_FEEDBACK: {
+      DRAG_OPACITY: 1,
+      DRAG_SCALE: 1.05,
+    },
+  },
+};
 
 // Derived values (computed from base config)
 export const DERIVED_CONFIG = {
@@ -113,4 +139,72 @@ export const DERIVED_CONFIG = {
     SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT + SEMPOA_CONFIG.SECTIONS.LOWER_HEIGHT,
 
   TOTAL_BOARD_WIDTH: SEMPOA_CONFIG.COLUMNS * SEMPOA_CONFIG.COLUMN.WIDTH,
+
+  // Dynamic drag boundary calculations
+  getDragConstraints: (isUpper: boolean, row: number, _isActive: boolean) => {
+    if (isUpper) {
+      // Upper beads drag range: from inactive position to active position
+      const inactiveTop =
+        SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP +
+        row * SEMPOA_CONFIG.BEAD.HEIGHT;
+      const activeTop =
+        SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION -
+        SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+        SEMPOA_CONFIG.BEAD.HEIGHT;
+
+      return {
+        top: Math.min(inactiveTop, activeTop),
+        bottom: Math.max(inactiveTop, activeTop),
+        left: 0,
+        right: 0,
+      };
+    } else {
+      // Lower beads drag range: from active position to inactive position
+      const activeTop =
+        SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION +
+        SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+        SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT +
+        row * SEMPOA_CONFIG.BEAD.HEIGHT;
+      const inactiveTop =
+        SEMPOA_CONFIG.BEAD.HEIGHT + row * SEMPOA_CONFIG.BEAD.HEIGHT;
+
+      return {
+        top: Math.min(activeTop, inactiveTop),
+        bottom: Math.max(activeTop, inactiveTop),
+        left: 0,
+        right: 0,
+      };
+    }
+  },
+
+  // Calculate target positions for snapping
+  getTargetPositions: (isUpper: boolean, row: number) => {
+    if (isUpper) {
+      const inactiveTop =
+        SEMPOA_CONFIG.POSITIONING.UPPER_INACTIVE_TOP +
+        row * SEMPOA_CONFIG.BEAD.HEIGHT;
+      const activeTop =
+        SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION -
+        SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+        SEMPOA_CONFIG.BEAD.HEIGHT;
+
+      return {
+        inactive: inactiveTop,
+        active: activeTop,
+      };
+    } else {
+      const activeTop =
+        SEMPOA_CONFIG.SEPARATOR.CENTER_POSITION +
+        SEMPOA_CONFIG.SEPARATOR.HEIGHT / 2 -
+        SEMPOA_CONFIG.SECTIONS.UPPER_HEIGHT +
+        row * SEMPOA_CONFIG.BEAD.HEIGHT;
+      const inactiveTop =
+        SEMPOA_CONFIG.BEAD.HEIGHT + row * SEMPOA_CONFIG.BEAD.HEIGHT;
+
+      return {
+        active: activeTop,
+        inactive: inactiveTop,
+      };
+    }
+  },
 } as const;
