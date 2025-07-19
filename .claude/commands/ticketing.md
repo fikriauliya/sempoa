@@ -1,4 +1,5 @@
 - Read uncompleted tasks in @TODOS.md
-- Assign ticket ID to uncompleted tasks
-- Fix the grammar and formatting of task descriptions
-- Improve the clarity and specificity of task descriptions
+- For the one without ticketID:
+  - Assign ticket ID to uncompleted tasks
+  - Fix the grammar and formatting of task descriptions
+  - Improve the clarity and specificity of task descriptions

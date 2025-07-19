@@ -2,12 +2,12 @@
 - [x] SP-002: [UI] Convert ring-shaped beads to solid circles for authentic abacus appearance
 - [x] SP-003: [UI] Reduce horizontal spacing between columns to make beads closer to adjacent beads
 - [x] SP-004: [UI] Align column header labels with beads and optimize large number display in limited space
-- [ ] SP-005: [AUTH] Implement local storage-based authentication system for user sessions
+- [ ] SP-005: [AUTH] Implement local storage-based authentication system with user profile management, session persistence, and login/logout functionality
 - [x] SP-006: [FEATURE] Extend sempoa board to support 13-digit calculations (up to trillions)
 - [x] SP-007: [FEATURE] Create learning journey progression system with sidebar UI (medium-sized icons) following spec.md leveling structure, replacing current Game Control section
-- [ ] SP-008: [FEATURE] Add question timer to track and store completion time for each problem in local storage
-- [ ] SP-009: [GAMIFICATION] Create SVG cat illustration with connect-the-dots reveal mechanism - dots/lines progressively appear with each correct answer (supporting curved paths)
-- [ ] SP-010: [FEATURE] Enable swipe gestures for bead manipulation on tablets and mobile devices
+- [ ] SP-008: [FEATURE] Add visual countdown timer with elapsed time tracking, store completion times per question in local storage for performance analytics
+- [ ] SP-009: [GAMIFICATION] Create interactive SVG cat mascot with connect-the-dots progressive reveal - each correct answer reveals next dot/line segment, supporting curved Bezier paths for smooth illustration
+- [ ] SP-010: [FEATURE] Enable touch swipe gestures for intuitive bead manipulation - vertical swipes to move beads up/down on tablets and mobile devices with haptic feedback
 - [x] SP-011: [UX] Implement ergonomic question layout - position questions at top-right of sempoa board on desktop, above board on mobile. Configure sempoa board to display only 9 columns for better mobile experience
 - [ ] SP-012: [RESPONSIVE] Create tablet-friendly layout optimization for all components with appropriate spacing and touch targets
 - [x] SP-013: [UX] Implement visual feedback for answer correctness by changing the background color of the question container in addition to the existing Check Answer button feedback
@@ -16,3 +16,4 @@
 - [ ] SP-016: [ALGORITHM] Improve question generation algorithm to avoid zero values in operands unless no other valid options exist
 - [x] SP-017: [AUDIO] Add voice feedback when beads are moved to provide auditory confirmation of bead interactions
 - [x] SP-018: [AUDIO] Add audio feedback for answer correctness with happy/sad sounds - implemented ascending major chord melody for correct answers and descending minor sequence for incorrect answers, integrated with useAnswerChecking hook
+- [x] SP-019: [UI] Display mathematical questions in vertical format with right-aligned numbers and operation signs positioned on the left - implemented vertical arithmetic display in QuestionDisplay component with proper alignment, horizontal separator line, and support for all operation types

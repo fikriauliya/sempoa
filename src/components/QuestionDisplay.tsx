@@ -82,11 +82,29 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <h3 className="font-semibold text-green-800 mb-2">Current Question</h3>
-      <div className="text-lg font-mono text-green-700 mb-2">
-        {currentQuestion.operands.join(
-          ` ${getOperationSymbol(currentQuestion.operation)} `,
-        )}{' '}
-        = ?
+      <div className="text-lg font-mono text-green-700 mb-2 flex justify-center">
+        <div className="inline-block text-right">
+          {currentQuestion.operands.map((operand, index) => (
+            <div
+              key={`${currentQuestion.operation}-${operand}-${index}`}
+              className="flex items-center justify-end"
+            >
+              {index === 0 && <span className="mr-2 inline-block w-4"></span>}
+              {index === 1 && (
+                <span className="mr-2 inline-block w-4 text-left">
+                  {getOperationSymbol(currentQuestion.operation)}
+                </span>
+              )}
+              <span className="inline-block min-w-[3ch] text-right">
+                {operand}
+              </span>
+            </div>
+          ))}
+          <div className="border-t-2 border-green-700 mt-1 pt-1 flex items-center justify-end">
+            <span className="mr-2 inline-block w-4"></span>
+            <span className="inline-block min-w-[3ch] text-right">?</span>
+          </div>
+        </div>
       </div>
       <div className="text-sm text-green-600 mb-4">
         {COMPLEMENT_LABELS[currentLevel.complementType]} -{' '}
