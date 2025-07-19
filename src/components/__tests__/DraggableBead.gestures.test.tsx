@@ -54,8 +54,8 @@ describe('DraggableBead Swipe Gestures', () => {
         expect.any(Function), // The gesture handler function
         expect.objectContaining({
           axis: 'y', // Only vertical swipes
-          filterTaps: true, // Distinguish between taps and swipes
-          threshold: 3, // Very low threshold to start detecting gestures quickly
+          filterTaps: false, // Allow all movements to be detected as potential swipes
+          threshold: 1, // Extremely low threshold - detect any movement
         }),
       );
     });
@@ -152,11 +152,11 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      // Simulate insufficient swipe distance AND velocity
+      // Simulate insufficient swipe distance AND velocity (with extremely low thresholds)
       const smallSwipeEvent = {
-        movement: [0, -2], // Very small movement (below threshold of 8)
+        movement: [0, -1], // Below threshold of 2px
         direction: [0, -1],
-        velocity: [0, -0.005], // Very low velocity (below threshold of 0.01)
+        velocity: [0, -0.0005], // Below threshold of 0.001
         tap: false,
         event: {
           preventDefault: jest.fn(),
@@ -187,9 +187,9 @@ describe('DraggableBead Swipe Gestures', () => {
 
       // Simulate fast swipe with small distance
       const fastSmallSwipeEvent = {
-        movement: [0, -5], // Small movement (below distance threshold)
+        movement: [0, -1.5], // Small movement (below distance threshold of 2px)
         direction: [0, -1],
-        velocity: [0, -0.5], // High velocity (above velocity threshold)
+        velocity: [0, -0.5], // High velocity (well above velocity threshold of 0.001)
         tap: false,
         event: {
           preventDefault: jest.fn(),
@@ -220,9 +220,9 @@ describe('DraggableBead Swipe Gestures', () => {
 
       // Simulate slow swipe with large distance
       const slowLargeSwipeEvent = {
-        movement: [0, -15], // Large movement (above distance threshold)
+        movement: [0, -5], // Large movement (above distance threshold of 2px)
         direction: [0, -1],
-        velocity: [0, -0.005], // Low velocity (below velocity threshold)
+        velocity: [0, -0.0005], // Low velocity (below velocity threshold of 0.001)
         tap: false,
         event: {
           preventDefault: jest.fn(),
