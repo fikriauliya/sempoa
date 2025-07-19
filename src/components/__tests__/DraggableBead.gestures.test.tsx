@@ -96,7 +96,10 @@ describe('DraggableBead Swipe Gestures', () => {
         direction: [0, -1], // x, y direction
         velocity: [0, -0.5], // x, y velocity
         tap: false,
-        cancel: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
       };
 
       dragHandler(swipeUpEvent);
@@ -122,7 +125,10 @@ describe('DraggableBead Swipe Gestures', () => {
         direction: [0, 1], // x, y direction
         velocity: [0, 0.5], // x, y velocity
         tap: false,
-        cancel: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
       };
 
       dragHandler(swipeDownEvent);
@@ -152,7 +158,10 @@ describe('DraggableBead Swipe Gestures', () => {
         direction: [0, -1],
         velocity: [0, -0.1],
         tap: false,
-        cancel: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
       };
 
       dragHandler(smallSwipeEvent);
@@ -243,7 +252,10 @@ describe('DraggableBead Swipe Gestures', () => {
         direction: [0, -1],
         velocity: [0, -0.5],
         tap: false,
-        cancel: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
       };
 
       dragHandler(swipeEvent);

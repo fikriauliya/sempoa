@@ -34,7 +34,14 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
       direction: [, _dy], // Direction of movement
       velocity: [, vy], // Velocity of movement
       tap,
+      event,
     }) => {
+      // Prevent default browser behavior (scrolling) during gesture
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
       // Skip gesture handling if gestures are disabled (configurable)
       if (!SEMPOA_CONFIG.GESTURES.ENABLED) return;
 
@@ -58,6 +65,8 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
       axis: 'y', // Only vertical swipes
       filterTaps: true, // Distinguish between taps and swipes
       threshold: SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD, // Minimum distance for swipe
+      preventDefault: true, // Prevent default browser behaviors
+      pointer: { touch: true }, // Enable touch events
     },
   );
 
