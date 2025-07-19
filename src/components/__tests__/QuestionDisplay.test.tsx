@@ -91,7 +91,11 @@ describe('QuestionDisplay Component', () => {
 
       // Should have the expected content structure
       expect(screen.getByText('Current Question')).toBeInTheDocument();
-      expect(screen.getByText('23 + 45 = ?')).toBeInTheDocument();
+      // Should show operands in vertical format
+      expect(screen.getByText('23')).toBeInTheDocument();
+      expect(screen.getByText('+')).toBeInTheDocument();
+      expect(screen.getByText('45')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
   });
 
@@ -105,8 +109,11 @@ describe('QuestionDisplay Component', () => {
     it('should display the current question correctly', () => {
       renderQuestionDisplay();
 
-      // Should show the math question
-      expect(screen.getByText('23 + 45 = ?')).toBeInTheDocument();
+      // Should show the math question in vertical format
+      expect(screen.getByText('23')).toBeInTheDocument();
+      expect(screen.getByText('+')).toBeInTheDocument();
+      expect(screen.getByText('45')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
 
     it('should display question metadata', () => {
@@ -140,8 +147,11 @@ describe('QuestionDisplay Component', () => {
     it('should display addition operation correctly', () => {
       renderQuestionDisplay();
 
-      // Should show addition symbol (based on mock data)
-      expect(screen.getByText('23 + 45 = ?')).toBeInTheDocument();
+      // Should show addition symbol and operands in vertical format
+      expect(screen.getByText('23')).toBeInTheDocument();
+      expect(screen.getByText('+')).toBeInTheDocument();
+      expect(screen.getByText('45')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
 
     it('should display complement type information', () => {
@@ -167,8 +177,11 @@ describe('QuestionDisplay Component', () => {
         },
       });
 
-      // Should show subtraction symbol
-      expect(screen.getByText('50 - 30 = ?')).toBeInTheDocument();
+      // Should show subtraction symbol and operands in vertical format
+      expect(screen.getByText('50')).toBeInTheDocument();
+      expect(screen.getByText('-')).toBeInTheDocument();
+      expect(screen.getByText('30')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
   });
 
@@ -179,8 +192,8 @@ describe('QuestionDisplay Component', () => {
       // Should have heading
       expect(screen.getByText('Current Question')).toBeInTheDocument();
 
-      // Should show question with equals sign
-      expect(screen.getByText(/= \?/)).toBeInTheDocument();
+      // Should show question mark for answer in vertical format
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
 
     it('should display complement and digit information', () => {

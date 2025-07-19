@@ -17,7 +17,7 @@ export interface SempoaState {
 
 export interface Question {
   operands: number[];
-  operation: 'addition' | 'subtraction' | 'mixed';
+  operation: BaseOperationType; // only 'addition' | 'subtraction'
   answer: number;
 }
 
