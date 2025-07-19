@@ -1,9 +1,8 @@
-import { useDrag } from '@use-gesture/react';
+import { motion, type PanInfo } from 'framer-motion';
 import type React from 'react';
 import { useState } from 'react';
 import { SEMPOA_CONFIG } from '../config/sempoaConfig';
 import type { BeadPosition } from '../types';
-import { playLowerBeadClick, playUpperBeadClick } from '../utils/audioFeedback';
 
 // Haptic feedback utility
 const triggerHapticFeedback = (
@@ -27,62 +26,41 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  // Swipe gesture configuration
-  const bind = useDrag(
-    ({
-      movement: [, my], // Only care about y-axis movement
-      direction: [, _dy], // Direction of movement
-      velocity: [, vy], // Velocity of movement
-      event,
-    }) => {
-      // Prevent default browser behavior (scrolling) during gesture
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
+  // Handle pan gesture end (swipe detection)
+  const handlePanEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    // Reset dragging state
+    setIsDragging(false);
 
-      // Skip gesture handling if gestures are disabled (configurable)
-      if (!SEMPOA_CONFIG.GESTURES.ENABLED) return;
+    // Skip gesture handling if gestures are disabled (configurable)
+    if (!SEMPOA_CONFIG.GESTURES.ENABLED) return;
 
-      // Check if movement meets threshold requirements
-      // Either sufficient distance OR sufficient velocity should trigger the gesture
-      const hasMinDistance =
-        Math.abs(my) >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD;
-      const hasMinVelocity =
-        Math.abs(vy) > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD;
+    // Get the vertical movement and velocity
+    const verticalOffset = Math.abs(info.offset.y);
+    const verticalVelocity = Math.abs(info.velocity.y);
 
-      // With extremely low thresholds, almost any movement will trigger
-      if (hasMinDistance || hasMinVelocity) {
-        // Trigger bead action for both up and down swipes
-        // The existing toggleBead logic will handle the specific behavior
-        onClick();
+    // Check if movement meets threshold requirements
+    // Either sufficient distance OR sufficient velocity should trigger the gesture
+    const hasMinDistance =
+      verticalOffset >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD;
+    const hasMinVelocity =
+      verticalVelocity > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD;
 
-        // Trigger haptic feedback
-        triggerHapticFeedback();
-      }
-    },
-    {
-      axis: 'y', // Only vertical swipes
-      filterTaps: false, // Allow all movements to be detected as potential swipes
-      threshold: 1, // Extremely low threshold - detect any movement
-      preventDefault: true, // Prevent default browser behaviors
-      pointer: { touch: true }, // Enable touch events
-    },
-  );
+    // With extremely low thresholds, almost any movement will trigger
+    if (hasMinDistance || hasMinVelocity) {
+      // Trigger bead action for both up and down swipes
+      // The existing toggleBead logic will handle the specific behavior
+      onClick();
 
-  const handleDragStart = (e: React.DragEvent) => {
-    setIsDragging(true);
-    e.dataTransfer.setData('text/plain', JSON.stringify(bead));
+      // Trigger haptic feedback
+      triggerHapticFeedback();
+    }
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    // Play audio feedback for drag interaction
-    if (bead.isUpper) {
-      playUpperBeadClick();
-    } else {
-      playLowerBeadClick();
-    }
+  const handlePanStart = () => {
+    setIsDragging(true);
   };
 
   const baseClasses = `cursor-pointer transition-all duration-300 hover:scale-105 shadow-md`;
@@ -104,16 +82,22 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
   };
 
   return (
-    <button
+    <motion.button
       type="button"
       aria-label={`Bead in column ${bead.column + 1}, row ${bead.row + 1}, ${isActive ? 'active' : 'inactive'}`}
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
       className={`${baseClasses} ${activeClasses} ${dragClasses} border-none p-0`}
-      style={beadStyle}
+      style={{
+        ...beadStyle,
+        touchAction: 'none', // Prevent default touch behaviors
+      }}
       onClick={onClick}
-      {...bind()}
+      onPanStart={handlePanStart}
+      onPanEnd={handlePanEnd}
+      drag // Enable drag for pan gesture detection
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} // Constrain to prevent actual movement
+      dragElastic={0} // No elastic movement
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     />
   );
 };

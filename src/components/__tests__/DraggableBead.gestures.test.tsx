@@ -1,15 +1,31 @@
-import { render, screen } from '@testing-library/react';
-import { useDrag } from '@use-gesture/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { motion } from 'framer-motion';
 import type { BeadPosition } from '../../types';
 import DraggableBead from '../DraggableBead';
 
-// Mock @use-gesture/react
-const mockBind = jest.fn();
-jest.mock('@use-gesture/react', () => ({
-  useDrag: jest.fn(),
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    button: jest.fn(({ children, onPanEnd, onClick, ...props }) => (
+      <button
+        {...props}
+        onClick={onClick}
+        data-testid="motion-button"
+        onTouchEnd={(e) => {
+          // Simulate pan gesture when testing
+          if (onPanEnd && (e.target as HTMLElement).dataset.testPanInfo) {
+            const panInfo = JSON.parse(
+              (e.target as HTMLElement).dataset.testPanInfo as string,
+            );
+            onPanEnd(e, panInfo);
+          }
+        }}
+      >
+        {children}
+      </button>
+    )),
+  },
 }));
-
-const mockUseDrag = useDrag as jest.MockedFunction<typeof useDrag>;
 
 // Mock audio feedback
 jest.mock('../../utils/audioFeedback', () => ({
@@ -17,7 +33,7 @@ jest.mock('../../utils/audioFeedback', () => ({
   playUpperBeadClick: jest.fn(),
 }));
 
-describe('DraggableBead Swipe Gestures', () => {
+describe('DraggableBead Framer Motion Gestures', () => {
   const mockBead: BeadPosition = {
     column: 0,
     row: 0,
@@ -28,20 +44,14 @@ describe('DraggableBead Swipe Gestures', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockBind.mockReturnValue({
-      onTouchStart: jest.fn(),
-      onTouchMove: jest.fn(),
-      onTouchEnd: jest.fn(),
-    });
-    mockUseDrag.mockReturnValue(mockBind);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('Swipe Gesture Setup', () => {
-    it('should initialize useDrag hook with correct configuration', () => {
+  describe('Framer Motion Pan Gesture Setup', () => {
+    it('should render motion.button with pan gesture handlers', () => {
       render(
         <DraggableBead
           bead={mockBead}
@@ -50,17 +60,17 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      expect(mockUseDrag).toHaveBeenCalledWith(
-        expect.any(Function), // The gesture handler function
+      expect(motion.button).toHaveBeenCalledWith(
         expect.objectContaining({
-          axis: 'y', // Only vertical swipes
-          filterTaps: false, // Allow all movements to be detected as potential swipes
-          threshold: 1, // Extremely low threshold - detect any movement
+          onPanEnd: expect.any(Function),
+          whileTap: { scale: 0.95 },
+          transition: { type: 'spring', stiffness: 400, damping: 17 },
         }),
+        {},
       );
     });
 
-    it('should apply drag bind to the bead element', () => {
+    it('should render as a button element', () => {
       render(
         <DraggableBead
           bead={mockBead}
@@ -69,19 +79,13 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      expect(mockBind).toHaveBeenCalled();
+      const button = screen.getByRole('button');
+      expect(button).toBeInTheDocument();
     });
   });
 
-  describe('Swipe Direction Detection', () => {
-    it('should trigger bead activation on upward swipe', () => {
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
+  describe('Pan Gesture Detection', () => {
+    it('should trigger bead activation on vertical swipe with sufficient distance', () => {
       render(
         <DraggableBead
           bead={mockBead}
@@ -90,60 +94,44 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      // Simulate upward swipe (negative movement.y)
-      const swipeUpEvent = {
-        movement: [0, -50], // x, y movement
-        direction: [0, -1], // x, y direction
-        velocity: [0, -0.5], // x, y velocity
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
+      const button = screen.getByRole('button');
+
+      // Simulate pan gesture with sufficient vertical distance
+      const panInfo = {
+        offset: { x: 0, y: -10 }, // 10px vertical movement (above threshold of 2px)
+        velocity: { x: 0, y: -0.5 },
       };
 
-      dragHandler(swipeUpEvent);
+      button.dataset.testPanInfo = JSON.stringify(panInfo);
+      fireEvent.touchEnd(button);
 
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
 
-    it('should trigger bead deactivation on downward swipe', () => {
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
+    it('should trigger bead activation on vertical swipe with sufficient velocity', () => {
       render(
-        <DraggableBead bead={mockBead} isActive={true} onClick={mockOnClick} />,
+        <DraggableBead
+          bead={mockBead}
+          isActive={false}
+          onClick={mockOnClick}
+        />,
       );
 
-      // Simulate downward swipe (positive movement.y)
-      const swipeDownEvent = {
-        movement: [0, 50], // x, y movement
-        direction: [0, 1], // x, y direction
-        velocity: [0, 0.5], // x, y velocity
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
+      const button = screen.getByRole('button');
+
+      // Simulate pan gesture with sufficient velocity but small distance
+      const panInfo = {
+        offset: { x: 0, y: -1 }, // Small movement (below distance threshold)
+        velocity: { x: 0, y: -0.5 }, // High velocity (above velocity threshold)
       };
 
-      dragHandler(swipeDownEvent);
+      button.dataset.testPanInfo = JSON.stringify(panInfo);
+      fireEvent.touchEnd(button);
 
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
 
     it('should not trigger action on insufficient swipe distance and velocity', () => {
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
       render(
         <DraggableBead
           bead={mockBead}
@@ -152,92 +140,42 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      // Simulate insufficient swipe distance AND velocity (with extremely low thresholds)
-      const smallSwipeEvent = {
-        movement: [0, -1], // Below threshold of 2px
-        direction: [0, -1],
-        velocity: [0, -0.0005], // Below threshold of 0.001
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
+      const button = screen.getByRole('button');
+
+      // Simulate pan gesture with insufficient distance and velocity
+      const panInfo = {
+        offset: { x: 0, y: -1 }, // Below threshold of 2px
+        velocity: { x: 0, y: -0.0005 }, // Below threshold of 0.001
       };
 
-      dragHandler(smallSwipeEvent);
+      button.dataset.testPanInfo = JSON.stringify(panInfo);
+      fireEvent.touchEnd(button);
 
       expect(mockOnClick).not.toHaveBeenCalled();
     });
 
-    it('should trigger action with sufficient velocity even if distance is small', () => {
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
+    it('should work with downward swipes', () => {
       render(
-        <DraggableBead
-          bead={mockBead}
-          isActive={false}
-          onClick={mockOnClick}
-        />,
+        <DraggableBead bead={mockBead} isActive={true} onClick={mockOnClick} />,
       );
 
-      // Simulate fast swipe with small distance
-      const fastSmallSwipeEvent = {
-        movement: [0, -1.5], // Small movement (below distance threshold of 2px)
-        direction: [0, -1],
-        velocity: [0, -0.5], // High velocity (well above velocity threshold of 0.001)
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
+      const button = screen.getByRole('button');
+
+      // Simulate downward pan gesture
+      const panInfo = {
+        offset: { x: 0, y: 10 }, // Positive y movement (downward)
+        velocity: { x: 0, y: 0.5 },
       };
 
-      dragHandler(fastSmallSwipeEvent);
-
-      expect(mockOnClick).toHaveBeenCalledTimes(1);
-    });
-
-    it('should trigger action with sufficient distance even if velocity is low', () => {
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
-      render(
-        <DraggableBead
-          bead={mockBead}
-          isActive={false}
-          onClick={mockOnClick}
-        />,
-      );
-
-      // Simulate slow swipe with large distance
-      const slowLargeSwipeEvent = {
-        movement: [0, -5], // Large movement (above distance threshold of 2px)
-        direction: [0, -1],
-        velocity: [0, -0.0005], // Low velocity (below velocity threshold of 0.001)
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
-      };
-
-      dragHandler(slowLargeSwipeEvent);
+      button.dataset.testPanInfo = JSON.stringify(panInfo);
+      fireEvent.touchEnd(button);
 
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Multi-Touch Support', () => {
-    it('should handle simultaneous swipes on multiple beads independently', () => {
+    it('should handle multiple beads independently', () => {
       const bead1: BeadPosition = { column: 0, row: 0, isUpper: false };
       const bead2: BeadPosition = { column: 1, row: 1, isUpper: true };
       const onClick1 = jest.fn();
@@ -250,28 +188,36 @@ describe('DraggableBead Swipe Gestures', () => {
         </div>,
       );
 
-      // Each bead should have its own independent drag handler
-      expect(mockUseDrag).toHaveBeenCalledTimes(2);
-      expect(mockBind).toHaveBeenCalledTimes(2);
+      // Each bead should render its own motion.button
+      expect(motion.button).toHaveBeenCalledTimes(2);
+
+      const buttons = screen.getAllByRole('button');
+      expect(buttons).toHaveLength(2);
+
+      // Test first bead
+      const panInfo1 = {
+        offset: { x: 0, y: -5 },
+        velocity: { x: 0, y: -0.5 },
+      };
+      buttons[0].dataset.testPanInfo = JSON.stringify(panInfo1);
+      fireEvent.touchEnd(buttons[0]);
+
+      expect(onClick1).toHaveBeenCalledTimes(1);
+      expect(onClick2).not.toHaveBeenCalled();
+
+      // Test second bead
+      const panInfo2 = {
+        offset: { x: 0, y: 5 },
+        velocity: { x: 0, y: 0.5 },
+      };
+      buttons[1].dataset.testPanInfo = JSON.stringify(panInfo2);
+      fireEvent.touchEnd(buttons[1]);
+
+      expect(onClick2).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('Gesture Conflict Prevention', () => {
-    it('should prevent default browser behaviors during swipe', () => {
-      render(
-        <DraggableBead
-          bead={mockBead}
-          isActive={false}
-          onClick={mockOnClick}
-        />,
-      );
-
-      // Verify that touch event handlers are set up to prevent defaults
-      const bindResult = mockBind.mock.results[0].value;
-      expect(bindResult.onTouchStart).toBeDefined();
-      expect(bindResult.onTouchMove).toBeDefined();
-    });
-
+  describe('Click Functionality', () => {
     it('should maintain existing click functionality alongside gestures', () => {
       render(
         <DraggableBead
@@ -284,7 +230,7 @@ describe('DraggableBead Swipe Gestures', () => {
       const button = screen.getByRole('button');
 
       // Regular click should still work
-      button.click();
+      fireEvent.click(button);
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
   });
@@ -297,13 +243,6 @@ describe('DraggableBead Swipe Gestures', () => {
         writable: true,
       });
 
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
       render(
         <DraggableBead
           bead={mockBead}
@@ -312,19 +251,16 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
+      const button = screen.getByRole('button');
+
       // Simulate successful swipe
-      const swipeEvent = {
-        movement: [0, -50],
-        direction: [0, -1],
-        velocity: [0, -0.5],
-        tap: false,
-        event: {
-          preventDefault: jest.fn(),
-          stopPropagation: jest.fn(),
-        },
+      const panInfo = {
+        offset: { x: 0, y: -10 },
+        velocity: { x: 0, y: -0.5 },
       };
 
-      dragHandler(swipeEvent);
+      button.dataset.testPanInfo = JSON.stringify(panInfo);
+      fireEvent.touchEnd(button);
 
       expect(mockVibrate).toHaveBeenCalledWith(50); // Short haptic feedback
     });
@@ -336,13 +272,6 @@ describe('DraggableBead Swipe Gestures', () => {
         writable: true,
       });
 
-      let dragHandler: (event: any) => void = jest.fn();
-
-      mockUseDrag.mockImplementation((handler) => {
-        dragHandler = handler;
-        return mockBind;
-      });
-
       expect(() => {
         render(
           <DraggableBead
@@ -352,15 +281,15 @@ describe('DraggableBead Swipe Gestures', () => {
           />,
         );
 
-        const swipeEvent = {
-          movement: [0, -50],
-          direction: [0, -1],
-          velocity: [0, -0.5],
-          tap: false,
-          cancel: false,
+        const button = screen.getByRole('button');
+
+        const panInfo = {
+          offset: { x: 0, y: -10 },
+          velocity: { x: 0, y: -0.5 },
         };
 
-        dragHandler(swipeEvent);
+        button.dataset.testPanInfo = JSON.stringify(panInfo);
+        fireEvent.touchEnd(button);
       }).not.toThrow();
     });
   });
