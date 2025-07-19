@@ -55,7 +55,7 @@ describe('DraggableBead Swipe Gestures', () => {
         expect.objectContaining({
           axis: 'y', // Only vertical swipes
           filterTaps: true, // Distinguish between taps and swipes
-          threshold: 20, // Minimum distance for swipe
+          threshold: 3, // Very low threshold to start detecting gestures quickly
         }),
       );
     });
@@ -136,7 +136,7 @@ describe('DraggableBead Swipe Gestures', () => {
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
 
-    it('should not trigger action on insufficient swipe distance', () => {
+    it('should not trigger action on insufficient swipe distance and velocity', () => {
       let dragHandler: (event: any) => void = jest.fn();
 
       mockUseDrag.mockImplementation((handler) => {
@@ -152,11 +152,11 @@ describe('DraggableBead Swipe Gestures', () => {
         />,
       );
 
-      // Simulate insufficient swipe distance
+      // Simulate insufficient swipe distance AND velocity
       const smallSwipeEvent = {
-        movement: [0, -5], // Very small movement
+        movement: [0, -2], // Very small movement (below threshold of 8)
         direction: [0, -1],
-        velocity: [0, -0.1],
+        velocity: [0, -0.005], // Very low velocity (below threshold of 0.01)
         tap: false,
         event: {
           preventDefault: jest.fn(),
@@ -167,6 +167,72 @@ describe('DraggableBead Swipe Gestures', () => {
       dragHandler(smallSwipeEvent);
 
       expect(mockOnClick).not.toHaveBeenCalled();
+    });
+
+    it('should trigger action with sufficient velocity even if distance is small', () => {
+      let dragHandler: (event: any) => void = jest.fn();
+
+      mockUseDrag.mockImplementation((handler) => {
+        dragHandler = handler;
+        return mockBind;
+      });
+
+      render(
+        <DraggableBead
+          bead={mockBead}
+          isActive={false}
+          onClick={mockOnClick}
+        />,
+      );
+
+      // Simulate fast swipe with small distance
+      const fastSmallSwipeEvent = {
+        movement: [0, -5], // Small movement (below distance threshold)
+        direction: [0, -1],
+        velocity: [0, -0.5], // High velocity (above velocity threshold)
+        tap: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
+      };
+
+      dragHandler(fastSmallSwipeEvent);
+
+      expect(mockOnClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('should trigger action with sufficient distance even if velocity is low', () => {
+      let dragHandler: (event: any) => void = jest.fn();
+
+      mockUseDrag.mockImplementation((handler) => {
+        dragHandler = handler;
+        return mockBind;
+      });
+
+      render(
+        <DraggableBead
+          bead={mockBead}
+          isActive={false}
+          onClick={mockOnClick}
+        />,
+      );
+
+      // Simulate slow swipe with large distance
+      const slowLargeSwipeEvent = {
+        movement: [0, -15], // Large movement (above distance threshold)
+        direction: [0, -1],
+        velocity: [0, -0.005], // Low velocity (below velocity threshold)
+        tap: false,
+        event: {
+          preventDefault: jest.fn(),
+          stopPropagation: jest.fn(),
+        },
+      };
+
+      dragHandler(slowLargeSwipeEvent);
+
+      expect(mockOnClick).toHaveBeenCalledTimes(1);
     });
   });
 

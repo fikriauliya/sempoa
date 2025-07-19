@@ -76,8 +76,8 @@ export const SEMPOA_CONFIG = {
   // Gesture settings
   GESTURES: {
     ENABLED: true,
-    SWIPE_THRESHOLD: 20, // Minimum distance in pixels for swipe detection
-    VELOCITY_THRESHOLD: 0.1, // Minimum velocity for swipe detection
+    SWIPE_THRESHOLD: 8, // Minimum distance in pixels for swipe detection (reduced for easier swiping)
+    VELOCITY_THRESHOLD: 0.01, // Minimum velocity for swipe detection (much lower for easier activation)
     HAPTIC_FEEDBACK: {
       ENABLED: true,
       DURATION: 50, // milliseconds

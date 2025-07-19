@@ -49,10 +49,13 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
       if (tap) return;
 
       // Check if movement meets threshold requirements
-      if (
-        Math.abs(my) >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD &&
-        Math.abs(vy) > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD
-      ) {
+      // Either sufficient distance OR sufficient velocity should trigger the gesture
+      const hasMinDistance =
+        Math.abs(my) >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD;
+      const hasMinVelocity =
+        Math.abs(vy) > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD;
+
+      if (hasMinDistance || hasMinVelocity) {
         // Trigger bead action for both up and down swipes
         // The existing toggleBead logic will handle the specific behavior
         onClick();
@@ -64,7 +67,7 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
     {
       axis: 'y', // Only vertical swipes
       filterTaps: true, // Distinguish between taps and swipes
-      threshold: SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD, // Minimum distance for swipe
+      threshold: 3, // Very low threshold to start detecting gestures quickly
       preventDefault: true, // Prevent default browser behaviors
       pointer: { touch: true }, // Enable touch events
     },
