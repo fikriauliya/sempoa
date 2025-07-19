@@ -1,8 +1,18 @@
+import { useDrag } from '@use-gesture/react';
 import type React from 'react';
 import { useState } from 'react';
 import { SEMPOA_CONFIG } from '../config/sempoaConfig';
 import type { BeadPosition } from '../types';
 import { playLowerBeadClick, playUpperBeadClick } from '../utils/audioFeedback';
+
+// Haptic feedback utility
+const triggerHapticFeedback = (
+  duration: number = SEMPOA_CONFIG.GESTURES.HAPTIC_FEEDBACK.DURATION,
+) => {
+  if (SEMPOA_CONFIG.GESTURES.HAPTIC_FEEDBACK.ENABLED && navigator.vibrate) {
+    navigator.vibrate(duration);
+  }
+};
 
 interface DraggableBeadProps {
   bead: BeadPosition;
@@ -17,6 +27,40 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
+  // Swipe gesture configuration
+  const bind = useDrag(
+    ({
+      movement: [, my], // Only care about y-axis movement
+      direction: [, _dy], // Direction of movement
+      velocity: [, vy], // Velocity of movement
+      tap,
+    }) => {
+      // Skip gesture handling if gestures are disabled (configurable)
+      if (!SEMPOA_CONFIG.GESTURES.ENABLED) return;
+
+      // Ignore tap events - let onClick handle those
+      if (tap) return;
+
+      // Check if movement meets threshold requirements
+      if (
+        Math.abs(my) >= SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD &&
+        Math.abs(vy) > SEMPOA_CONFIG.GESTURES.VELOCITY_THRESHOLD
+      ) {
+        // Trigger bead action for both up and down swipes
+        // The existing toggleBead logic will handle the specific behavior
+        onClick();
+
+        // Trigger haptic feedback
+        triggerHapticFeedback();
+      }
+    },
+    {
+      axis: 'y', // Only vertical swipes
+      filterTaps: true, // Distinguish between taps and swipes
+      threshold: SEMPOA_CONFIG.GESTURES.SWIPE_THRESHOLD, // Minimum distance for swipe
+    },
+  );
+
   const handleDragStart = (e: React.DragEvent) => {
     setIsDragging(true);
     e.dataTransfer.setData('text/plain', JSON.stringify(bead));
@@ -30,22 +74,6 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
     } else {
       playLowerBeadClick();
     }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    // Note: Audio feedback is handled in the onClick() call via SempoaBoard's toggleBead
-    onClick();
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault();
   };
 
   const baseClasses = `cursor-pointer transition-all duration-300 hover:scale-105 shadow-md`;
@@ -73,12 +101,10 @@ const DraggableBead: React.FC<DraggableBeadProps> = ({
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}
       className={`${baseClasses} ${activeClasses} ${dragClasses} border-none p-0`}
       style={beadStyle}
       onClick={onClick}
+      {...bind()}
     />
   );
 };

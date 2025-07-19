@@ -72,7 +72,18 @@ export const SEMPOA_CONFIG = {
     LOWER_BEAD_FREQUENCY: 600, // Hz - Lower pitch for lower beads
     CLICK_DURATION: 80, // milliseconds
   },
-} as const;
+
+  // Gesture settings
+  GESTURES: {
+    ENABLED: true,
+    SWIPE_THRESHOLD: 20, // Minimum distance in pixels for swipe detection
+    VELOCITY_THRESHOLD: 0.1, // Minimum velocity for swipe detection
+    HAPTIC_FEEDBACK: {
+      ENABLED: true,
+      DURATION: 50, // milliseconds
+    },
+  },
+};
 
 // Derived values (computed from base config)
 export const DERIVED_CONFIG = {
